@@ -1,0 +1,96 @@
+/* src/styles/MasterData.css */
+.masterdata-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.masterdata-header {
+  margin-bottom: 30px;
+}
+
+.masterdata-header h1 {
+  color: #0f172a;
+  margin: 0 0 10px 0;
+}
+
+.masterdata-header p {
+  color: #64748b;
+  margin: 0;
+}
+
+.masterdata-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.btn-add,
+.btn-export,
+.btn-edit,
+.btn-delete {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-add {
+  background-color: #0ea5e9;
+  color: white;
+}
+
+.btn-export {
+  background-color: #8b5cf6;
+  color: white;
+}
+
+.btn-edit {
+  background-color: #f59e0b;
+  color: white;
+  margin-right: 5px;
+}
+
+.btn-delete {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-add:hover,
+.btn-export:hover,
+.btn-edit:hover,
+.btn-delete:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.masterdata-table {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.masterdata-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.masterdata-table th,
+.masterdata-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.masterdata-table th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.masterdata-table tbody tr:hover {
+  background-color: #f8fafc;
+}
