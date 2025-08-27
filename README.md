@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # zinus-production-web
 
@@ -18,3 +19,6 @@ By default, Replit runs the `dev` script, but you can configure it by changing t
 ### Typescript
 
 Just rename any file from `.jsx` to `.tsx`. You can also try our [TypeScript Template](https://replit.com/@replit/React-TypeScript)
+=======
+# zinus-production-web
+>>>>>>> 329bce5e01636cf42594e7d69c4453a9fdfd3862
