@@ -227,8 +227,6 @@ const InputCutting = () => {
           updated.poNumbers = [];
           updated.customerPOs = [];
           updated.skus = [];
-          updated.qtyPlans = [];
-          updated.weeks = [];
 
           if (value) {
             loadPoNumbers(id, value);
@@ -240,8 +238,6 @@ const InputCutting = () => {
           updated.week = "";
           updated.customerPOs = [];
           updated.skus = [];
-          updated.qtyPlans = [];
-          updated.weeks = [];
 
           if (value) {
             loadCustomerPOs(id, value);
@@ -251,8 +247,6 @@ const InputCutting = () => {
           updated.quantityOrder = "";
           updated.week = "";
           updated.skus = [];
-          updated.qtyPlans = [];
-          updated.weeks = [];
 
           if (value) {
             loadSkus(id, value);
