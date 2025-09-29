@@ -37,8 +37,6 @@ const InputCutting = () => {
       poNumbers: [],
       customerPOs: [],
       skus: [],
-      qtyPlans: [],
-      weeks: [],
     },
   ]);
 
@@ -169,18 +167,14 @@ const InputCutting = () => {
     try {
       const response = await masterDataAPI.getQtyPlans(customerPo, sku);
       const rawData = Array.isArray(response) ? response : [];
-      // Transform to {value, label} format
-      const data = rawData.map(qty => ({
-        value: qty,
-        label: qty.toString()
-      }));
+      // Karena hanya ada 1 qty per SKU, langsung ambil value pertama
+      const qtyValue = rawData.length > 0 ? rawData[0] : "";
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId
             ? {
                 ...entry,
-                qtyPlans: data,
-                quantityOrder: "",
+                quantityOrder: qtyValue.toString(),
               }
             : entry,
         ),
@@ -195,18 +189,14 @@ const InputCutting = () => {
     try {
       const response = await masterDataAPI.getWeeks(customerPo, sku);
       const rawData = Array.isArray(response) ? response : [];
-      // Transform to {value, label} format
-      const data = rawData.map(week => ({
-        value: week,
-        label: week.toString()
-      }));
+      // Karena hanya ada 1 week per SKU, langsung ambil value pertama
+      const weekValue = rawData.length > 0 ? rawData[0] : "";
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId
             ? {
                 ...entry,
-                weeks: data,
-                week: "",
+                week: weekValue.toString(),
               }
             : entry,
         ),
@@ -267,8 +257,6 @@ const InputCutting = () => {
         } else if (field === "sku") {
           updated.quantityOrder = "";
           updated.week = "";
-          updated.qtyPlans = [];
-          updated.weeks = [];
 
           if (value && updated.customerPO) {
             loadQtyPlans(id, updated.customerPO, value);
@@ -310,8 +298,6 @@ const InputCutting = () => {
         poNumbers: [],
         customerPOs: [],
         skus: [],
-        qtyPlans: [],
-        weeks: [],
       },
     ]);
   };
@@ -340,8 +326,6 @@ const InputCutting = () => {
           poNumbers,
           customerPOs,
           skus,
-          qtyPlans,
-          weeks,
           ...entry
         }) => {
           const customerName =
@@ -387,8 +371,6 @@ const InputCutting = () => {
           poNumbers: [],
           customerPOs: [],
           skus: [],
-          qtyPlans: [],
-          weeks: [],
         },
       ]);
     } catch (err) {
@@ -694,29 +676,14 @@ const InputCutting = () => {
                         </div>
                         Quantity Order (Planned Qty)
                       </label>
-                      <select
+                      <input
+                        type="number"
                         value={entry.quantityOrder}
-                        onChange={(e) =>
-                          handleFormEntryChange(
-                            entry.id,
-                            "quantityOrder",
-                            e.target.value,
-                          )
-                        }
-                        className="cutting-select"
-                        required
-                        disabled={!entry.sku || isSubmitting}
-                      >
-                        <option value="">Pilih Planned Qty</option>
-                        {(entry.qtyPlans || []).map((qty) => (
-                          <option
-                            key={`qty-${entry.id}-${qty.value}`}
-                            value={qty.value}
-                          >
-                            {qty.label}
-                          </option>
-                        ))}
-                      </select>
+                        readOnly
+                        className="cutting-input cutting-input-readonly"
+                        placeholder="Auto-fill ketika SKU dipilih"
+                        disabled
+                      />
                     </div>
 
                     {/* Quantity Produksi */}
@@ -770,29 +737,14 @@ const InputCutting = () => {
                         </div>
                         Week
                       </label>
-                      <select
+                      <input
+                        type="text"
                         value={entry.week}
-                        onChange={(e) =>
-                          handleFormEntryChange(
-                            entry.id,
-                            "week",
-                            e.target.value,
-                          )
-                        }
-                        className="cutting-select"
-                        required
-                        disabled={!entry.sku || isSubmitting}
-                      >
-                        <option value="">Pilih Week</option>
-                        {(entry.weeks || []).map((week) => (
-                          <option
-                            key={`week-${entry.id}-${week.value}`}
-                            value={week.value}
-                          >
-                            {week.label}
-                          </option>
-                        ))}
-                      </select>
+                        readOnly
+                        className="cutting-input cutting-input-readonly"
+                        placeholder="Auto-fill ketika SKU dipilih"
+                        disabled
+                      />
                     </div>
                   </div>
                 </div>
