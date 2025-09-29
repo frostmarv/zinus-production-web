@@ -26,6 +26,7 @@ const InputCutting = () => {
     customerPo: "",
     sku: "",
     qtyPlan: "",
+    week: "",
   });
 
   const [formEntries, setFormEntries] = useState([
@@ -68,21 +69,11 @@ const InputCutting = () => {
     qtyPlans: false,
     weeks: false,
   });
-  // Load master data
+  // Load master data - Disabled since getAllMasterData doesn't exist
   useEffect(() => {
-    const loadMasterData = async () => {
-      try {
-        const data = await masterDataAPI.getAllMasterData();
-        setMasterData(data);
-      } catch (err) {
-        console.error("Gagal memuat data master:", err);
-        setError("Gagal memuat data referensi");
-        alert("❌ Gagal memuat data master");
-      } finally {
-        setLoadingMaster(false);
-      }
-    };
-    loadMasterData();
+    // Function getAllMasterData doesn't exist in masterDataAPI
+    // Will use individual API calls instead
+    setLoadingMaster(false);
   }, []);
 
   // Load customers saat component mount
@@ -220,11 +211,14 @@ const InputCutting = () => {
         setWeekOptions(weeks.data || weeks);
 
         // Auto-select first options if available
-        if (qtys.data && qtys.data.length > 0) {
-          setHeaderData(prev => ({ ...prev, qtyPlan: qtys.data[0].qty || qtys.data[0] }));
+        const normalizedQtys = qtys.data || qtys;
+        const normalizedWeeks = weeks.data || weeks;
+        
+        if (normalizedQtys && normalizedQtys.length > 0) {
+          setHeaderData(prev => ({ ...prev, qtyPlan: normalizedQtys[0].qty || normalizedQtys[0] }));
         }
-        if (weeks.data && weeks.data.length > 0) {
-          setHeaderData(prev => ({ ...prev, week: weeks.data[0].week || weeks.data[0] }));
+        if (normalizedWeeks && normalizedWeeks.length > 0) {
+          setHeaderData(prev => ({ ...prev, week: normalizedWeeks[0].week || normalizedWeeks[0] }));
         }
       } catch (error) {
         console.error("Error loading Qty Plans and Weeks:", error);
@@ -281,30 +275,21 @@ const InputCutting = () => {
           updated.customerPOs = [];
           updated.skus = [];
 
+          // Implement cascading logic dengan API calls
           if (value) {
-            const customer = masterData.find((c) => c.customer_id == value);
-            if (customer) {
-              updated.poNumbers = customer.orders.map((o) => o.po_number);
-              updated.poNumber = updated.poNumbers[0] || "";
-
-              if (updated.poNumber) {
-                const order = customer.orders.find(
-                  (o) => o.po_number === updated.poNumber,
+            masterDataAPI.getPoNumbers(value)
+              .then(response => {
+                const poNumbers = response.data || response;
+                setFormEntries(prev => 
+                  prev.map(e => 
+                    e.id === id ? { ...e, poNumbers: poNumbers.map(po => po.poNumber || po) } : e
+                  )
                 );
-                if (order) {
-                  updated.customerPOs = [order.customer_po];
-                  updated.customerPO = order.customer_po;
-                  updated.skus = order.items;
-                  updated.sku = updated.skus[0]?.sku || "";
-                  if (updated.skus[0]) {
-                    updated.quantityOrder =
-                      updated.skus[0].planned_qty?.toString() || "";
-                    updated.week =
-                      updated.skus[0].week_number?.toString() || "";
-                  }
-                }
-              }
-            }
+              })
+              .catch(error => {
+                console.error("Error loading PO numbers for entry:", error);
+                alert("❌ Gagal memuat data PO Number untuk entry");
+              });
           }
         } else if (field === "poNumber") {
           updated.customerPO = "";
@@ -314,48 +299,44 @@ const InputCutting = () => {
           updated.customerPOs = [];
           updated.skus = [];
 
-          if (value && entry.customerId) {
-            const customer = masterData.find(
-              (c) => c.customer_id == entry.customerId,
-            );
-            if (customer) {
-              const order = customer.orders.find((o) => o.po_number === value);
-              if (order) {
-                updated.customerPOs = [order.customer_po];
-                updated.customerPO = order.customer_po;
-                updated.skus = order.items;
-                updated.sku = updated.skus[0]?.sku || "";
-                if (updated.skus[0]) {
-                  updated.quantityOrder =
-                    updated.skus[0].planned_qty?.toString() || "";
-                  updated.week = updated.skus[0].week_number?.toString() || "";
-                }
-              }
-            }
+          // Implement API call to get customerPOs for this PO Number
+          if (value) {
+            masterDataAPI.getCustomerPos(value)
+              .then(response => {
+                const customerPos = response.data || response;
+                setFormEntries(prev => 
+                  prev.map(e => 
+                    e.id === id ? { ...e, customerPOs: customerPos.map(po => po.customerPo || po) } : e
+                  )
+                );
+              })
+              .catch(error => {
+                console.error("Error loading Customer POs for entry:", error);
+                alert("❌ Gagal memuat data Customer PO untuk entry");
+              });
           }
         } else if (field === "customerPO") {
-          // Tidak perlu aksi khusus karena 1 PO Number = 1 Customer PO
-          // Tapi pastikan tetap sinkron
-          if (value && entry.customerId && entry.poNumber) {
-            const customer = masterData.find(
-              (c) => c.customer_id == entry.customerId,
-            );
-            if (customer) {
-              const order = customer.orders.find(
-                (o) => o.customer_po === value,
-              );
-              if (order && order.po_number !== entry.poNumber) {
-                // Jika Customer PO berubah, update PO Number
-                updated.poNumber = order.po_number;
-                updated.skus = order.items;
-                updated.sku = updated.skus[0]?.sku || "";
-                if (updated.skus[0]) {
-                  updated.quantityOrder =
-                    updated.skus[0].planned_qty?.toString() || "";
-                  updated.week = updated.skus[0].week_number?.toString() || "";
-                }
-              }
-            }
+          // Reset dependent fields
+          updated.sku = "";
+          updated.quantityOrder = "";
+          updated.week = "";
+          updated.skus = [];
+
+          // Implement API call to get SKUs for this Customer PO
+          if (value) {
+            masterDataAPI.getSkus(value)
+              .then(response => {
+                const skus = response.data || response;
+                setFormEntries(prev => 
+                  prev.map(e => 
+                    e.id === id ? { ...e, skus: skus } : e
+                  )
+                );
+              })
+              .catch(error => {
+                console.error("Error loading SKUs for entry:", error);
+                alert("❌ Gagal memuat data SKU untuk entry");
+              });
           }
         } else if (field === "sku") {
           const selectedItem = entry.skus.find((item) => item.sku === value);
@@ -424,9 +405,8 @@ const InputCutting = () => {
       time: headerData.time,
       entries: formEntries.map(
         ({ id, poNumbers, customerPOs, skus, ...entry }) => {
-          const customerName =
-            masterData.find((c) => c.customer_id == entry.customerId)
-              ?.customer_name || "";
+          const customer = customerOptions.find((c) => c.id == entry.customerId);
+          const customerName = customer ? customer.name : "";
           return {
             customer: customerName,
             poNumber: entry.poNumber,
@@ -452,6 +432,12 @@ const InputCutting = () => {
         shift: "1",
         group: "A",
         time: "08:00",
+        customerId: "",
+        poNumber: "",
+        customerPo: "",
+        sku: "",
+        qtyPlan: "",
+        week: "",
       });
       setFormEntries([
         {
@@ -572,7 +558,7 @@ const InputCutting = () => {
             >
               <option value="">Pilih Week</option>
               {weekOptions.map((week, index) => (
-                <option key={index} value={week.week || week}>
+                <option key={`week-${index}`} value={week.week || week}>
                   {week.week || week}
                 </option>
               ))}
@@ -588,8 +574,8 @@ const InputCutting = () => {
               disabled={loadingOptions.customers}
             >
               <option value="">Pilih Customer</option>
-              {customerOptions.map((customer) => (
-                <option key={customer.id} value={customer.id}>
+              {customerOptions.map((customer, index) => (
+                <option key={customer.id || index} value={customer.id}>
                   {customer.name}
                 </option>
               ))}
@@ -606,7 +592,7 @@ const InputCutting = () => {
             >
               <option value="">Pilih PO Number</option>
               {poNumberOptions.map((po, index) => (
-                <option key={index} value={po.poNumber || po}>
+                <option key={`po-${index}`} value={po.poNumber || po}>
                   {po.poNumber || po}
                 </option>
               ))}
@@ -623,7 +609,7 @@ const InputCutting = () => {
             >
               <option value="">Pilih Customer PO</option>
               {customerPoOptions.map((po, index) => (
-                <option key={index} value={po.customerPo || po}>
+                <option key={`cpo-${index}`} value={po.customerPo || po}>
                   {po.customerPo || po}
                 </option>
               ))}
@@ -640,7 +626,7 @@ const InputCutting = () => {
             >
               <option value="">Pilih SKU</option>
               {skuOptions.map((sku, index) => (
-                <option key={index} value={sku.sku || sku}>
+                <option key={`sku-${index}`} value={sku.sku || sku}>
                   {sku.sku || sku}
                 </option>
               ))}
@@ -659,7 +645,7 @@ const InputCutting = () => {
             >
               <option value="">Pilih Qty Plan</option>
               {qtyOptions.map((qty, index) => (
-                <option key={index} value={qty.qty || qty}>
+                <option key={`qty-${index}`} value={qty.qty || qty}>
                   {qty.qty || qty}
                 </option>
               ))}
@@ -710,12 +696,12 @@ const InputCutting = () => {
                     disabled={isSubmitting || loadingMaster}
                   >
                     <option value="">Pilih Customer</option>
-                    {masterData.map((customer) => (
+                    {customerOptions.map((customer) => (
                       <option
-                        key={customer.customer_id}
-                        value={customer.customer_id}
+                        key={customer.id || `customer-${customer.customer_id}`}
+                        value={customer.id}
                       >
-                        {customer.customer_name}
+                        {customer.name}
                       </option>
                     ))}
                   </select>
@@ -741,7 +727,7 @@ const InputCutting = () => {
                   >
                     <option value="">Pilih PO Number</option>
                     {entry.poNumbers.map((po, i) => (
-                      <option key={i} value={po}>
+                      <option key={`entry-po-${entry.id}-${i}`} value={po}>
                         {po}
                       </option>
                     ))}
@@ -768,7 +754,7 @@ const InputCutting = () => {
                   >
                     <option value="">Pilih Customer PO</option>
                     {entry.customerPOs.map((po, i) => (
-                      <option key={i} value={po}>
+                      <option key={`entry-cpo-${entry.id}-${i}`} value={po}>
                         {po}
                       </option>
                     ))}
@@ -791,7 +777,7 @@ const InputCutting = () => {
                   >
                     <option value="">Pilih SKU</option>
                     {entry.skus.map((item, i) => (
-                      <option key={i} value={item.sku}>
+                      <option key={`entry-sku-${entry.id}-${i}`} value={item.sku}>
                         {item.sku} ({item.item_number})
                       </option>
                     ))}
