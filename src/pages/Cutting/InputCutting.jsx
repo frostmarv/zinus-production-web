@@ -1,5 +1,4 @@
-// src/pages/Cutting/InputCutting.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Calendar,
   Users,
@@ -11,7 +10,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { masterDataAPI } from "../../api/masterData";
-import { cuttingProductionAPI } from "../../api/cutting";
 import "../../styles/Cutting/InputCutting.css";
 
 const InputCutting = () => {
@@ -20,12 +18,6 @@ const InputCutting = () => {
     shift: "1",
     group: "A",
     time: "08:00",
-    // Master data fields
-    customerId: "",
-    poNumber: "",
-    customerPo: "",
-    sku: "",
-    qtyPlan: "",
   });
 
   const [formEntries, setFormEntries] = useState([
@@ -41,199 +33,49 @@ const InputCutting = () => {
       week: "",
       remainQuantity: 0,
       // Cache untuk dropdown
+      customers: [],
       poNumbers: [],
       customerPOs: [],
       skus: [],
+      qtyPlans: [],
+      weeks: [],
     },
   ]);
 
-  const [masterData, setMasterData] = useState([]);
-  const [loadingMaster, setLoadingMaster] = useState(true);
+  const [customers, setCustomers] = useState([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-
-  // Master data options
-  const [customerOptions, setCustomerOptions] = useState([]);
-  const [poNumberOptions, setPoNumberOptions] = useState([]);
-  const [customerPoOptions, setCustomerPoOptions] = useState([]);
-  const [skuOptions, setSkuOptions] = useState([]);
-  const [qtyOptions, setQtyOptions] = useState([]);
-  const [weekOptions, setWeekOptions] = useState([]);
-  const [loadingOptions, setLoadingOptions] = useState({
-    customers: false,
-    poNumbers: false,
-    customerPos: false,
-    skus: false,
-    qtyPlans: false,
-    weeks: false,
-  });
-  // Load master data
-  useEffect(() => {
-    const loadMasterData = async () => {
-      try {
-        const data = await masterDataAPI.getAllMasterData();
-        setMasterData(data);
-      } catch (err) {
-        console.error("Gagal memuat data master:", err);
-        setError("Gagal memuat data referensi");
-        alert("❌ Gagal memuat data master");
-      } finally {
-        setLoadingMaster(false);
-      }
-    };
-    loadMasterData();
-  }, []);
-
-  // Load customers saat component mount
+  // Load customers data
   useEffect(() => {
     const loadCustomers = async () => {
-      setLoadingOptions(prev => ({ ...prev, customers: true }));
       try {
-        const customers = await masterDataAPI.getCustomers();
-        setCustomerOptions(customers.data || customers);
-      } catch (error) {
-        console.error("Error loading customers:", error);
-        alert("Gagal memuat data customer");
+        const response = await masterDataAPI.getCustomers();
+        const rawData = Array.isArray(response) ? response : [];
+        // Transform backend format {customer_id, customer_name} to {value, label}
+        const data = rawData.map(c => ({
+          value: c.customer_id,
+          label: c.customer_name
+        }));
+        setCustomers(data);
+        setFormEntries((prev) =>
+          prev.map((entry) => ({
+            ...entry,
+            customers: data,
+          })),
+        );
+      } catch (err) {
+        console.error("Gagal memuat data customers:", err);
+        setError("Gagal memuat data customers");
+        alert("❌ Gagal memuat data customers");
       } finally {
-        setLoadingOptions(prev => ({ ...prev, customers: false }));
+        setLoadingCustomers(false);
       }
     };
     loadCustomers();
   }, []);
 
-  // Handle customer change
-  const handleCustomerChange = async (customerId) => {
-    setHeaderData(prev => ({
-      ...prev,
-      customerId,
-      poNumber: "",
-      customerPo: "",
-      sku: "",
-      qtyPlan: "",
-      week: "",
-    }));
-
-    // Reset dependent options
-    setPoNumberOptions([]);
-    setCustomerPoOptions([]);
-    setSkuOptions([]);
-    setQtyOptions([]);
-    setWeekOptions([]);
-
-    if (customerId) {
-      setLoadingOptions(prev => ({ ...prev, poNumbers: true }));
-      try {
-        const poNumbers = await masterDataAPI.getPoNumbers(customerId);
-        setPoNumberOptions(poNumbers.data || poNumbers);
-      } catch (error) {
-        console.error("Error loading PO numbers:", error);
-        alert("Gagal memuat data PO Number");
-      } finally {
-        setLoadingOptions(prev => ({ ...prev, poNumbers: false }));
-      }
-    }
-  };
-
-  // Handle PO Number change
-  const handlePoNumberChange = async (poNumber) => {
-    setHeaderData(prev => ({
-      ...prev,
-      poNumber,
-      customerPo: "",
-      sku: "",
-      qtyPlan: "",
-      week: "",
-    }));
-
-    // Reset dependent options
-    setCustomerPoOptions([]);
-    setSkuOptions([]);
-    setQtyOptions([]);
-    setWeekOptions([]);
-
-    if (poNumber) {
-      setLoadingOptions(prev => ({ ...prev, customerPos: true }));
-      try {
-        const customerPos = await masterDataAPI.getCustomerPos(poNumber);
-        setCustomerPoOptions(customerPos.data || customerPos);
-      } catch (error) {
-        console.error("Error loading Customer POs:", error);
-        alert("Gagal memuat data Customer PO");
-      } finally {
-        setLoadingOptions(prev => ({ ...prev, customerPos: false }));
-      }
-    }
-  };
-
-  // Handle Customer PO change
-  const handleCustomerPoChange = async (customerPo) => {
-    setHeaderData(prev => ({
-      ...prev,
-      customerPo,
-      sku: "",
-      qtyPlan: "",
-      week: "",
-    }));
-
-    // Reset dependent options
-    setSkuOptions([]);
-    setQtyOptions([]);
-    setWeekOptions([]);
-
-    if (customerPo) {
-      setLoadingOptions(prev => ({ ...prev, skus: true }));
-      try {
-        const skus = await masterDataAPI.getSkus(customerPo);
-        setSkuOptions(skus.data || skus);
-      } catch (error) {
-        console.error("Error loading SKUs:", error);
-        alert("Gagal memuat data SKU");
-      } finally {
-        setLoadingOptions(prev => ({ ...prev, skus: false }));
-      }
-    }
-  };
-
-  // Handle SKU change
-  const handleSkuChange = async (sku) => {
-    setHeaderData(prev => ({
-      ...prev,
-      sku,
-      qtyPlan: "",
-      week: "",
-    }));
-
-    // Reset dependent options
-    setQtyOptions([]);
-    setWeekOptions([]);
-
-    if (sku && headerData.customerPo) {
-      setLoadingOptions(prev => ({ ...prev, qtyPlans: true, weeks: true }));
-      try {
-        const [qtys, weeks] = await Promise.all([
-          masterDataAPI.getQtyPlans(headerData.customerPo, sku),
-          masterDataAPI.getWeeks(headerData.customerPo, sku)
-        ]);
-
-        setQtyOptions(qtys.data || qtys);
-        setWeekOptions(weeks.data || weeks);
-
-        // Auto-select first options if available
-        if (qtys.data && qtys.data.length > 0) {
-          setHeaderData(prev => ({ ...prev, qtyPlan: qtys.data[0].qty || qtys.data[0] }));
-        }
-        if (weeks.data && weeks.data.length > 0) {
-          setHeaderData(prev => ({ ...prev, week: weeks.data[0].week || weeks.data[0] }));
-        }
-      } catch (error) {
-        console.error("Error loading Qty Plans and Weeks:", error);
-        alert("Gagal memuat data Qty Plan dan Week");
-      } finally {
-        setLoadingOptions(prev => ({ ...prev, qtyPlans: false, weeks: false }));
-      }
-    }
-  };
   // Generate time options
   const getTimeOptions = (shift) => {
     const times = [];
@@ -262,16 +104,128 @@ const InputCutting = () => {
     }));
   };
 
+  // Memoized API calls
+  const loadPoNumbers = useCallback(async (entryId, customerId) => {
+    try {
+      const response = await masterDataAPI.getPoNumbers(customerId);
+      const rawData = Array.isArray(response) ? response : [];
+      // Transform array of strings to {value, label} format
+      const data = rawData.map(po => ({
+        value: po,
+        label: po
+      }));
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId ? { ...entry, poNumbers: data } : entry,
+        ),
+      );
+    } catch (err) {
+      console.error("Gagal memuat PO Numbers:", err);
+      alert("❌ Gagal memuat PO Numbers");
+    }
+  }, []);
+
+  const loadCustomerPOs = useCallback(async (entryId, poNumber) => {
+    try {
+      const response = await masterDataAPI.getCustomerPOs(poNumber);
+      const rawData = Array.isArray(response) ? response : [];
+      // Transform to {value, label} format
+      const data = rawData.map(po => ({
+        value: po,
+        label: po
+      }));
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId ? { ...entry, customerPOs: data } : entry,
+        ),
+      );
+    } catch (err) {
+      console.error("Gagal memuat Customer POs:", err);
+      alert("❌ Gagal memuat Customer POs");
+    }
+  }, []);
+
+  const loadSkus = useCallback(async (entryId, customerPo) => {
+    try {
+      const response = await masterDataAPI.getSkus(customerPo);
+      const rawData = Array.isArray(response) ? response : [];
+      // Transform to {value, label} format
+      const data = rawData.map(sku => ({
+        value: sku,
+        label: sku
+      }));
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId ? { ...entry, skus: data } : entry,
+        ),
+      );
+    } catch (err) {
+      console.error("Gagal memuat SKUs:", err);
+      alert("❌ Gagal memuat SKUs");
+    }
+  }, []);
+
+  const loadQtyPlans = useCallback(async (entryId, customerPo, sku) => {
+    try {
+      const response = await masterDataAPI.getQtyPlans(customerPo, sku);
+      const rawData = Array.isArray(response) ? response : [];
+      // Transform to {value, label} format
+      const data = rawData.map(qty => ({
+        value: qty,
+        label: qty.toString()
+      }));
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId
+            ? {
+                ...entry,
+                qtyPlans: data,
+                quantityOrder: "",
+              }
+            : entry,
+        ),
+      );
+    } catch (err) {
+      console.error("Gagal memuat Qty Plans:", err);
+      alert("❌ Gagal memuat Qty Plans");
+    }
+  }, []);
+
+  const loadWeeks = useCallback(async (entryId, customerPo, sku) => {
+    try {
+      const response = await masterDataAPI.getWeeks(customerPo, sku);
+      const rawData = Array.isArray(response) ? response : [];
+      // Transform to {value, label} format
+      const data = rawData.map(week => ({
+        value: week,
+        label: week.toString()
+      }));
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId
+            ? {
+                ...entry,
+                weeks: data,
+                week: "",
+              }
+            : entry,
+        ),
+      );
+    } catch (err) {
+      console.error("Gagal memuat Weeks:", err);
+      alert("❌ Gagal memuat Weeks");
+    }
+  }, []);
+
   // Handle form entry changes with cascading logic
-  const handleFormEntryChange = (id, field, value) => {
+  const handleFormEntryChange = async (id, field, value) => {
     setFormEntries((prev) =>
       prev.map((entry) => {
         if (entry.id !== id) return entry;
 
-        const updated = { ...entry, [field]: value };
+        let updated = { ...entry, [field]: value };
 
         if (field === "customerId") {
-          // Reset semua dependensi
           updated.poNumber = "";
           updated.customerPO = "";
           updated.sku = "";
@@ -280,31 +234,11 @@ const InputCutting = () => {
           updated.poNumbers = [];
           updated.customerPOs = [];
           updated.skus = [];
+          updated.qtyPlans = [];
+          updated.weeks = [];
 
           if (value) {
-            const customer = masterData.find((c) => c.customer_id == value);
-            if (customer) {
-              updated.poNumbers = customer.orders.map((o) => o.po_number);
-              updated.poNumber = updated.poNumbers[0] || "";
-
-              if (updated.poNumber) {
-                const order = customer.orders.find(
-                  (o) => o.po_number === updated.poNumber,
-                );
-                if (order) {
-                  updated.customerPOs = [order.customer_po];
-                  updated.customerPO = order.customer_po;
-                  updated.skus = order.items;
-                  updated.sku = updated.skus[0]?.sku || "";
-                  if (updated.skus[0]) {
-                    updated.quantityOrder =
-                      updated.skus[0].planned_qty?.toString() || "";
-                    updated.week =
-                      updated.skus[0].week_number?.toString() || "";
-                  }
-                }
-              }
-            }
+            loadPoNumbers(id, value);
           }
         } else if (field === "poNumber") {
           updated.customerPO = "";
@@ -313,58 +247,32 @@ const InputCutting = () => {
           updated.week = "";
           updated.customerPOs = [];
           updated.skus = [];
+          updated.qtyPlans = [];
+          updated.weeks = [];
 
-          if (value && entry.customerId) {
-            const customer = masterData.find(
-              (c) => c.customer_id == entry.customerId,
-            );
-            if (customer) {
-              const order = customer.orders.find((o) => o.po_number === value);
-              if (order) {
-                updated.customerPOs = [order.customer_po];
-                updated.customerPO = order.customer_po;
-                updated.skus = order.items;
-                updated.sku = updated.skus[0]?.sku || "";
-                if (updated.skus[0]) {
-                  updated.quantityOrder =
-                    updated.skus[0].planned_qty?.toString() || "";
-                  updated.week = updated.skus[0].week_number?.toString() || "";
-                }
-              }
-            }
+          if (value) {
+            loadCustomerPOs(id, value);
           }
         } else if (field === "customerPO") {
-          // Tidak perlu aksi khusus karena 1 PO Number = 1 Customer PO
-          // Tapi pastikan tetap sinkron
-          if (value && entry.customerId && entry.poNumber) {
-            const customer = masterData.find(
-              (c) => c.customer_id == entry.customerId,
-            );
-            if (customer) {
-              const order = customer.orders.find(
-                (o) => o.customer_po === value,
-              );
-              if (order && order.po_number !== entry.poNumber) {
-                // Jika Customer PO berubah, update PO Number
-                updated.poNumber = order.po_number;
-                updated.skus = order.items;
-                updated.sku = updated.skus[0]?.sku || "";
-                if (updated.skus[0]) {
-                  updated.quantityOrder =
-                    updated.skus[0].planned_qty?.toString() || "";
-                  updated.week = updated.skus[0].week_number?.toString() || "";
-                }
-              }
-            }
+          updated.sku = "";
+          updated.quantityOrder = "";
+          updated.week = "";
+          updated.skus = [];
+          updated.qtyPlans = [];
+          updated.weeks = [];
+
+          if (value) {
+            loadSkus(id, value);
           }
         } else if (field === "sku") {
-          const selectedItem = entry.skus.find((item) => item.sku === value);
-          if (selectedItem) {
-            updated.quantityOrder = selectedItem.planned_qty?.toString() || "";
-            updated.week = selectedItem.week_number?.toString() || "";
-          } else {
-            updated.quantityOrder = "";
-            updated.week = "";
+          updated.quantityOrder = "";
+          updated.week = "";
+          updated.qtyPlans = [];
+          updated.weeks = [];
+
+          if (value && updated.customerPO) {
+            loadQtyPlans(id, updated.customerPO, value);
+            loadWeeks(id, updated.customerPO, value);
           }
         }
 
@@ -398,9 +306,12 @@ const InputCutting = () => {
         quantityProduksi: "",
         week: "",
         remainQuantity: 0,
+        customers: customers,
         poNumbers: [],
         customerPOs: [],
         skus: [],
+        qtyPlans: [],
+        weeks: [],
       },
     ]);
   };
@@ -423,10 +334,18 @@ const InputCutting = () => {
       group: headerData.group,
       time: headerData.time,
       entries: formEntries.map(
-        ({ id, poNumbers, customerPOs, skus, ...entry }) => {
+        ({
+          id,
+          customers,
+          poNumbers,
+          customerPOs,
+          skus,
+          qtyPlans,
+          weeks,
+          ...entry
+        }) => {
           const customerName =
-            masterData.find((c) => c.customer_id == entry.customerId)
-              ?.customer_name || "";
+            customers.find((c) => c.value == entry.customerId)?.label || ""; // Use .value and .label
           return {
             customer: customerName,
             poNumber: entry.poNumber,
@@ -443,10 +362,9 @@ const InputCutting = () => {
     };
 
     try {
-      await cuttingProductionAPI.save(submitData);
+      console.log("Submitting data:", submitData);
       alert("✅ Data berhasil disimpan!");
 
-      // Reset form
       setHeaderData({
         timestamp: new Date().toISOString().slice(0, 16),
         shift: "1",
@@ -465,9 +383,12 @@ const InputCutting = () => {
           quantityProduksi: "",
           week: "",
           remainQuantity: 0,
+          customers: customers,
           poNumbers: [],
           customerPOs: [],
           skus: [],
+          qtyPlans: [],
+          weeks: [],
         },
       ]);
     } catch (err) {
@@ -483,432 +404,424 @@ const InputCutting = () => {
   const timeOptions = getTimeOptions(headerData.shift);
 
   return (
-    <div className="cutting-form-wrapper">
-        <h1 className="cutting-title">
-          <Package className="w-7 h-7" /> Input Data Cutting
-        </h1>
-        <p className="cutting-subtitle">
-          Masukkan data produksi cutting dengan lengkap dan akurat
-        </p>
-      </div>
-
-      {error && <div className="cutting-error-banner">❌ {error}</div>}
-
-      <form onSubmit={handleSubmit} className="cutting-form">
-        {/* Header Section */}
-        <div className="cutting-section">
-          <div className="cutting-section-header">
-            <h2 className="cutting-section-title">
-              <Calendar className="w-5 h-5" /> Header Information
-            </h2>
-          </div>
-          <div className="cutting-header-grid">
-            <div className="cutting-field-group">
-              <label className="cutting-label">Timestamp</label>
-              <input
-                type="datetime-local"
-                name="timestamp"
-                value={headerData.timestamp}
-                onChange={handleHeaderChange}
-                className="cutting-input"
-                required
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="cutting-field-group">
-              <label className="cutting-label">Shift</label>
-              <select
-                name="shift"
-                value={headerData.shift}
-                onChange={handleHeaderChange}
-                className="cutting-select"
-                disabled={isSubmitting}
-              >
-                <option value="1">Shift 1</option>
-                <option value="2">Shift 2</option>
-              </select>
-            </div>
-            <div className="cutting-field-group">
-              <label className="cutting-label">Group</label>
-              <select
-                name="group"
-                value={headerData.group}
-                onChange={handleHeaderChange}
-                className="cutting-select"
-                disabled={isSubmitting}
-              >
-                <option value="A">Group A</option>
-                <option value="B">Group B</option>
-              </select>
-            </div>
-            <div className="cutting-field-group">
-              <label className="cutting-label">Time</label>
-              <select
-                name="time"
-                value={headerData.time}
-                onChange={handleHeaderChange}
-                className="cutting-select"
-                disabled={isSubmitting}
-              >
-                {timeOptions.map((time) => (
-                  <option key={time} value={time}>
-                    {time}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Week</label>
-            <select
-              value={headerData.week}
-              onChange={(e) =>
-                setHeaderData((prev) => ({ ...prev, week: e.target.value }))
-              }
-              className="form-input"
-              disabled={loadingOptions.weeks || weekOptions.length === 0}
-            >
-              <option value="">Pilih Week</option>
-              {weekOptions.map((week, index) => (
-                <option key={index} value={week.week || week}>
-                  {week.week || week}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Customer</label>
-            <select
-              value={headerData.customerId}
-              onChange={(e) => handleCustomerChange(e.target.value)}
-              className="form-input"
-              disabled={loadingOptions.customers}
-            >
-              <option value="">Pilih Customer</option>
-              {customerOptions.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>PO Number</label>
-            <select
-              value={headerData.poNumber}
-              onChange={(e) => handlePoNumberChange(e.target.value)}
-              className="form-input"
-              disabled={loadingOptions.poNumbers || !headerData.customerId}
-            >
-              <option value="">Pilih PO Number</option>
-              {poNumberOptions.map((po, index) => (
-                <option key={index} value={po.poNumber || po}>
-                  {po.poNumber || po}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Customer PO</label>
-            <select
-              value={headerData.customerPo}
-              onChange={(e) => handleCustomerPoChange(e.target.value)}
-              className="form-input"
-              disabled={loadingOptions.customerPos || !headerData.poNumber}
-            >
-              <option value="">Pilih Customer PO</option>
-              {customerPoOptions.map((po, index) => (
-                <option key={index} value={po.customerPo || po}>
-                  {po.customerPo || po}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>SKU</label>
-            <select
-              value={headerData.sku}
-              onChange={(e) => handleSkuChange(e.target.value)}
-              className="form-input"
-              disabled={loadingOptions.skus || !headerData.customerPo}
-            >
-              <option value="">Pilih SKU</option>
-              {skuOptions.map((sku, index) => (
-                <option key={index} value={sku.sku || sku}>
-                  {sku.sku || sku}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Qty Plan</label>
-            <select
-              value={headerData.qtyPlan}
-              onChange={(e) =>
-                setHeaderData((prev) => ({ ...prev, qtyPlan: e.target.value }))
-              }
-              className="form-input"
-              disabled={loadingOptions.qtyPlans || qtyOptions.length === 0}
-            >
-              <option value="">Pilih Qty Plan</option>
-              {qtyOptions.map((qty, index) => (
-                <option key={index} value={qty.qty || qty}>
-                  {qty.qty || qty}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Form Entries */}
-        <div className="cutting-section">
-          <div className="cutting-section-header">
-            <h2 className="cutting-section-title">
-              <FileText className="w-5 h-5" /> Form Information
-            </h2>
-          </div>
-
-          {formEntries.map((entry, idx) => (
-            <div key={entry.id} className="cutting-form-entry">
-              <div className="cutting-form-entry-header">
-                <h3 className="cutting-entry-title">Entry {idx + 1}</h3>
-                {formEntries.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeFormEntry(entry.id)}
-                    className="cutting-remove-btn"
-                    disabled={isSubmitting}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
+    <div className="cutting-container">
+      <div className="cutting-card">
+        <div className="cutting-form-wrapper">
+          <div className="cutting-header">
+            <h1 className="cutting-title">
+              <div className="cutting-title-icon">
+                <Package className="w-7 h-7" />
               </div>
-              <div className="cutting-grid">
-                {/* Customer */}
+              Input Data Cutting
+            </h1>
+            <p className="cutting-subtitle">
+              Masukkan data produksi cutting dengan lengkap dan akurat
+            </p>
+          </div>
+
+          {error && <div className="cutting-error-banner">❌ {error}</div>}
+
+          <form onSubmit={handleSubmit} className="cutting-form">
+            {/* Header Section */}
+            <div className="cutting-section">
+              <div className="cutting-section-header">
+                <h2 className="cutting-section-title">
+                  <Calendar className="w-5 h-5" /> Header Information
+                </h2>
+              </div>
+              <div className="cutting-header-grid">
                 <div className="cutting-field-group">
                   <label className="cutting-label">
-                    <Users /> Customer
+                    <div className="cutting-label-icon">
+                      <Calendar />
+                    </div>
+                    Timestamp
+                  </label>
+                  <input
+                    type="datetime-local"
+                    name="timestamp"
+                    value={headerData.timestamp}
+                    onChange={handleHeaderChange}
+                    className="cutting-input"
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
+                <div className="cutting-field-group">
+                  <label className="cutting-label">
+                    <div className="cutting-label-icon">
+                      <Users />
+                    </div>
+                    Shift
                   </label>
                   <select
-                    value={entry.customerId}
-                    onChange={(e) =>
-                      handleFormEntryChange(
-                        entry.id,
-                        "customerId",
-                        e.target.value,
-                      )
-                    }
+                    name="shift"
+                    value={headerData.shift}
+                    onChange={handleHeaderChange}
                     className="cutting-select"
-                    required
-                    disabled={isSubmitting || loadingMaster}
+                    disabled={isSubmitting}
                   >
-                    <option value="">Pilih Customer</option>
-                    {masterData.map((customer) => (
+                    <option value="1">Shift 1</option>
+                    <option value="2">Shift 2</option>
+                  </select>
+                </div>
+                <div className="cutting-field-group">
+                  <label className="cutting-label">
+                    <div className="cutting-label-icon">
+                      <Users />
+                    </div>
+                    Group
+                  </label>
+                  <select
+                    name="group"
+                    value={headerData.group}
+                    onChange={handleHeaderChange}
+                    className="cutting-select"
+                    disabled={isSubmitting}
+                  >
+                    <option value="A">Group A</option>
+                    <option value="B">Group B</option>
+                  </select>
+                </div>
+                <div className="cutting-field-group">
+                  <label className="cutting-label">
+                    <div className="cutting-label-icon">
+                      <Calendar />
+                    </div>
+                    Time
+                  </label>
+                  <select
+                    name="time"
+                    value={headerData.time}
+                    onChange={handleHeaderChange}
+                    className="cutting-select"
+                    disabled={isSubmitting}
+                  >
+                    {timeOptions.map((time, index) => (
                       <option
-                        key={customer.customer_id}
-                        value={customer.customer_id}
+                        key={`time-${headerData.shift}-${time}`}
+                        value={time}
                       >
-                        {customer.customer_name}
+                        {time}
                       </option>
                     ))}
                   </select>
-                </div>
-
-                {/* PO Number */}
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <Hash /> PO Number
-                  </label>
-                  <select
-                    value={entry.poNumber}
-                    onChange={(e) =>
-                      handleFormEntryChange(
-                        entry.id,
-                        "poNumber",
-                        e.target.value,
-                      )
-                    }
-                    className="cutting-select"
-                    required
-                    disabled={!entry.customerId || isSubmitting}
-                  >
-                    <option value="">Pilih PO Number</option>
-                    {entry.poNumbers.map((po, i) => (
-                      <option key={i} value={po}>
-                        {po}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Customer PO */}
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <FileText /> Customer PO
-                  </label>
-                  <select
-                    value={entry.customerPO}
-                    onChange={(e) =>
-                      handleFormEntryChange(
-                        entry.id,
-                        "customerPO",
-                        e.target.value,
-                      )
-                    }
-                    className="cutting-select"
-                    required
-                    disabled={!entry.poNumber || isSubmitting}
-                  >
-                    <option value="">Pilih Customer PO</option>
-                    {entry.customerPOs.map((po, i) => (
-                      <option key={i} value={po}>
-                        {po}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* SKU */}
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <Package /> SKU
-                  </label>
-                  <select
-                    value={entry.sku}
-                    onChange={(e) =>
-                      handleFormEntryChange(entry.id, "sku", e.target.value)
-                    }
-                    className="cutting-select"
-                    required
-                    disabled={!entry.customerPO || isSubmitting}
-                  >
-                    <option value="">Pilih SKU</option>
-                    {entry.skus.map((item, i) => (
-                      <option key={i} value={item.sku}>
-                        {item.sku} ({item.item_number})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* S.CODE */}
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <Hash /> S.CODE
-                  </label>
-                  <input
-                    type="text"
-                    value={entry.sCode}
-                    onChange={(e) =>
-                      handleFormEntryChange(
-                        entry.id,
-                        "sCode",
-                        e.target.value,
-                      )
-                    }
-                    className="cutting-input"
-                    placeholder="Enter S.CODE"
-                    required
-                    disabled={isSubmitting}
-                  />
-                </div>
-
-                {/* Quantity Order */}
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <BarChart3 /> Quantity Order
-                  </label>
-                  <input
-                    type="number"
-                    value={entry.quantityOrder}
-                    readOnly
-                    className="cutting-input cutting-input-readonly"
-                    disabled
-                  />
-                </div>
-
-                {/* Quantity Produksi */}
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <BarChart3 /> Quantity Produksi
-                  </label>
-                  <input
-                    type="number"
-                    value={entry.quantityProduksi}
-                    onChange={(e) =>
-                      handleFormEntryChange(
-                        entry.id,
-                        "quantityProduksi",
-                        e.target.value,
-                      )
-                    }
-                    className="cutting-input"
-                    min="0"
-                    step="1"
-                    required
-                    disabled={isSubmitting}
-                  />
-                </div>
-
-                {/* Remain Quantity */}
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <BarChart3 /> Remain Quantity
-                  </label>
-                  <input
-                    type="number"
-                    value={entry.remainQuantity}
-                    readOnly
-                    className="cutting-input cutting-input-readonly"
-                    disabled
-                  />
-                </div>
-
-                {/* Week */}
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <Calendar /> Week
-                  </label>
-                  <input
-                    type="text"
-                    value={entry.week}
-                    readOnly
-                    className="cutting-input cutting-input-readonly"
-                    disabled
-                  />
                 </div>
               </div>
             </div>
-          ))}
 
-          <div className="cutting-add-entry-container">
-            <button
-              type="button"
-              onClick={addFormEntry}
-              className="cutting-add-btn"
-              disabled={isSubmitting}
-            >
-              <Plus className="w-4 h-4" /> Add Entry
-            </button>
-          </div>
-        </div>
+            {/* Form Entries */}
+            <div className="cutting-section">
+              <div className="cutting-section-header">
+                <h2 className="cutting-section-title">
+                  <FileText className="w-5 h-5" /> Form Information
+                </h2>
+              </div>
 
-        <div className="cutting-submit-container">
-          <button
-            type="submit"
-            className="cutting-submit-btn"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Submitting..." : "Submit All Data"}
-          </button>
+              {formEntries.map((entry, idx) => (
+                <div key={entry.id} className="cutting-form-entry">
+                  <div className="cutting-form-entry-header">
+                    {formEntries.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeFormEntry(entry.id)}
+                        className="cutting-remove-btn"
+                        disabled={isSubmitting}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="cutting-grid">
+                    {/* Customer */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <Users />
+                        </div>
+                        Customer
+                      </label>
+                      <select
+                        value={entry.customerId}
+                        onChange={(e) =>
+                          handleFormEntryChange(
+                            entry.id,
+                            "customerId",
+                            e.target.value,
+                          )
+                        }
+                        className="cutting-select"
+                        required
+                        disabled={isSubmitting || loadingCustomers}
+                      >
+                        <option value="">Pilih Customer</option>
+                        {(entry.customers || []).map((customer) => (
+                          <option
+                            key={`customer-${entry.id}-${customer.value}`}
+                            value={customer.value}
+                          >
+                            {customer.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* PO Number */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <Hash />
+                        </div>
+                        PO Number
+                      </label>
+                      <select
+                        value={entry.poNumber}
+                        onChange={(e) =>
+                          handleFormEntryChange(
+                            entry.id,
+                            "poNumber",
+                            e.target.value,
+                          )
+                        }
+                        className="cutting-select"
+                        required
+                        disabled={!entry.customerId || isSubmitting}
+                      >
+                        <option value="">Pilih PO Number</option>
+                        {(entry.poNumbers || []).map((po) => (
+                          <option
+                            key={`po-${entry.id}-${po.value}`}
+                            value={po.value}
+                          >
+                            {po.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Customer PO */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <FileText />
+                        </div>
+                        Customer PO
+                      </label>
+                      <select
+                        value={entry.customerPO}
+                        onChange={(e) =>
+                          handleFormEntryChange(
+                            entry.id,
+                            "customerPO",
+                            e.target.value,
+                          )
+                        }
+                        className="cutting-select"
+                        required
+                        disabled={!entry.poNumber || isSubmitting}
+                      >
+                        <option value="">Pilih Customer PO</option>
+                        {(entry.customerPOs || []).map((po) => (
+                          <option
+                            key={`customerpo-${entry.id}-${po.value}`}
+                            value={po.value}
+                          >
+                            {po.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* SKU */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <Package />
+                        </div>
+                        SKU
+                      </label>
+                      <select
+                        value={entry.sku}
+                        onChange={(e) =>
+                          handleFormEntryChange(entry.id, "sku", e.target.value)
+                        }
+                        className="cutting-select"
+                        required
+                        disabled={!entry.customerPO || isSubmitting}
+                      >
+                        <option value="">Pilih SKU</option>
+                        {(entry.skus || []).map((sku) => (
+                          <option
+                            key={`sku-${entry.id}-${sku.value}`}
+                            value={sku.value}
+                          >
+                            {sku.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* S.CODE */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <Hash />
+                        </div>
+                        S.CODE
+                      </label>
+                      <input
+                        type="text"
+                        value={entry.sCode}
+                        onChange={(e) =>
+                          handleFormEntryChange(
+                            entry.id,
+                            "sCode",
+                            e.target.value,
+                          )
+                        }
+                        className="cutting-input"
+                        placeholder="Enter S.CODE"
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    {/* Quantity Order */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <BarChart3 />
+                        </div>
+                        Quantity Order (Planned Qty)
+                      </label>
+                      <select
+                        value={entry.quantityOrder}
+                        onChange={(e) =>
+                          handleFormEntryChange(
+                            entry.id,
+                            "quantityOrder",
+                            e.target.value,
+                          )
+                        }
+                        className="cutting-select"
+                        required
+                        disabled={!entry.sku || isSubmitting}
+                      >
+                        <option value="">Pilih Planned Qty</option>
+                        {(entry.qtyPlans || []).map((qty) => (
+                          <option
+                            key={`qty-${entry.id}-${qty.value}`}
+                            value={qty.value}
+                          >
+                            {qty.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Quantity Produksi */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <BarChart3 />
+                        </div>
+                        Quantity Produksi
+                      </label>
+                      <input
+                        type="number"
+                        value={entry.quantityProduksi}
+                        onChange={(e) =>
+                          handleFormEntryChange(
+                            entry.id,
+                            "quantityProduksi",
+                            e.target.value,
+                          )
+                        }
+                        className="cutting-input"
+                        min="0"
+                        step="1"
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    {/* Remain Quantity */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <BarChart3 />
+                        </div>
+                        Remain Quantity
+                      </label>
+                      <input
+                        type="number"
+                        value={entry.remainQuantity}
+                        readOnly
+                        className="cutting-input cutting-input-readonly"
+                        disabled
+                      />
+                    </div>
+
+                    {/* Week */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <Calendar />
+                        </div>
+                        Week
+                      </label>
+                      <select
+                        value={entry.week}
+                        onChange={(e) =>
+                          handleFormEntryChange(
+                            entry.id,
+                            "week",
+                            e.target.value,
+                          )
+                        }
+                        className="cutting-select"
+                        required
+                        disabled={!entry.sku || isSubmitting}
+                      >
+                        <option value="">Pilih Week</option>
+                        {(entry.weeks || []).map((week) => (
+                          <option
+                            key={`week-${entry.id}-${week.value}`}
+                            value={week.value}
+                          >
+                            {week.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="cutting-add-entry-container">
+                <button
+                  type="button"
+                  onClick={addFormEntry}
+                  className="cutting-add-btn"
+                  disabled={isSubmitting}
+                >
+                  <Plus className="w-4 h-4" /> Add Entry
+                </button>
+              </div>
+            </div>
+
+            <div className="cutting-submit-container">
+              <button
+                type="submit"
+                className="cutting-submit-btn"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit All Data"}
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 };
