@@ -8,7 +8,10 @@ if (!API_BASE_URL) {
 export const apiClient = {
   // GET request
   get: async (endpoint) => {
-    const url = `${API_BASE_URL}${endpoint}`;
+    // Normalize URL to avoid double slashes
+    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+    const path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    const url = baseUrl + path;
     console.log("🔍 GET:", url);
 
     const response = await fetch(url, {
@@ -27,7 +30,10 @@ export const apiClient = {
 
   // POST request
   post: async (endpoint, data) => {
-    const url = `${API_BASE_URL}${endpoint}`;
+    // Normalize URL to avoid double slashes
+    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+    const path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    const url = baseUrl + path;
     console.log("📤 POST:", url, data);
 
     const response = await fetch(url, {
@@ -47,7 +53,10 @@ export const apiClient = {
 
   // PUT request
   put: async (endpoint, data) => {
-    const url = `${API_BASE_URL}${endpoint}`;
+    // Normalize URL to avoid double slashes
+    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+    const path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    const url = baseUrl + path;
     console.log("🔄 PUT:", url, data);
 
     const response = await fetch(url, {
@@ -67,7 +76,10 @@ export const apiClient = {
 
   // DELETE request
   delete: async (endpoint) => {
-    const url = `${API_BASE_URL}${endpoint}`;
+    // Normalize URL to avoid double slashes
+    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+    const path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    const url = baseUrl + path;
     console.log("🗑️ DELETE:", url);
 
     const response = await fetch(url, {
