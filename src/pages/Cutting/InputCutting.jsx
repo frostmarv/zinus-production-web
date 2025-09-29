@@ -50,15 +50,8 @@ const InputCutting = () => {
     const loadCustomers = async () => {
       try {
         const response = await masterDataAPI.getCustomers();
-        const rawData = Array.isArray(response) ? response : [];
-        // Transform backend format {customer_id, customer_name} to {value, label}
-        // Filter out any invalid data
-        const data = rawData
-          .filter(c => c.customer_id !== undefined && c.customer_id !== null)
-          .map(c => ({
-            value: c.customer_id,
-            label: c.customer_name || `Customer ${c.customer_id}`
-          }));
+        const data = Array.isArray(response) ? response : [];
+        // Backend sudah mengembalikan format {value, label} yang benar
         setCustomers(data);
         setFormEntries((prev) =>
           prev.map((entry) => ({
@@ -109,12 +102,8 @@ const InputCutting = () => {
   const loadPoNumbers = useCallback(async (entryId, customerId) => {
     try {
       const response = await masterDataAPI.getPoNumbers(customerId);
-      const rawData = Array.isArray(response) ? response : [];
-      // Transform array of strings to {value, label} format
-      const data = rawData.map(po => ({
-        value: po,
-        label: po
-      }));
+      const data = Array.isArray(response) ? response : [];
+      // Backend mungkin sudah mengembalikan format {value, label}
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId ? { ...entry, poNumbers: data } : entry,
@@ -129,12 +118,8 @@ const InputCutting = () => {
   const loadCustomerPOs = useCallback(async (entryId, poNumber) => {
     try {
       const response = await masterDataAPI.getCustomerPOs(poNumber);
-      const rawData = Array.isArray(response) ? response : [];
-      // Transform to {value, label} format
-      const data = rawData.map(po => ({
-        value: po,
-        label: po
-      }));
+      const data = Array.isArray(response) ? response : [];
+      // Backend mungkin sudah mengembalikan format {value, label}
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId ? { ...entry, customerPOs: data } : entry,
@@ -149,12 +134,8 @@ const InputCutting = () => {
   const loadSkus = useCallback(async (entryId, customerPo) => {
     try {
       const response = await masterDataAPI.getSkus(customerPo);
-      const rawData = Array.isArray(response) ? response : [];
-      // Transform to {value, label} format
-      const data = rawData.map(sku => ({
-        value: sku,
-        label: sku
-      }));
+      const data = Array.isArray(response) ? response : [];
+      // Backend mungkin sudah mengembalikan format {value, label}
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId ? { ...entry, skus: data } : entry,
