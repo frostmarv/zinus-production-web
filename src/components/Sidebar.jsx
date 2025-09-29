@@ -1,23 +1,33 @@
 // src/components/Sidebar.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import { BarChart3, Users, Database, History, AlertCircle } from "lucide-react";
+import {
+  BarChart3,
+  Users,
+  Database,
+  History,
+  AlertCircle,
+  CheckCircle,
+  Scissors,
+  FileText,
+} from "lucide-react";
 import "../styles/Sidebar.css";
+import logo from "@assets/logo.png";
 
 const Sidebar = () => {
   const menuItems = [
     { name: "Dashboard", path: "/", icon: BarChart3 },
-    { name: "Data Error", path: "/problems", icon: AlertCircle },
-    { name: "History", path: "/history", icon: History },
-    { name: "MasterData", path: "/master-data", icon: Database },
-    { name: "UserManagement", path: "/users", icon: Users },
+    { name: "History Production", path: "/history", icon: History },
+    { name: "Workable Data", path: "/workable", icon: CheckCircle },
+    { name: "Input Cutting", path: "/cutting/index-cutting", icon: FileText },
+    { name: "JDE", path: "/jde/history", icon: Database },
   ];
 
   return (
     <div className="sidebar">
       {/* Logo */}
       <div className="logo">
-        <div className="logo-icon">G</div>
+        <img src={logo} alt="Zinus Logo" className="logo-img" />
         <div className="logo-text">Zinus</div>
       </div>
 
@@ -25,10 +35,7 @@ const Sidebar = () => {
       <ul className="menu">
         {menuItems.map((item) => (
           <li key={item.path}>
-            <Link // ✅ Ganti jadi Link
-              to={item.path}
-              className="menu-item"
-            >
+            <Link to={item.path} className="menu-item">
               <item.icon size={20} />
               <span>{item.name}</span>
             </Link>

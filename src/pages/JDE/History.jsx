@@ -1,6 +1,6 @@
 // src/pages/History.jsx
 import React from "react";
-import "../styles/History.css";
+import "../../styles/JDE/History.css";
 
 const History = () => {
   return (
