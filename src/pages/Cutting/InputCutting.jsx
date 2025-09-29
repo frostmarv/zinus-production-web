@@ -1,3 +1,4 @@
+// src/pages/Cutting/InputCutting.jsx
 import React, { useState, useEffect } from "react";
 import {
   Calendar,
@@ -14,21 +15,19 @@ import { cuttingProductionAPI } from "../../api/cutting";
 import "../../styles/Cutting/InputCutting.css";
 
 const InputCutting = () => {
-  // === Header State ===
   const [headerData, setHeaderData] = useState({
     timestamp: new Date().toISOString().slice(0, 16),
     shift: "1",
     group: "A",
     time: "08:00",
+    // Master data fields
     customerId: "",
     poNumber: "",
     customerPo: "",
     sku: "",
     qtyPlan: "",
-    week: "",
   });
 
-  // === Form Entries ===
   const [formEntries, setFormEntries] = useState([
     {
       id: 1,
@@ -41,21 +40,26 @@ const InputCutting = () => {
       quantityProduksi: "",
       week: "",
       remainQuantity: 0,
+      // Cache untuk dropdown
       poNumbers: [],
       customerPOs: [],
       skus: [],
     },
   ]);
 
-  // === Master Data Options (Header) ===
+  const [masterData, setMasterData] = useState([]);
+  const [loadingMaster, setLoadingMaster] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+
+  // Master data options
   const [customerOptions, setCustomerOptions] = useState([]);
   const [poNumberOptions, setPoNumberOptions] = useState([]);
   const [customerPoOptions, setCustomerPoOptions] = useState([]);
   const [skuOptions, setSkuOptions] = useState([]);
   const [qtyOptions, setQtyOptions] = useState([]);
   const [weekOptions, setWeekOptions] = useState([]);
-
-  // === Loading States ===
   const [loadingOptions, setLoadingOptions] = useState({
     customers: false,
     poNumbers: false,
@@ -64,103 +68,43 @@ const InputCutting = () => {
     qtyPlans: false,
     weeks: false,
   });
+  // Load master data
+  useEffect(() => {
+    const loadMasterData = async () => {
+      try {
+        const data = await masterDataAPI.getAllMasterData();
+        setMasterData(data);
+      } catch (err) {
+        console.error("Gagal memuat data master:", err);
+        setError("Gagal memuat data referensi");
+        alert("❌ Gagal memuat data master");
+      } finally {
+        setLoadingMaster(false);
+      }
+    };
+    loadMasterData();
+  }, []);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-
-  // === Load Customers on Mount ===
+  // Load customers saat component mount
   useEffect(() => {
     const loadCustomers = async () => {
-      setLoadingOptions((prev) => ({ ...prev, customers: true }));
+      setLoadingOptions(prev => ({ ...prev, customers: true }));
       try {
         const customers = await masterDataAPI.getCustomers();
-        setCustomerOptions(customers);
+        setCustomerOptions(customers.data || customers);
       } catch (error) {
         console.error("Error loading customers:", error);
-        alert("❌ Gagal memuat data customer");
+        alert("Gagal memuat data customer");
       } finally {
-        setLoadingOptions((prev) => ({ ...prev, customers: false }));
+        setLoadingOptions(prev => ({ ...prev, customers: false }));
       }
     };
     loadCustomers();
   }, []);
 
-  // === Helper: Fetch PO Numbers ===
-  const fetchPoNumbers = async (
-    customerId,
-    isHeader = false,
-    entryId = null,
-  ) => {
-    if (!customerId) return;
-    try {
-      const data = await masterDataAPI.getPoNumbers(customerId);
-      if (isHeader) {
-        setPoNumberOptions(data);
-      } else {
-        setFormEntries((prev) =>
-          prev.map((e) =>
-            e.id === entryId
-              ? { ...e, poNumbers: data.map((item) => item.poNumber || item) }
-              : e,
-          ),
-        );
-      }
-    } catch (err) {
-      console.error("Error fetching PO Numbers:", err);
-      alert("❌ Gagal memuat PO Numbers");
-    }
-  };
-
-  // === Helper: Fetch Customer POs ===
-  const fetchCustomerPos = async (
-    poNumber,
-    isHeader = false,
-    entryId = null,
-  ) => {
-    if (!poNumber) return;
-    try {
-      const data = await masterDataAPI.getCustomerPos(poNumber);
-      if (isHeader) {
-        setCustomerPoOptions(data);
-      } else {
-        setFormEntries((prev) =>
-          prev.map((e) =>
-            e.id === entryId
-              ? {
-                  ...e,
-                  customerPOs: data.map((item) => item.customerPo || item),
-                }
-              : e,
-          ),
-        );
-      }
-    } catch (err) {
-      console.error("Error fetching Customer POs:", err);
-      alert("❌ Gagal memuat Customer PO");
-    }
-  };
-
-  // === Helper: Fetch SKUs ===
-  const fetchSkus = async (customerPo, isHeader = false, entryId = null) => {
-    if (!customerPo) return;
-    try {
-      const data = await masterDataAPI.getSkus(customerPo);
-      if (isHeader) {
-        setSkuOptions(data);
-      } else {
-        setFormEntries((prev) =>
-          prev.map((e) => (e.id === entryId ? { ...e, skus: data } : e)),
-        );
-      }
-    } catch (err) {
-      console.error("Error fetching SKUs:", err);
-      alert("❌ Gagal memuat SKU");
-    }
-  };
-
-  // === Header Handlers ===
+  // Handle customer change
   const handleCustomerChange = async (customerId) => {
-    setHeaderData((prev) => ({
+    setHeaderData(prev => ({
       ...prev,
       customerId,
       poNumber: "",
@@ -169,6 +113,8 @@ const InputCutting = () => {
       qtyPlan: "",
       week: "",
     }));
+
+    // Reset dependent options
     setPoNumberOptions([]);
     setCustomerPoOptions([]);
     setSkuOptions([]);
@@ -176,12 +122,22 @@ const InputCutting = () => {
     setWeekOptions([]);
 
     if (customerId) {
-      await fetchPoNumbers(customerId, true);
+      setLoadingOptions(prev => ({ ...prev, poNumbers: true }));
+      try {
+        const poNumbers = await masterDataAPI.getPoNumbers(customerId);
+        setPoNumberOptions(poNumbers.data || poNumbers);
+      } catch (error) {
+        console.error("Error loading PO numbers:", error);
+        alert("Gagal memuat data PO Number");
+      } finally {
+        setLoadingOptions(prev => ({ ...prev, poNumbers: false }));
+      }
     }
   };
 
+  // Handle PO Number change
   const handlePoNumberChange = async (poNumber) => {
-    setHeaderData((prev) => ({
+    setHeaderData(prev => ({
       ...prev,
       poNumber,
       customerPo: "",
@@ -189,67 +145,96 @@ const InputCutting = () => {
       qtyPlan: "",
       week: "",
     }));
+
+    // Reset dependent options
     setCustomerPoOptions([]);
     setSkuOptions([]);
     setQtyOptions([]);
     setWeekOptions([]);
 
     if (poNumber) {
-      await fetchCustomerPos(poNumber, true);
+      setLoadingOptions(prev => ({ ...prev, customerPos: true }));
+      try {
+        const customerPos = await masterDataAPI.getCustomerPos(poNumber);
+        setCustomerPoOptions(customerPos.data || customerPos);
+      } catch (error) {
+        console.error("Error loading Customer POs:", error);
+        alert("Gagal memuat data Customer PO");
+      } finally {
+        setLoadingOptions(prev => ({ ...prev, customerPos: false }));
+      }
     }
   };
 
+  // Handle Customer PO change
   const handleCustomerPoChange = async (customerPo) => {
-    setHeaderData((prev) => ({
+    setHeaderData(prev => ({
       ...prev,
       customerPo,
       sku: "",
       qtyPlan: "",
       week: "",
     }));
+
+    // Reset dependent options
     setSkuOptions([]);
     setQtyOptions([]);
     setWeekOptions([]);
 
     if (customerPo) {
-      await fetchSkus(customerPo, true);
-    }
-  };
-
-  const handleSkuChange = async (sku) => {
-    setHeaderData((prev) => ({ ...prev, sku, qtyPlan: "", week: "" }));
-    setQtyOptions([]);
-    setWeekOptions([]);
-
-    if (sku && headerData.customerPo) {
+      setLoadingOptions(prev => ({ ...prev, skus: true }));
       try {
-        const [qtys, weeks] = await Promise.all([
-          masterDataAPI.getQtyPlans(headerData.customerPo, sku),
-          masterDataAPI.getWeeks(headerData.customerPo, sku),
-        ]);
-        setQtyOptions(qtys);
-        setWeekOptions(weeks);
-
-        if (qtys.length > 0) {
-          setHeaderData((prev) => ({
-            ...prev,
-            qtyPlan: qtys[0].qty || qtys[0],
-          }));
-        }
-        if (weeks.length > 0) {
-          setHeaderData((prev) => ({
-            ...prev,
-            week: weeks[0].week || weeks[0],
-          }));
-        }
-      } catch (err) {
-        console.error("Error loading Qty/Week:", err);
-        alert("❌ Gagal memuat Qty Plan dan Week");
+        const skus = await masterDataAPI.getSkus(customerPo);
+        setSkuOptions(skus.data || skus);
+      } catch (error) {
+        console.error("Error loading SKUs:", error);
+        alert("Gagal memuat data SKU");
+      } finally {
+        setLoadingOptions(prev => ({ ...prev, skus: false }));
       }
     }
   };
 
-  // === Time Options ===
+  // Handle SKU change
+  const handleSkuChange = async (sku) => {
+    setHeaderData(prev => ({
+      ...prev,
+      sku,
+      qtyPlan: "",
+      week: "",
+    }));
+
+    // Reset dependent options
+    setQtyOptions([]);
+    setWeekOptions([]);
+
+    if (sku && headerData.customerPo) {
+      setLoadingOptions(prev => ({ ...prev, qtyPlans: true, weeks: true }));
+      try {
+        const [qtys, weeks] = await Promise.all([
+          masterDataAPI.getQtyPlans(headerData.customerPo, sku),
+          masterDataAPI.getWeeks(headerData.customerPo, sku)
+        ]);
+
+        setQtyOptions(qtys.data || qtys);
+        setWeekOptions(weeks.data || weeks);
+
+        // Auto-select first options if available
+        if (qtys.data && qtys.data.length > 0) {
+          setHeaderData(prev => ({ ...prev, qtyPlan: qtys.data[0].qty || qtys.data[0] }));
+        }
+        if (weeks.data && weeks.data.length > 0) {
+          setHeaderData(prev => ({ ...prev, week: weeks.data[0].week || weeks.data[0] }));
+        }
+      } catch (error) {
+        console.error("Error loading Qty Plans and Weeks:", error);
+        alert("Gagal memuat data Qty Plan dan Week");
+      } finally {
+        setLoadingOptions(prev => ({ ...prev, qtyPlans: false, weeks: false }));
+      }
+    }
+  };
+  // Generate time options
   const getTimeOptions = (shift) => {
     const times = [];
     if (shift === "1") {
@@ -267,7 +252,7 @@ const InputCutting = () => {
     return times;
   };
 
-  // === Header Change (non-cascading fields) ===
+  // Handle header changes
   const handleHeaderChange = (e) => {
     const { name, value } = e.target;
     setHeaderData((prev) => ({
@@ -277,48 +262,110 @@ const InputCutting = () => {
     }));
   };
 
-  // === Form Entry Change ===
-  const handleFormEntryChange = async (id, field, value) => {
+  // Handle form entry changes with cascading logic
+  const handleFormEntryChange = (id, field, value) => {
     setFormEntries((prev) =>
       prev.map((entry) => {
         if (entry.id !== id) return entry;
 
-        let updated = { ...entry, [field]: value };
+        const updated = { ...entry, [field]: value };
 
         if (field === "customerId") {
-          updated = {
-            ...updated,
-            poNumber: "",
-            customerPO: "",
-            sku: "",
-            quantityOrder: "",
-            week: "",
-            poNumbers: [],
-            customerPOs: [],
-            skus: [],
-          };
+          // Reset semua dependensi
+          updated.poNumber = "";
+          updated.customerPO = "";
+          updated.sku = "";
+          updated.quantityOrder = "";
+          updated.week = "";
+          updated.poNumbers = [];
+          updated.customerPOs = [];
+          updated.skus = [];
+
+          if (value) {
+            const customer = masterData.find((c) => c.customer_id == value);
+            if (customer) {
+              updated.poNumbers = customer.orders.map((o) => o.po_number);
+              updated.poNumber = updated.poNumbers[0] || "";
+
+              if (updated.poNumber) {
+                const order = customer.orders.find(
+                  (o) => o.po_number === updated.poNumber,
+                );
+                if (order) {
+                  updated.customerPOs = [order.customer_po];
+                  updated.customerPO = order.customer_po;
+                  updated.skus = order.items;
+                  updated.sku = updated.skus[0]?.sku || "";
+                  if (updated.skus[0]) {
+                    updated.quantityOrder =
+                      updated.skus[0].planned_qty?.toString() || "";
+                    updated.week =
+                      updated.skus[0].week_number?.toString() || "";
+                  }
+                }
+              }
+            }
+          }
         } else if (field === "poNumber") {
-          updated = {
-            ...updated,
-            customerPO: "",
-            sku: "",
-            quantityOrder: "",
-            week: "",
-            customerPOs: [],
-            skus: [],
-          };
+          updated.customerPO = "";
+          updated.sku = "";
+          updated.quantityOrder = "";
+          updated.week = "";
+          updated.customerPOs = [];
+          updated.skus = [];
+
+          if (value && entry.customerId) {
+            const customer = masterData.find(
+              (c) => c.customer_id == entry.customerId,
+            );
+            if (customer) {
+              const order = customer.orders.find((o) => o.po_number === value);
+              if (order) {
+                updated.customerPOs = [order.customer_po];
+                updated.customerPO = order.customer_po;
+                updated.skus = order.items;
+                updated.sku = updated.skus[0]?.sku || "";
+                if (updated.skus[0]) {
+                  updated.quantityOrder =
+                    updated.skus[0].planned_qty?.toString() || "";
+                  updated.week = updated.skus[0].week_number?.toString() || "";
+                }
+              }
+            }
+          }
         } else if (field === "customerPO") {
-          updated = {
-            ...updated,
-            sku: "",
-            quantityOrder: "",
-            week: "",
-            skus: [],
-          };
+          // Tidak perlu aksi khusus karena 1 PO Number = 1 Customer PO
+          // Tapi pastikan tetap sinkron
+          if (value && entry.customerId && entry.poNumber) {
+            const customer = masterData.find(
+              (c) => c.customer_id == entry.customerId,
+            );
+            if (customer) {
+              const order = customer.orders.find(
+                (o) => o.customer_po === value,
+              );
+              if (order && order.po_number !== entry.poNumber) {
+                // Jika Customer PO berubah, update PO Number
+                updated.poNumber = order.po_number;
+                updated.skus = order.items;
+                updated.sku = updated.skus[0]?.sku || "";
+                if (updated.skus[0]) {
+                  updated.quantityOrder =
+                    updated.skus[0].planned_qty?.toString() || "";
+                  updated.week = updated.skus[0].week_number?.toString() || "";
+                }
+              }
+            }
+          }
         } else if (field === "sku") {
           const selectedItem = entry.skus.find((item) => item.sku === value);
-          updated.quantityOrder = selectedItem?.planned_qty?.toString() || "";
-          updated.week = selectedItem?.week_number?.toString() || "";
+          if (selectedItem) {
+            updated.quantityOrder = selectedItem.planned_qty?.toString() || "";
+            updated.week = selectedItem.week_number?.toString() || "";
+          } else {
+            updated.quantityOrder = "";
+            updated.week = "";
+          }
         }
 
         // Hitung remain quantity
@@ -331,18 +378,9 @@ const InputCutting = () => {
         return updated;
       }),
     );
-
-    // Trigger API calls after state update
-    if (field === "customerId" && value) {
-      await fetchPoNumbers(value, false, id);
-    } else if (field === "poNumber" && value) {
-      await fetchCustomerPos(value, false, id);
-    } else if (field === "customerPO" && value) {
-      await fetchSkus(value, false, id);
-    }
   };
 
-  // === Add/Remove Entries ===
+  // Add/remove entries
   const addFormEntry = () => {
     const newId = formEntries.length
       ? Math.max(...formEntries.map((e) => e.id)) + 1
@@ -373,7 +411,7 @@ const InputCutting = () => {
     }
   };
 
-  // === Submit Handler ===
+  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -386,11 +424,11 @@ const InputCutting = () => {
       time: headerData.time,
       entries: formEntries.map(
         ({ id, poNumbers, customerPOs, skus, ...entry }) => {
-          const customer = customerOptions.find(
-            (c) => c.id == entry.customerId,
-          );
+          const customerName =
+            masterData.find((c) => c.customer_id == entry.customerId)
+              ?.customer_name || "";
           return {
-            customer: customer ? customer.name : "",
+            customer: customerName,
             poNumber: entry.poNumber,
             customerPO: entry.customerPO,
             sku: entry.sku,
@@ -414,12 +452,6 @@ const InputCutting = () => {
         shift: "1",
         group: "A",
         time: "08:00",
-        customerId: "",
-        poNumber: "",
-        customerPo: "",
-        sku: "",
-        qtyPlan: "",
-        week: "",
       });
       setFormEntries([
         {
@@ -452,7 +484,6 @@ const InputCutting = () => {
 
   return (
     <div className="cutting-form-wrapper">
-      <div>
         <h1 className="cutting-title">
           <Package className="w-7 h-7" /> Input Data Cutting
         </h1>
@@ -528,7 +559,6 @@ const InputCutting = () => {
             </div>
           </div>
 
-          {/* Cascading Dropdowns - Header */}
           <div className="form-group">
             <label>Week</label>
             <select
@@ -537,11 +567,11 @@ const InputCutting = () => {
                 setHeaderData((prev) => ({ ...prev, week: e.target.value }))
               }
               className="form-input"
-              disabled={weekOptions.length === 0}
+              disabled={loadingOptions.weeks || weekOptions.length === 0}
             >
               <option value="">Pilih Week</option>
               {weekOptions.map((week, index) => (
-                <option key={`week-${index}`} value={week.week || week}>
+                <option key={index} value={week.week || week}>
                   {week.week || week}
                 </option>
               ))}
@@ -571,11 +601,11 @@ const InputCutting = () => {
               value={headerData.poNumber}
               onChange={(e) => handlePoNumberChange(e.target.value)}
               className="form-input"
-              disabled={!headerData.customerId}
+              disabled={loadingOptions.poNumbers || !headerData.customerId}
             >
               <option value="">Pilih PO Number</option>
               {poNumberOptions.map((po, index) => (
-                <option key={`po-${index}`} value={po.poNumber || po}>
+                <option key={index} value={po.poNumber || po}>
                   {po.poNumber || po}
                 </option>
               ))}
@@ -588,11 +618,11 @@ const InputCutting = () => {
               value={headerData.customerPo}
               onChange={(e) => handleCustomerPoChange(e.target.value)}
               className="form-input"
-              disabled={!headerData.poNumber}
+              disabled={loadingOptions.customerPos || !headerData.poNumber}
             >
               <option value="">Pilih Customer PO</option>
               {customerPoOptions.map((po, index) => (
-                <option key={`cpo-${index}`} value={po.customerPo || po}>
+                <option key={index} value={po.customerPo || po}>
                   {po.customerPo || po}
                 </option>
               ))}
@@ -605,11 +635,11 @@ const InputCutting = () => {
               value={headerData.sku}
               onChange={(e) => handleSkuChange(e.target.value)}
               className="form-input"
-              disabled={!headerData.customerPo}
+              disabled={loadingOptions.skus || !headerData.customerPo}
             >
               <option value="">Pilih SKU</option>
               {skuOptions.map((sku, index) => (
-                <option key={`sku-${index}`} value={sku.sku || sku}>
+                <option key={index} value={sku.sku || sku}>
                   {sku.sku || sku}
                 </option>
               ))}
@@ -624,11 +654,11 @@ const InputCutting = () => {
                 setHeaderData((prev) => ({ ...prev, qtyPlan: e.target.value }))
               }
               className="form-input"
-              disabled={qtyOptions.length === 0}
+              disabled={loadingOptions.qtyPlans || qtyOptions.length === 0}
             >
               <option value="">Pilih Qty Plan</option>
               {qtyOptions.map((qty, index) => (
-                <option key={`qty-${index}`} value={qty.qty || qty}>
+                <option key={index} value={qty.qty || qty}>
                   {qty.qty || qty}
                 </option>
               ))}
@@ -676,12 +706,15 @@ const InputCutting = () => {
                     }
                     className="cutting-select"
                     required
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || loadingMaster}
                   >
                     <option value="">Pilih Customer</option>
-                    {customerOptions.map((customer) => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.name}
+                    {masterData.map((customer) => (
+                      <option
+                        key={customer.customer_id}
+                        value={customer.customer_id}
+                      >
+                        {customer.customer_name}
                       </option>
                     ))}
                   </select>
@@ -707,7 +740,7 @@ const InputCutting = () => {
                   >
                     <option value="">Pilih PO Number</option>
                     {entry.poNumbers.map((po, i) => (
-                      <option key={`entry-po-${entry.id}-${i}`} value={po}>
+                      <option key={i} value={po}>
                         {po}
                       </option>
                     ))}
@@ -734,7 +767,7 @@ const InputCutting = () => {
                   >
                     <option value="">Pilih Customer PO</option>
                     {entry.customerPOs.map((po, i) => (
-                      <option key={`entry-cpo-${entry.id}-${i}`} value={po}>
+                      <option key={i} value={po}>
                         {po}
                       </option>
                     ))}
@@ -757,10 +790,7 @@ const InputCutting = () => {
                   >
                     <option value="">Pilih SKU</option>
                     {entry.skus.map((item, i) => (
-                      <option
-                        key={`entry-sku-${entry.id}-${i}`}
-                        value={item.sku}
-                      >
+                      <option key={i} value={item.sku}>
                         {item.sku} ({item.item_number})
                       </option>
                     ))}
@@ -776,7 +806,11 @@ const InputCutting = () => {
                     type="text"
                     value={entry.sCode}
                     onChange={(e) =>
-                      handleFormEntryChange(entry.id, "sCode", e.target.value)
+                      handleFormEntryChange(
+                        entry.id,
+                        "sCode",
+                        e.target.value,
+                      )
                     }
                     className="cutting-input"
                     placeholder="Enter S.CODE"
