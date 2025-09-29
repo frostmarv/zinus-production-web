@@ -2,7 +2,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 if (!API_BASE_URL) {
-  console.warn("⚠️ VITE_API_BASE_URL tidak ditemukan di .env");
+  console.warn("⚠️ VITE_API_BASE_URL tidak ditemukan di environment variables");
 }
 
 export const apiClient = {
