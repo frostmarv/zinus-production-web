@@ -1,0 +1,53 @@
+-- 1. Customers
+INSERT OR IGNORE INTO customers (customer_name, customer_code) VALUES
+('WMT US STORE', 'WMT-US'),
+('AMAZON DI', 'AMZ-DI'),
+('WMT.COM', 'WMT-COM'),
+('WAY FAIR US', 'WF-US'),
+('Mellow Inc (Amazon DI)', 'MELLOW-DI'),
+('PT. Zinus Furniture Indonesia', 'ZINUS-ID');
+
+-- 2. Products
+INSERT OR IGNORE INTO products 
+(item_number, sku, category, spec_length, spec_width, spec_height, spec_unit, item_description) VALUES
+('F.MFM.08F.002.WS', 'SPT-STR-800F', 'FOAM', 75, 54, 8, 'IN', '8IN SP MFM FL'),
+('F.MFM.10F.002.AD', 'AZ-CMM-1000F', 'FOAM', 75, 54, 10, 'IN', '10IN CL MFM FL'),
+('F.MFG.06F.001.WT', 'CLE-06F', 'FOAM', 75, 54, 6, 'IN', '6IN COOLING MFG FL'),
+('F.MFG.12K.006.WA', 'WF-GIFGM-12K', 'FOAM', 80, 76, 12, 'IN', '12IN GIFGM EK'),
+('F.MFG.05T.003.BD', '5GM-T-IN', 'FOAM', 75, 39, 5, 'IN', '5IN GM TW'),
+('F.MFM.05N.000.ID', 'ID-MFMB5HZI-05S', 'FOAM', 200, 90, 5, 'IN', '5IN HIGH DENSITY MFM NT'),
+('F.MSS.12T.005.AD', 'MSHEBT-12T', 'SPRING', 75, 39, 12, 'IN', '12IN NEBT MSS TW'),
+('F.MSS.08Q.005.BD', 'BP-MSSA5AZI-08Q', 'SPRING', 80, 60, 8, 'IN', '8IN BONNEL QN'),
+('F.MSS.06T.002.WS', 'MS24-6T', 'SPRING', 75, 39, 6, 'IN', '6IN MSS24-6TW'),
+('F.MSH.14F.005.WA', 'WF-MSH-PHM-14F', 'SPRING', 75, 54, 14, 'IN', '14IN SLEEP PLUSH HYBRID FL'),
+('F.MSS.08F.007.WT', 'MS24-8F', 'SPRING', 75, 54, 8, 'IN', '8IN MSS24-8FL');
+
+-- 3. Production Orders
+INSERT OR IGNORE INTO production_orders (customer_id, customer_po, po_number, order_date) VALUES
+(1, '0879611929', '0879611929', '2023-01-08'),
+(2, '8HUH47JT', 'ADMT2501B3N', '2023-01-08'),
+(3, '0876491485', '0876491485', '2023-01-08'),
+(4, 'WFIN00047', 'WFIN00047', '2023-01-08'),
+(5, '18FFPY2D', 'BPM195032', '2023-01-08'),
+(6, '25001', '25001', '2023-01-08'),
+(2, '1VD7EMYP', 'ADMT2501B3S', '2023-01-08'),
+(5, '6AUN3HUY', 'BPMAMZ2505E3T', '2023-01-08'),
+(1, '0902161994', '0902161994', '2023-01-08'),
+(4, 'WFIN00081', 'WFIN00081', '2023-01-08'),
+(3, '0876491311', '0876491311', '2023-01-08');
+
+-- 4. Production Order Items
+-- Hitung total_planned secara eksplisit
+INSERT OR IGNORE INTO production_order_items 
+(order_id, product_id, planned_qty, sample_qty, total_planned, week_number, i_d, l_d, s_d) VALUES
+(1, 1, 1560, 0, 1560, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(2, 2, 117, 0, 117, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(3, 3, 50, 2, 52, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(4, 4, 25, 0, 25, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(5, 5, 30, 0, 30, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(6, 6, 100, 0, 100, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(7, 7, 20, 0, 20, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(8, 8, 150, 1, 151, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(9, 9, 2616, 0, 2616, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(10, 10, 200, 0, 200, 1, '2023-01-08', '2023-01-09', '2023-01-12'),
+(11, 11, 528, 0, 528, 1, '2023-01-08', '2023-01-09', '2023-01-12');
