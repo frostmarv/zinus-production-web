@@ -1,0 +1,39 @@
+arning: Encountered two children with the same key, &#x60;customer-1-undefined&#x60;. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+    at select
+    at div
+    at div
+    at div
+    at div
+    at form
+    at div
+    at div
+    at div
+    at InputCutting (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/src/pages/Cutting/InputCutting.jsx:33:39)
+    at RenderedRoute (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=61799f77:5601:26)
+    at Routes (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=61799f77:6365:3)
+    at div
+    at div
+    at Router (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=61799f77:6308:13)
+    at BrowserRouter (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=61799f77:9433:3)
+    at App
+at select
+at div
+at div
+at div
+at div
+at form
+at div
+at div
+at div
+at InputCutting (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/src/pages/Cutting/InputCutting.jsx:33:39)
+at RenderedRoute (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=61799f77:5601:26)
+at Routes (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=61799f77:6365:3)
+at div
+at div
+at Router (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=61799f77:6308:13)
+at BrowserRouter (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=61799f77:9433:3)
+at App
+at t.value (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://a7fd718f-7ef1-4b33-93db-9cc75178cf6f-00-1ymwday371o0.sisko.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

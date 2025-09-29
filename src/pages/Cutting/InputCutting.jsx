@@ -52,10 +52,13 @@ const InputCutting = () => {
         const response = await masterDataAPI.getCustomers();
         const rawData = Array.isArray(response) ? response : [];
         // Transform backend format {customer_id, customer_name} to {value, label}
-        const data = rawData.map(c => ({
-          value: c.customer_id,
-          label: c.customer_name
-        }));
+        // Filter out any invalid data
+        const data = rawData
+          .filter(c => c.customer_id !== undefined && c.customer_id !== null)
+          .map(c => ({
+            value: c.customer_id,
+            label: c.customer_name || `Customer ${c.customer_id}`
+          }));
         setCustomers(data);
         setFormEntries((prev) =>
           prev.map((entry) => ({
@@ -537,9 +540,9 @@ const InputCutting = () => {
                         disabled={isSubmitting || loadingCustomers}
                       >
                         <option value="">Pilih Customer</option>
-                        {(entry.customers || []).map((customer) => (
+                        {(entry.customers || []).map((customer, idx) => (
                           <option
-                            key={`customer-${entry.id}-${customer.value}`}
+                            key={`customer-${entry.id}-${customer.value || idx}`}
                             value={customer.value}
                           >
                             {customer.label}
@@ -570,9 +573,9 @@ const InputCutting = () => {
                         disabled={!entry.customerId || isSubmitting}
                       >
                         <option value="">Pilih PO Number</option>
-                        {(entry.poNumbers || []).map((po) => (
+                        {(entry.poNumbers || []).map((po, idx) => (
                           <option
-                            key={`po-${entry.id}-${po.value}`}
+                            key={`po-${entry.id}-${po.value || idx}`}
                             value={po.value}
                           >
                             {po.label}
@@ -603,9 +606,9 @@ const InputCutting = () => {
                         disabled={!entry.poNumber || isSubmitting}
                       >
                         <option value="">Pilih Customer PO</option>
-                        {(entry.customerPOs || []).map((po) => (
+                        {(entry.customerPOs || []).map((po, idx) => (
                           <option
-                            key={`customerpo-${entry.id}-${po.value}`}
+                            key={`customerpo-${entry.id}-${po.value || idx}`}
                             value={po.value}
                           >
                             {po.label}
@@ -632,9 +635,9 @@ const InputCutting = () => {
                         disabled={!entry.customerPO || isSubmitting}
                       >
                         <option value="">Pilih SKU</option>
-                        {(entry.skus || []).map((sku) => (
+                        {(entry.skus || []).map((sku, idx) => (
                           <option
-                            key={`sku-${entry.id}-${sku.value}`}
+                            key={`sku-${entry.id}-${sku.value || idx}`}
                             value={sku.value}
                           >
                             {sku.label}
