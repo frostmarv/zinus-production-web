@@ -280,10 +280,20 @@ const InputCutting = () => {
         } else if (field === "sku") {
           updated.quantityOrder = "";
           updated.week = "";
+          updated.sCode = "";
+          updated.description = "";
+          updated.sCodes = [];
 
           if (value && updated.customerPO) {
             loadQtyPlans(id, updated.customerPO, value);
             loadWeeks(id, updated.customerPO, value);
+            loadSCodes(id, value);
+          }
+        } else if (field === "sCode") {
+          updated.description = "";
+
+          if (value) {
+            loadDescription(id, value);
           }
         }
 
@@ -313,6 +323,7 @@ const InputCutting = () => {
         customerPO: "",
         sku: "",
         sCode: "",
+        description: "",
         quantityOrder: "",
         quantityProduksi: "",
         week: "",
@@ -321,6 +332,7 @@ const InputCutting = () => {
         poNumbers: [],
         customerPOs: [],
         skus: [],
+        sCodes: [],
       },
     ]);
   };
@@ -359,6 +371,7 @@ const InputCutting = () => {
             customerPO: entry.customerPO,
             sku: entry.sku,
             sCode: entry.sCode,
+            description: entry.description,
             quantityOrder: Number(entry.quantityOrder) || 0,
             quantityProduksi: Number(entry.quantityProduksi) || 0,
             week: entry.week,
