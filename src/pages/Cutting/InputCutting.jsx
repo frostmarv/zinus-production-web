@@ -687,8 +687,7 @@ const InputCutting = () => {
                         </div>
                         S.CODE
                       </label>
-                      <input
-                        type="text"
+                      <select
                         value={entry.sCode}
                         onChange={(e) =>
                           handleFormEntryChange(
@@ -697,10 +696,37 @@ const InputCutting = () => {
                             e.target.value,
                           )
                         }
-                        className="cutting-input"
-                        placeholder="Enter S.CODE"
+                        className="cutting-select"
                         required
-                        disabled={isSubmitting}
+                        disabled={!entry.sku || isSubmitting}
+                      >
+                        <option value="">Pilih S.CODE</option>
+                        {(entry.sCodes || []).map((sCode, idx) => (
+                          <option
+                            key={`scode-${entry.id}-${sCode.value || idx}`}
+                            value={sCode.value}
+                          >
+                            {sCode.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Description */}
+                    <div className="cutting-field-group">
+                      <label className="cutting-label">
+                        <div className="cutting-label-icon">
+                          <FileText />
+                        </div>
+                        Description
+                      </label>
+                      <input
+                        type="text"
+                        value={entry.description}
+                        readOnly
+                        className="cutting-input cutting-input-readonly"
+                        placeholder="Auto-fill ketika S.CODE dipilih"
+                        disabled
                       />
                     </div>
 
