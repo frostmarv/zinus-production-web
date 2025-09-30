@@ -27,6 +27,7 @@ The application follows a modular component architecture organized by feature:
 - Uses React's built-in state management (useState, useEffect)
 - API client abstraction for centralized HTTP request handling
 - Modular API services for different business domains (cutting, masterData, etc.)
+- **Persistent Remain Quantity Tracking**: InputCutting component implements session-level cumulative remain tracking using baseRemainByKey state that persists across multiple production entries for the same CustomerPO+SKU combination
 
 ## Styling System
 - CSS custom properties (CSS variables) for consistent theming
