@@ -171,16 +171,22 @@ const InputCutting = () => {
       }));
       
       setFormEntries((prev) =>
-        prev.map((entry) =>
-          entry.id === entryId
-            ? {
-                ...entry,
-                quantityOrder: qtyValue.toString(),
-                sCodes: sCodesOptions,
-                sCodesData: sCodesRaw,
-              }
-            : entry,
-        ),
+        prev.map((entry) => {
+          if (entry.id !== entryId) return entry;
+          
+          // Hitung remain quantity dengan qty baru
+          const qtyOrder = Number(qtyValue) || 0;
+          const qtyProd = Number(entry.quantityProduksi) || 0;
+          const remain = qtyOrder - qtyProd;
+          
+          return {
+            ...entry,
+            quantityOrder: qtyValue.toString(),
+            sCodes: sCodesOptions,
+            sCodesData: sCodesRaw,
+            remainQuantity: remain,
+          };
+        }),
       );
     } catch (err) {
       console.error("Gagal memuat Qty Plans:", err);
@@ -228,6 +234,7 @@ const InputCutting = () => {
           updated.description = "";
           updated.quantityOrder = "";
           updated.week = "";
+          updated.remainQuantity = 0;
           updated.poNumbers = [];
           updated.customerPOs = [];
           updated.skus = [];
@@ -244,6 +251,7 @@ const InputCutting = () => {
           updated.description = "";
           updated.quantityOrder = "";
           updated.week = "";
+          updated.remainQuantity = 0;
           updated.customerPOs = [];
           updated.skus = [];
           updated.sCodes = [];
@@ -258,6 +266,7 @@ const InputCutting = () => {
           updated.description = "";
           updated.quantityOrder = "";
           updated.week = "";
+          updated.remainQuantity = 0;
           updated.skus = [];
           updated.sCodes = [];
           updated.sCodesData = [];
@@ -270,6 +279,7 @@ const InputCutting = () => {
           updated.week = "";
           updated.sCode = "";
           updated.description = "";
+          updated.remainQuantity = 0;
           updated.sCodes = [];
           updated.sCodesData = [];
 
@@ -285,8 +295,8 @@ const InputCutting = () => {
           updated.description = selectedSCode?.description || "";
         }
 
-        // Hitung remain quantity
-        if (["quantityOrder", "quantityProduksi", "sku"].includes(field)) {
+        // Hitung remain quantity (kecuali untuk 'sku' karena qty akan diset async di loadQtyPlans)
+        if (["quantityOrder", "quantityProduksi"].includes(field)) {
           const qtyOrder = parseFloat(updated.quantityOrder) || 0;
           const qtyProd = parseFloat(updated.quantityProduksi) || 0;
           updated.remainQuantity = qtyOrder - qtyProd;
@@ -689,10 +699,14 @@ const InputCutting = () => {
                           )
                         }
                         className="cutting-select"
-                        required
-                        disabled={!entry.sku || isSubmitting}
+                        required={(entry.sCodes || []).length > 0}
+                        disabled={!entry.sku || (entry.sCodes || []).length === 0 || isSubmitting}
                       >
-                        <option value="">Pilih S.CODE</option>
+                        <option value="">
+                          {(entry.sCodes || []).length === 0 
+                            ? "Tidak ada S.CODE" 
+                            : "Pilih S.CODE"}
+                        </option>
                         {(entry.sCodes || []).map((sCode, idx) => (
                           <option
                             key={`scode-${entry.id}-${sCode.value || idx}`}
