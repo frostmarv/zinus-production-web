@@ -150,9 +150,11 @@ const InputCutting = () => {
   const loadQtyPlans = useCallback(async (entryId, customerPo, sku) => {
     try {
       const response = await masterDataAPI.getQtyPlans(customerPo, sku);
+      console.log("📦 Qty Plans Response:", response);
       const rawData = Array.isArray(response) ? response : [];
       // Karena hanya ada 1 qty per SKU, langsung ambil value pertama
       const qtyValue = rawData.length > 0 ? rawData[0] : "";
+      console.log("📦 Qty Value:", qtyValue);
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId
@@ -172,9 +174,11 @@ const InputCutting = () => {
   const loadWeeks = useCallback(async (entryId, customerPo, sku) => {
     try {
       const response = await masterDataAPI.getWeeks(customerPo, sku);
+      console.log("📅 Weeks Response:", response);
       const rawData = Array.isArray(response) ? response : [];
       // Karena hanya ada 1 week per SKU, langsung ambil value pertama
       const weekValue = rawData.length > 0 ? rawData[0] : "";
+      console.log("📅 Week Value:", weekValue);
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId
