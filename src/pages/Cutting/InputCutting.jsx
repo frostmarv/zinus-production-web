@@ -57,35 +57,33 @@ const InputCutting = () => {
     return `${entry.customerPO}|${entry.sku}`;
   };
 
-  // Helper: Recompute remain quantities for all entries
-  const recomputeAllRemains = useCallback(() => {
-    setFormEntries((prev) => {
-      // Group entries by key and calculate total produced per key
-      const totalProducedByKey = {};
-      prev.forEach((entry) => {
-        const key = computeKey(entry);
-        if (key) {
-          const qtyProd = Number(entry.quantityProduksi) || 0;
-          totalProducedByKey[key] = (totalProducedByKey[key] || 0) + qtyProd;
-        }
-      });
-
-      // Update each entry's remainQuantity
-      return prev.map((entry) => {
-        const key = computeKey(entry);
-        if (!key) return entry;
-
-        const baseRemain = baseRemainByKey[key] || 0;
-        const totalProduced = totalProducedByKey[key] || 0;
-        const newRemain = baseRemain - totalProduced;
-
-        return {
-          ...entry,
-          remainQuantity: newRemain,
-        };
-      });
+  // Pure function: Recompute remain quantities for all entries
+  const recomputeRemains = (entries, baseByKey) => {
+    // Group entries by key and calculate total produced per key
+    const totalProducedByKey = {};
+    entries.forEach((entry) => {
+      const key = computeKey(entry);
+      if (key) {
+        const qtyProd = Number(entry.quantityProduksi) || 0;
+        totalProducedByKey[key] = (totalProducedByKey[key] || 0) + qtyProd;
+      }
     });
-  }, [baseRemainByKey]);
+
+    // Update each entry's remainQuantity
+    return entries.map((entry) => {
+      const key = computeKey(entry);
+      if (!key) return entry;
+
+      const baseRemain = baseByKey[key] || 0;
+      const totalProduced = totalProducedByKey[key] || 0;
+      const newRemain = baseRemain - totalProduced;
+
+      return {
+        ...entry,
+        remainQuantity: newRemain,
+      };
+    });
+  };
 
   // Load customers data
   useEffect(() => {
@@ -213,31 +211,37 @@ const InputCutting = () => {
       const key = `${customerPo}|${sku}`;
       const plannedQty = Number(qtyValue) || 0;
       
-      setBaseRemainByKey((prev) => ({
-        ...prev,
-        [key]: plannedQty,
-      }));
-      
-      setFormEntries((prev) =>
-        prev.map((entry) => {
-          if (entry.id !== entryId) return entry;
+      // Atomic update: set baseline and recompute in one transaction
+      setBaseRemainByKey((prevBase) => {
+        const nextBase = {
+          ...prevBase,
+          [key]: plannedQty,
+        };
+        
+        // Update entries and recompute remains atomically
+        setFormEntries((prevEntries) => {
+          const updatedEntries = prevEntries.map((entry) => {
+            if (entry.id !== entryId) return entry;
+            
+            return {
+              ...entry,
+              quantityOrder: qtyValue.toString(),
+              sCodes: sCodesOptions,
+              sCodesData: sCodesRaw,
+            };
+          });
           
-          return {
-            ...entry,
-            quantityOrder: qtyValue.toString(),
-            sCodes: sCodesOptions,
-            sCodesData: sCodesRaw,
-          };
-        }),
-      );
-      
-      // Trigger recompute after state is updated
-      setTimeout(() => recomputeAllRemains(), 0);
+          // Recompute all remains with new baseline
+          return recomputeRemains(updatedEntries, nextBase);
+        });
+        
+        return nextBase;
+      });
     } catch (err) {
       console.error("Gagal memuat Qty Plans:", err);
       alert("❌ Gagal memuat Qty Plans");
     }
-  }, [recomputeAllRemains]);
+  }, []);
 
   const loadWeeks = useCallback(async (entryId, customerPo, sku) => {
     try {
@@ -278,6 +282,7 @@ const InputCutting = () => {
           updated.sCode = "";
           updated.description = "";
           updated.quantityOrder = "";
+          updated.quantityProduksi = "";
           updated.week = "";
           updated.remainQuantity = 0;
           updated.poNumbers = [];
@@ -295,6 +300,7 @@ const InputCutting = () => {
           updated.sCode = "";
           updated.description = "";
           updated.quantityOrder = "";
+          updated.quantityProduksi = "";
           updated.week = "";
           updated.remainQuantity = 0;
           updated.customerPOs = [];
@@ -310,6 +316,7 @@ const InputCutting = () => {
           updated.sCode = "";
           updated.description = "";
           updated.quantityOrder = "";
+          updated.quantityProduksi = "";
           updated.week = "";
           updated.remainQuantity = 0;
           updated.skus = [];
@@ -321,6 +328,7 @@ const InputCutting = () => {
           }
         } else if (field === "sku") {
           updated.quantityOrder = "";
+          updated.quantityProduksi = "";
           updated.week = "";
           updated.sCode = "";
           updated.description = "";
@@ -344,9 +352,9 @@ const InputCutting = () => {
       }),
     );
     
-    // Recompute all remains when quantityProduksi changes or key fields change
-    if (["quantityProduksi", "customerPO", "sku"].includes(field)) {
-      setTimeout(() => recomputeAllRemains(), 0);
+    // Recompute all remains when quantityProduksi changes
+    if (field === "quantityProduksi") {
+      setFormEntries((prev) => recomputeRemains(prev, baseRemainByKey));
     }
   };
 
@@ -381,9 +389,11 @@ const InputCutting = () => {
 
   const removeFormEntry = (id) => {
     if (formEntries.length > 1) {
-      setFormEntries((prev) => prev.filter((e) => e.id !== id));
-      // Recompute remains after removing entry
-      setTimeout(() => recomputeAllRemains(), 0);
+      setFormEntries((prev) => {
+        const filtered = prev.filter((e) => e.id !== id);
+        // Recompute remains after removing entry
+        return recomputeRemains(filtered, baseRemainByKey);
+      });
     }
   };
 
