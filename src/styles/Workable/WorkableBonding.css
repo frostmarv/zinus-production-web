@@ -1,0 +1,110 @@
+/* src/styles/Workable/WorkableBonding.css */
+.workable-container {
+  padding: 20px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.workable-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 20px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.workable-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.workable-table th {
+  background-color: #f3f4f6;
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.workable-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #1f2937;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.workable-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sku-cell {
+  font-family: monospace;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.qty-cell,
+.progress-cell {
+  font-weight: 600;
+}
+
+.progress-cell {
+  color: #2563eb;
+}
+
+.remain-cell {
+  font-weight: 600;
+}
+
+.remain-cell.negative {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.remarks-cell {
+  max-width: 200px;
+  word-wrap: break-word;
+  color: #6b7280;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-workable {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.status-running {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.no-data,
+.workable-loading,
+.workable-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+}
+
+.workable-error {
+  color: #ef4444;
+}

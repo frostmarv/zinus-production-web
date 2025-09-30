@@ -17,6 +17,8 @@ import EditCutting from "./pages/Cutting/EditCutting";
 import IndexCutting from "./pages/Cutting/IndexCutting";
 import CuttingInput from "./pages/Cutting/InputCutting";
 import CuttingHistorySummary from "./pages/History/Cutting/CuttingHistorySummary";
+import WorkableBonding from "./pages/Workable/WorkableBonding";
+import DetailWorkableBonding from "./pages/Workable/Detail/DetailWorkableBonding";
 import "./styles/App.css";
 
 function App() {
@@ -48,6 +50,11 @@ function App() {
             <Route
               path="/history/cutting/summary"
               element={<CuttingHistorySummary />}
+            />
+            <Route path="/workable/bonding" element={<WorkableBonding />} />
+            <Route
+              path="/workable/bonding/detail"
+              element={<DetailWorkableBonding />}
             />
           </Routes>
         </div>
