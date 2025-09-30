@@ -248,11 +248,14 @@ const InputCutting = () => {
           updated.poNumber = "";
           updated.customerPO = "";
           updated.sku = "";
+          updated.sCode = "";
+          updated.description = "";
           updated.quantityOrder = "";
           updated.week = "";
           updated.poNumbers = [];
           updated.customerPOs = [];
           updated.skus = [];
+          updated.sCodes = [];
 
           if (value) {
             loadPoNumbers(id, value);
@@ -260,19 +263,25 @@ const InputCutting = () => {
         } else if (field === "poNumber") {
           updated.customerPO = "";
           updated.sku = "";
+          updated.sCode = "";
+          updated.description = "";
           updated.quantityOrder = "";
           updated.week = "";
           updated.customerPOs = [];
           updated.skus = [];
+          updated.sCodes = [];
 
           if (value) {
             loadCustomerPOs(id, value);
           }
         } else if (field === "customerPO") {
           updated.sku = "";
+          updated.sCode = "";
+          updated.description = "";
           updated.quantityOrder = "";
           updated.week = "";
           updated.skus = [];
+          updated.sCodes = [];
 
           if (value) {
             loadSkus(id, value);
@@ -399,6 +408,7 @@ const InputCutting = () => {
           customerPO: "",
           sku: "",
           sCode: "",
+          description: "",
           quantityOrder: "",
           quantityProduksi: "",
           week: "",
@@ -407,6 +417,7 @@ const InputCutting = () => {
           poNumbers: [],
           customerPOs: [],
           skus: [],
+          sCodes: [],
         },
       ]);
     } catch (err) {

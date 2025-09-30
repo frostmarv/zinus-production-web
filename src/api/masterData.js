@@ -61,24 +61,6 @@ export const masterDataAPI = {
       const res = await apiClient.get(
         `/api/master-data/weeks?customerPo=${customerPo}&sku=${sku}`,
       );
-      return res; // sudah { value, label }
-    }),
-
-  // 7. S.CODE by SKU
-  getSCodes: (sku) =>
-    handleRequest(async () => {
-      const res = await apiClient.get(
-        `/api/master-data/scodes?sku=${sku}`,
-      );
-      return res; // sudah { value, label }
-    }),
-
-  // 8. Description by S.CODE
-  getDescription: (sCode) =>
-    handleRequest(async () => {
-      const res = await apiClient.get(
-        `/api/master-data/description?sCode=${sCode}`,
-      );
-      return res; // sudah { value, label }
+      return res; // { value, label, f_code, s_codes: [{s_code, description}] }
     }),
 };
