@@ -16,6 +16,7 @@ import UserManagement from "./pages/UserManagement";
 import EditCutting from "./pages/Cutting/EditCutting";
 import IndexCutting from "./pages/Cutting/IndexCutting";
 import CuttingInput from "./pages/Cutting/InputCutting";
+import CuttingHistorySummary from "./pages/History/Cutting/CuttingHistorySummary";
 import "./styles/App.css";
 
 function App() {
@@ -33,7 +34,10 @@ function App() {
             <Route path="/jde/history" element={<History />} />
             <Route path="/history" element={<HistoryIndex />} />
             <Route path="/history/cutting" element={<CuttingHistoryIndex />} />
-            <Route path="/history/cutting/balok" element={<CuttingHistoryBalok />} />
+            <Route
+              path="/history/cutting/balok"
+              element={<CuttingHistoryBalok />}
+            />
             <Route path="/master-data" element={<MasterData />} />
             <Route path="/workable" element={<WorkableIndex />} />
             <Route path="/cutting/input-balok" element={<BalokCutting />} />
@@ -41,6 +45,10 @@ function App() {
             <Route path="/cutting/edit/:id" element={<EditCutting />} />
             <Route path="/cutting/index-cutting" element={<IndexCutting />} />
             <Route path="/cutting/input-cutting" element={<CuttingInput />} />
+            <Route
+              path="/history/cutting/summary"
+              element={<CuttingHistorySummary />}
+            />
           </Routes>
         </div>
       </div>
