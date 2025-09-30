@@ -335,6 +335,11 @@ const InputCutting = () => {
             (item) => item.s_code === value
           );
           updated.description = selectedSCode?.description || "";
+          
+          // Jika S.CODE di-clear, reset remainQuantity
+          if (!value) {
+            updated.remainQuantity = 0;
+          }
         }
 
         return updated;
