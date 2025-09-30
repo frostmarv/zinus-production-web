@@ -39,6 +39,7 @@ const InputCutting = () => {
       customerPOs: [],
       skus: [],
       sCodes: [],
+      sCodesData: [],
     },
   ]);
 
@@ -153,16 +154,30 @@ const InputCutting = () => {
     try {
       const response = await masterDataAPI.getQtyPlans(customerPo, sku);
       const rawData = Array.isArray(response) ? response : [];
-      // Backend mengembalikan [{value, label}], ambil .value saja
+      // Backend mengembalikan [{value, label, f_code, s_codes: [{s_code, description}]}]
       const qtyValue = rawData.length > 0 && rawData[0].value !== undefined 
         ? rawData[0].value 
         : "";
+      
+      // Extract s_codes dari response
+      const sCodesRaw = rawData.length > 0 && rawData[0].s_codes 
+        ? rawData[0].s_codes 
+        : [];
+      
+      // Transform s_codes untuk dropdown format {value, label}
+      const sCodesOptions = sCodesRaw.map((item) => ({
+        value: item.s_code,
+        label: item.s_code,
+      }));
+      
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId
             ? {
                 ...entry,
                 quantityOrder: qtyValue.toString(),
+                sCodes: sCodesOptions,
+                sCodesData: sCodesRaw,
               }
             : entry,
         ),
@@ -197,45 +212,6 @@ const InputCutting = () => {
     }
   }, []);
 
-  const loadSCodes = useCallback(async (entryId, sku) => {
-    try {
-      const response = await masterDataAPI.getSCodes(sku);
-      const data = Array.isArray(response) ? response : [];
-      setFormEntries((prev) =>
-        prev.map((entry) =>
-          entry.id === entryId ? { ...entry, sCodes: data } : entry,
-        ),
-      );
-    } catch (err) {
-      console.error("Gagal memuat S.CODEs:", err);
-      alert("❌ Gagal memuat S.CODEs");
-    }
-  }, []);
-
-  const loadDescription = useCallback(async (entryId, sCode) => {
-    try {
-      const response = await masterDataAPI.getDescription(sCode);
-      const rawData = Array.isArray(response) ? response : [];
-      // Backend mengembalikan [{value, label}], ambil .value saja
-      const descValue = rawData.length > 0 && rawData[0].value !== undefined 
-        ? rawData[0].value 
-        : "";
-      setFormEntries((prev) =>
-        prev.map((entry) =>
-          entry.id === entryId
-            ? {
-                ...entry,
-                description: descValue,
-              }
-            : entry,
-        ),
-      );
-    } catch (err) {
-      console.error("Gagal memuat Description:", err);
-      alert("❌ Gagal memuat Description");
-    }
-  }, []);
-
   // Handle form entry changes with cascading logic
   const handleFormEntryChange = async (id, field, value) => {
     setFormEntries((prev) =>
@@ -256,6 +232,7 @@ const InputCutting = () => {
           updated.customerPOs = [];
           updated.skus = [];
           updated.sCodes = [];
+          updated.sCodesData = [];
 
           if (value) {
             loadPoNumbers(id, value);
@@ -270,6 +247,7 @@ const InputCutting = () => {
           updated.customerPOs = [];
           updated.skus = [];
           updated.sCodes = [];
+          updated.sCodesData = [];
 
           if (value) {
             loadCustomerPOs(id, value);
@@ -282,6 +260,7 @@ const InputCutting = () => {
           updated.week = "";
           updated.skus = [];
           updated.sCodes = [];
+          updated.sCodesData = [];
 
           if (value) {
             loadSkus(id, value);
@@ -292,18 +271,18 @@ const InputCutting = () => {
           updated.sCode = "";
           updated.description = "";
           updated.sCodes = [];
+          updated.sCodesData = [];
 
           if (value && updated.customerPO) {
             loadQtyPlans(id, updated.customerPO, value);
             loadWeeks(id, updated.customerPO, value);
-            loadSCodes(id, value);
           }
         } else if (field === "sCode") {
-          updated.description = "";
-
-          if (value) {
-            loadDescription(id, value);
-          }
+          // Find description dari sCodesData berdasarkan selected sCode
+          const selectedSCode = entry.sCodesData?.find(
+            (item) => item.s_code === value
+          );
+          updated.description = selectedSCode?.description || "";
         }
 
         // Hitung remain quantity
@@ -342,6 +321,7 @@ const InputCutting = () => {
         customerPOs: [],
         skus: [],
         sCodes: [],
+        sCodesData: [],
       },
     ]);
   };
@@ -418,6 +398,7 @@ const InputCutting = () => {
           customerPOs: [],
           skus: [],
           sCodes: [],
+          sCodesData: [],
         },
       ]);
     } catch (err) {
