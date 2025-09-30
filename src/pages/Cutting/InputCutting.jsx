@@ -28,6 +28,7 @@ const InputCutting = () => {
       customerPO: "",
       sku: "",
       sCode: "",
+      description: "",
       quantityOrder: "",
       quantityProduksi: "",
       week: "",
@@ -37,6 +38,7 @@ const InputCutting = () => {
       poNumbers: [],
       customerPOs: [],
       skus: [],
+      sCodes: [],
     },
   ]);
 
@@ -192,6 +194,45 @@ const InputCutting = () => {
     } catch (err) {
       console.error("Gagal memuat Weeks:", err);
       alert("❌ Gagal memuat Weeks");
+    }
+  }, []);
+
+  const loadSCodes = useCallback(async (entryId, sku) => {
+    try {
+      const response = await masterDataAPI.getSCodes(sku);
+      const data = Array.isArray(response) ? response : [];
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId ? { ...entry, sCodes: data } : entry,
+        ),
+      );
+    } catch (err) {
+      console.error("Gagal memuat S.CODEs:", err);
+      alert("❌ Gagal memuat S.CODEs");
+    }
+  }, []);
+
+  const loadDescription = useCallback(async (entryId, sCode) => {
+    try {
+      const response = await masterDataAPI.getDescription(sCode);
+      const rawData = Array.isArray(response) ? response : [];
+      // Backend mengembalikan [{value, label}], ambil .value saja
+      const descValue = rawData.length > 0 && rawData[0].value !== undefined 
+        ? rawData[0].value 
+        : "";
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId
+            ? {
+                ...entry,
+                description: descValue,
+              }
+            : entry,
+        ),
+      );
+    } catch (err) {
+      console.error("Gagal memuat Description:", err);
+      alert("❌ Gagal memuat Description");
     }
   }, []);
 
