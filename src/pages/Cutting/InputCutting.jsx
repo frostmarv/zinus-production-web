@@ -10,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { masterDataAPI } from "../../api/masterData";
+import { cuttingProductionAPI } from "../../api/cutting";
 import "../../styles/Cutting/InputCutting.css";
 
 const InputCutting = () => {
@@ -461,8 +462,14 @@ const InputCutting = () => {
 
     try {
       console.log("Submitting data:", submitData);
-      alert("✅ Data berhasil disimpan!");
+      
+      // Kirim data ke backend API
+      const response = await cuttingProductionAPI.save(submitData);
+      console.log("Response dari server:", response);
+      
+      alert("✅ Data berhasil disimpan ke database!");
 
+      // Reset form setelah berhasil submit
       setHeaderData({
         timestamp: new Date().toISOString().slice(0, 16),
         shift: "1",
@@ -497,7 +504,7 @@ const InputCutting = () => {
       console.error("Error submitting data:", err);
       const msg = err.message || "Terjadi kesalahan saat menyimpan data";
       setError(msg);
-      alert(`❌ ${msg}`);
+      alert(`❌ Gagal menyimpan data: ${msg}`);
     } finally {
       setIsSubmitting(false);
     }
