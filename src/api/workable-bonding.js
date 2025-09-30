@@ -6,7 +6,7 @@ import { apiClient } from "./client";
  * @returns {Promise<Array>} Daftar workable bonding
  */
 export const getWorkableBonding = () => {
-  return apiClient.get("workable-bonding");
+  return apiClient.get("/api/workable-bonding");
 };
 
 /**
@@ -14,5 +14,5 @@ export const getWorkableBonding = () => {
  * @returns {Promise<Array>} Daftar detail workable bonding
  */
 export const getWorkableBondingDetail = () => {
-  return apiClient.get("workable-bonding/detail");
+  return apiClient.get("/api/workable-bonding/detail");
 };
