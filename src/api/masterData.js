@@ -63,4 +63,22 @@ export const masterDataAPI = {
       );
       return res; // sudah { value, label }
     }),
+
+  // 7. S.CODE by SKU
+  getSCodes: (sku) =>
+    handleRequest(async () => {
+      const res = await apiClient.get(
+        `/api/master-data/scodes?sku=${sku}`,
+      );
+      return res; // sudah { value, label }
+    }),
+
+  // 8. Description by S.CODE
+  getDescription: (sCode) =>
+    handleRequest(async () => {
+      const res = await apiClient.get(
+        `/api/master-data/description?sCode=${sCode}`,
+      );
+      return res; // sudah { value, label }
+    }),
 };
