@@ -10,7 +10,8 @@ import MasterData from "./pages/MasterData";
 import WorkableIndex from "./pages/Workable/WorkableIndex";
 import BalokCutting from "./pages/Cutting/BalokCutting";
 import HistoryIndex from "./pages/History/HistoryIndex";
-import HistoryCutting from "./pages/History/Cutting";
+import CuttingHistoryIndex from "./pages/History/Cutting/CuttingHistoryIndex";
+import CuttingHistoryBalok from "./pages/History/Cutting/CuttingHistoryBalok";
 import UserManagement from "./pages/UserManagement";
 import EditCutting from "./pages/Cutting/EditCutting";
 import IndexCutting from "./pages/Cutting/IndexCutting";
@@ -31,7 +32,8 @@ function App() {
             <Route path="/problems" element={<ProblematicData />} />
             <Route path="/jde/history" element={<History />} />
             <Route path="/history" element={<HistoryIndex />} />
-            <Route path="/history/cutting" element={<HistoryCutting />} />
+            <Route path="/history/cutting" element={<CuttingHistoryIndex />} />
+            <Route path="/history/cutting/balok" element={<CuttingHistoryBalok />} />
             <Route path="/master-data" element={<MasterData />} />
             <Route path="/workable" element={<WorkableIndex />} />
             <Route path="/cutting/input-balok" element={<BalokCutting />} />
