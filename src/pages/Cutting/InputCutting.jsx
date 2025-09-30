@@ -47,6 +47,45 @@ const InputCutting = () => {
   const [loadingCustomers, setLoadingCustomers] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Track baseline remain per unique CustomerPO+SKU combination
+  const [baseRemainByKey, setBaseRemainByKey] = useState({});
+
+  // Helper: Generate unique key for CustomerPO+SKU combination
+  const computeKey = (entry) => {
+    if (!entry.customerPO || !entry.sku) return null;
+    return `${entry.customerPO}|${entry.sku}`;
+  };
+
+  // Helper: Recompute remain quantities for all entries
+  const recomputeAllRemains = useCallback(() => {
+    setFormEntries((prev) => {
+      // Group entries by key and calculate total produced per key
+      const totalProducedByKey = {};
+      prev.forEach((entry) => {
+        const key = computeKey(entry);
+        if (key) {
+          const qtyProd = Number(entry.quantityProduksi) || 0;
+          totalProducedByKey[key] = (totalProducedByKey[key] || 0) + qtyProd;
+        }
+      });
+
+      // Update each entry's remainQuantity
+      return prev.map((entry) => {
+        const key = computeKey(entry);
+        if (!key) return entry;
+
+        const baseRemain = baseRemainByKey[key] || 0;
+        const totalProduced = totalProducedByKey[key] || 0;
+        const newRemain = baseRemain - totalProduced;
+
+        return {
+          ...entry,
+          remainQuantity: newRemain,
+        };
+      });
+    });
+  }, [baseRemainByKey]);
 
   // Load customers data
   useEffect(() => {
@@ -170,29 +209,35 @@ const InputCutting = () => {
         label: item.s_code,
       }));
       
+      // Set baseline remain for this CustomerPO+SKU combination
+      const key = `${customerPo}|${sku}`;
+      const plannedQty = Number(qtyValue) || 0;
+      
+      setBaseRemainByKey((prev) => ({
+        ...prev,
+        [key]: plannedQty,
+      }));
+      
       setFormEntries((prev) =>
         prev.map((entry) => {
           if (entry.id !== entryId) return entry;
-          
-          // Hitung remain quantity dengan qty baru
-          const qtyOrder = Number(qtyValue) || 0;
-          const qtyProd = Number(entry.quantityProduksi) || 0;
-          const remain = qtyOrder - qtyProd;
           
           return {
             ...entry,
             quantityOrder: qtyValue.toString(),
             sCodes: sCodesOptions,
             sCodesData: sCodesRaw,
-            remainQuantity: remain,
           };
         }),
       );
+      
+      // Trigger recompute after state is updated
+      setTimeout(() => recomputeAllRemains(), 0);
     } catch (err) {
       console.error("Gagal memuat Qty Plans:", err);
       alert("❌ Gagal memuat Qty Plans");
     }
-  }, []);
+  }, [recomputeAllRemains]);
 
   const loadWeeks = useCallback(async (entryId, customerPo, sku) => {
     try {
@@ -295,16 +340,14 @@ const InputCutting = () => {
           updated.description = selectedSCode?.description || "";
         }
 
-        // Hitung remain quantity (kecuali untuk 'sku' karena qty akan diset async di loadQtyPlans)
-        if (["quantityOrder", "quantityProduksi"].includes(field)) {
-          const qtyOrder = parseFloat(updated.quantityOrder) || 0;
-          const qtyProd = parseFloat(updated.quantityProduksi) || 0;
-          updated.remainQuantity = qtyOrder - qtyProd;
-        }
-
         return updated;
       }),
     );
+    
+    // Recompute all remains when quantityProduksi changes or key fields change
+    if (["quantityProduksi", "customerPO", "sku"].includes(field)) {
+      setTimeout(() => recomputeAllRemains(), 0);
+    }
   };
 
   // Add/remove entries
@@ -339,6 +382,8 @@ const InputCutting = () => {
   const removeFormEntry = (id) => {
     if (formEntries.length > 1) {
       setFormEntries((prev) => prev.filter((e) => e.id !== id));
+      // Recompute remains after removing entry
+      setTimeout(() => recomputeAllRemains(), 0);
     }
   };
 
@@ -411,6 +456,8 @@ const InputCutting = () => {
           sCodesData: [],
         },
       ]);
+      // Reset baseline remain tracking
+      setBaseRemainByKey({});
     } catch (err) {
       console.error("Error submitting data:", err);
       const msg = err.message || "Terjadi kesalahan saat menyimpan data";
