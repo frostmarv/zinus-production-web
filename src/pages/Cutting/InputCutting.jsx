@@ -33,6 +33,7 @@ const InputCutting = () => {
       quantityProduksi: "",
       week: "",
       remainQuantity: 0,
+      plannedQtyCache: 0,
       // Cache untuk dropdown
       customers: [],
       poNumbers: [],
@@ -48,13 +49,15 @@ const InputCutting = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   
-  // Track baseline remain per unique CustomerPO+SKU combination
+  // Track baseline remain per unique CustomerPO+SKU+S.CODE combination (per layer)
   const [baseRemainByKey, setBaseRemainByKey] = useState({});
 
-  // Helper: Generate unique key for CustomerPO+SKU combination
+  // Helper: Generate unique key for CustomerPO+SKU+S.CODE combination (per layer)
   const computeKey = (entry) => {
     if (!entry.customerPO || !entry.sku) return null;
-    return `${entry.customerPO}|${entry.sku}`;
+    // Include S.CODE untuk tracking per layer
+    if (!entry.sCode) return null; // S.CODE harus ada untuk tracking remain
+    return `${entry.customerPO}|${entry.sku}|${entry.sCode}`;
   };
 
   // Pure function: Recompute remain quantities for all entries
@@ -207,35 +210,21 @@ const InputCutting = () => {
         label: item.s_code,
       }));
       
-      // Set baseline remain for this CustomerPO+SKU combination
-      const key = `${customerPo}|${sku}`;
       const plannedQty = Number(qtyValue) || 0;
       
-      // Atomic update: set baseline and recompute in one transaction
-      setBaseRemainByKey((prevBase) => {
-        const nextBase = {
-          ...prevBase,
-          [key]: plannedQty,
-        };
-        
-        // Update entries and recompute remains atomically
-        setFormEntries((prevEntries) => {
-          const updatedEntries = prevEntries.map((entry) => {
-            if (entry.id !== entryId) return entry;
-            
-            return {
-              ...entry,
-              quantityOrder: qtyValue.toString(),
-              sCodes: sCodesOptions,
-              sCodesData: sCodesRaw,
-            };
-          });
+      // Update entries dengan qty dan s_codes data
+      setFormEntries((prevEntries) => {
+        return prevEntries.map((entry) => {
+          if (entry.id !== entryId) return entry;
           
-          // Recompute all remains with new baseline
-          return recomputeRemains(updatedEntries, nextBase);
+          return {
+            ...entry,
+            quantityOrder: qtyValue.toString(),
+            sCodes: sCodesOptions,
+            sCodesData: sCodesRaw,
+            plannedQtyCache: plannedQty, // Cache planned qty untuk digunakan saat S.CODE dipilih
+          };
         });
-        
-        return nextBase;
       });
     } catch (err) {
       console.error("Gagal memuat Qty Plans:", err);
@@ -352,6 +341,32 @@ const InputCutting = () => {
       }),
     );
     
+    // Handle S.CODE selection: set baseline remain per layer dan recompute
+    if (field === "sCode") {
+      setFormEntries((prev) => {
+        // Find current entry untuk get planned qty
+        const currentEntry = prev.find((e) => e.id === id);
+        if (currentEntry && currentEntry.customerPO && currentEntry.sku && value) {
+          const key = `${currentEntry.customerPO}|${currentEntry.sku}|${value}`;
+          const plannedQty = currentEntry.plannedQtyCache || 0;
+          
+          // Set baseline remain untuk layer ini dan recompute atomically
+          setBaseRemainByKey((prevBase) => {
+            const nextBase = prevBase[key] === undefined 
+              ? { ...prevBase, [key]: plannedQty }
+              : prevBase;
+            
+            // Recompute with updated baseline (menggunakan prev yang sudah updated dengan sCode)
+            setFormEntries((entries) => recomputeRemains(entries, nextBase));
+            
+            return nextBase;
+          });
+        }
+        
+        return prev;
+      });
+    }
+    
     // Recompute all remains when quantityProduksi changes
     if (field === "quantityProduksi") {
       setFormEntries((prev) => recomputeRemains(prev, baseRemainByKey));
@@ -377,6 +392,7 @@ const InputCutting = () => {
         quantityProduksi: "",
         week: "",
         remainQuantity: 0,
+        plannedQtyCache: 0,
         customers: customers,
         poNumbers: [],
         customerPOs: [],
@@ -415,6 +431,9 @@ const InputCutting = () => {
           poNumbers,
           customerPOs,
           skus,
+          sCodes,
+          sCodesData,
+          plannedQtyCache,
           ...entry
         }) => {
           const customerName =
@@ -458,6 +477,7 @@ const InputCutting = () => {
           quantityProduksi: "",
           week: "",
           remainQuantity: 0,
+          plannedQtyCache: 0,
           customers: customers,
           poNumbers: [],
           customerPOs: [],
