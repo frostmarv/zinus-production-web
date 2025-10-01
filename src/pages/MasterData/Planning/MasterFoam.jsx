@@ -297,16 +297,14 @@ const MasterFoam = () => {
                       onClick={() => openModal(item)}
                       title="Edit data"
                     >
-                      <Edit3 size={16} />
-                      <span>Edit</span>
+                      <Edit3 size={18} strokeWidth={2.5} />
                     </button>
                     <button
                       className="btn-delete"
                       onClick={() => handleDelete(item["Cust. PO"])}
                       title="Hapus data"
                     >
-                      <Trash2 size={16} />
-                      <span>Hapus</span>
+                      <Trash2 size={18} strokeWidth={2.5} />
                     </button>
                   </td>
                 </tr>
