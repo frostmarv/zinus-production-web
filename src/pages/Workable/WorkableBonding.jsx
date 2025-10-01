@@ -25,24 +25,24 @@ const WorkableBonding = () => {
     const fetchData = async () => {
       try {
         const result = await getWorkableBonding();
-        
+
         // Sort berdasarkan Ship To Name (Customer) kemudian SKU
         const sortedData = [...result].sort((a, b) => {
-          const nameCompare = String(a.shipToName ?? '').localeCompare(
-            String(b.shipToName ?? ''), 
-            undefined, 
-            { sensitivity: 'base' }
+          const nameCompare = String(a.shipToName ?? "").localeCompare(
+            String(b.shipToName ?? ""),
+            undefined,
+            { sensitivity: "base" },
           );
-          
+
           if (nameCompare !== 0) return nameCompare;
-          
-          return String(a.sku ?? '').localeCompare(
-            String(b.sku ?? ''), 
-            undefined, 
-            { sensitivity: 'base' }
+
+          return String(a.sku ?? "").localeCompare(
+            String(b.sku ?? ""),
+            undefined,
+            { sensitivity: "base" },
           );
         });
-        
+
         setData(sortedData);
       } catch (err) {
         setError(err.message);
@@ -194,38 +194,14 @@ const WorkableBonding = () => {
         <table className="workable-table">
           <thead>
             <tr>
-              <th>
-                <Calendar size={16} />
-                WEEK
-              </th>
-              <th>
-                <Users size={16} />
-                SHIP TO NAME
-              </th>
-              <th>
-                <Package size={16} />
-                SKU
-              </th>
-              <th>
-                <BarChart3 size={16} />
-                QUANTITY ORDER
-              </th>
-              <th>
-                <BarChart3 size={16} />
-                PROGRESS
-              </th>
-              <th>
-                <BarChart3 size={16} />
-                REMAIN
-              </th>
-              <th>
-                <Settings size={16} />
-                REMARKS
-              </th>
-              <th>
-                <Clock size={16} />
-                STATUS
-              </th>
+              <th>WEEK</th>
+              <th>SHIP TO NAME</th>
+              <th>SKU</th>
+              <th>QUANTITY ORDER</th>
+              <th>PROGRESS</th>
+              <th>REMAIN</th>
+              <th>REMARKS</th>
+              <th>STATUS</th>
             </tr>
           </thead>
           <tbody>
@@ -241,7 +217,9 @@ const WorkableBonding = () => {
                 <tr key={index}>
                   <td>{row.week || "-"}</td>
                   <td>{row.shipToName || "-"}</td>
-                  <td className="sku-cell">{row.sku || "-"}</td>
+                  <td className="sku-cell">
+                    <span>{row.sku || "-"}</span>
+                  </td>
                   <td className="qty-cell">
                     {row.quantityOrder?.toLocaleString() || 0}
                   </td>

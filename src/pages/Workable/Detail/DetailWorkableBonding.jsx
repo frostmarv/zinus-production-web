@@ -1,9 +1,12 @@
 // src/components/Workable/Detail/DetailWorkableBonding.jsx
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { getWorkableBondingDetail } from "../../../api/workable-bonding"; // ✅ Import API call
 import "../../../styles/Workable/Detail/DetailWorkableBonding.css";
 
 const DetailWorkableBonding = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,24 +15,24 @@ const DetailWorkableBonding = () => {
     const fetchData = async () => {
       try {
         const result = await getWorkableBondingDetail(); // ✅ Pakai API call
-        
+
         // Sort berdasarkan Ship To Name (Customer) kemudian SKU
         const sortedData = [...result].sort((a, b) => {
-          const nameCompare = String(a.shipToName ?? '').localeCompare(
-            String(b.shipToName ?? ''), 
-            undefined, 
-            { sensitivity: 'base' }
+          const nameCompare = String(a.shipToName ?? "").localeCompare(
+            String(b.shipToName ?? ""),
+            undefined,
+            { sensitivity: "base" },
           );
-          
+
           if (nameCompare !== 0) return nameCompare;
-          
-          return String(a.sku ?? '').localeCompare(
-            String(b.sku ?? ''), 
-            undefined, 
-            { sensitivity: 'base' }
+
+          return String(a.sku ?? "").localeCompare(
+            String(b.sku ?? ""),
+            undefined,
+            { sensitivity: "base" },
           );
         });
-        
+
         setData(sortedData);
       } catch (err) {
         setError(err.message);
@@ -58,6 +61,14 @@ const DetailWorkableBonding = () => {
   return (
     <div className="detail-container">
       <div className="detail-header">
+        <button 
+          type="button"
+          className="back-button" 
+          onClick={() => navigate('/workable/bonding')}
+        >
+          <ArrowLeft size={20} />
+          Kembali
+        </button>
         <h1>Detail Workable Bonding</h1>
       </div>
 
