@@ -19,6 +19,7 @@ import CuttingInput from "./pages/Cutting/InputCutting";
 import CuttingHistorySummary from "./pages/History/Cutting/CuttingHistorySummary";
 import WorkableBonding from "./pages/Workable/WorkableBonding";
 import DetailWorkableBonding from "./pages/Workable/Detail/DetailWorkableBonding";
+import DetailCuttingHistorySummary from "./pages/History/Cutting/CuttingHistorySummaryDetail";
 import "./styles/App.css";
 
 function App() {
@@ -55,6 +56,10 @@ function App() {
             <Route
               path="/workable/bonding/detail"
               element={<DetailWorkableBonding />}
+            />
+            <Route
+              path="/history/cutting/summary/:id"
+              element={<DetailCuttingHistorySummary />}
             />
           </Routes>
         </div>

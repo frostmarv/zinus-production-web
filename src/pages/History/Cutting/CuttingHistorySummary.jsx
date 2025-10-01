@@ -10,23 +10,32 @@ import {
   RefreshCw,
   AlertTriangle,
   CheckCircle,
+  Settings,
+  User,
+  Eye, // ✅ Icon untuk tombol detail
 } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // ✅ Untuk navigasi
 import { cuttingProductionAPI } from "../../../api/cutting"; // ✅ Import API helper
 import "../../../styles/History/Cutting/CuttingHistorySummary.css"; // ✅ Import CSS
 
 const CuttingHistorySummary = () => {
+  const navigate = useNavigate(); // ✅ Hook untuk navigasi
   const [summaryData, setSummaryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Filter state
   const [filters, setFilters] = useState({
     date: "",
     shift: "",
     group: "",
+    machine: "",
+    operator: "",
   });
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // Tampilkan 6 card per halaman
+  const itemsPerPage = 6;
 
   // Fetch data dari API
   const fetchData = async () => {
@@ -56,7 +65,9 @@ const CuttingHistorySummary = () => {
         return (
           (!filters.date || item.timestamp?.includes(filters.date)) &&
           (!filters.shift || item.shift === filters.shift) &&
-          (!filters.group || item.group === filters.group)
+          (!filters.group || item.group === filters.group) &&
+          (!filters.machine || item.machine?.includes(filters.machine)) &&
+          (!filters.operator || item.operator?.includes(filters.operator))
         );
       });
 
@@ -64,7 +75,7 @@ const CuttingHistorySummary = () => {
       setCurrentPage(1);
     } catch (err) {
       console.error("❌ Gagal ambil data cutting production:", err);
-      setError(err.message || "Gagal memuat data dari server");
+      setError(`Gagal memuat riwayat: ${err.message}`);
       setSummaryData([]);
     } finally {
       setLoading(false);
@@ -83,7 +94,7 @@ const CuttingHistorySummary = () => {
 
   // Reset filters
   const resetFilters = () => {
-    setFilters({ date: "", shift: "", group: "" });
+    setFilters({ date: "", shift: "", group: "", machine: "", operator: "" });
     setCurrentPage(1);
   };
 
@@ -136,6 +147,11 @@ const CuttingHistorySummary = () => {
       currentPage * itemsPerPage,
     ),
     totalPages: Math.ceil(summaryData.length / itemsPerPage),
+  };
+
+  // ✅ Handle klik tombol detail
+  const handleDetailClick = (id) => {
+    navigate(`/history/cutting/summary/${id}`); // ✅ Arahkan ke halaman detail
   };
 
   return (
@@ -203,6 +219,34 @@ const CuttingHistorySummary = () => {
               <option value="B">Group B</option>
             </select>
           </div>
+
+          <div className="filter-group">
+            <label>
+              <Settings size={16} />
+              Machine
+            </label>
+            <input
+              type="text"
+              value={filters.machine}
+              onChange={(e) => handleFilterChange("machine", e.target.value)}
+              placeholder="Cari machine..."
+              className="filter-input"
+            />
+          </div>
+
+          <div className="filter-group">
+            <label>
+              <User size={16} />
+              Operator
+            </label>
+            <input
+              type="text"
+              value={filters.operator}
+              onChange={(e) => handleFilterChange("operator", e.target.value)}
+              placeholder="Cari operator..."
+              className="filter-input"
+            />
+          </div>
         </div>
 
         <div className="filter-actions">
@@ -217,7 +261,7 @@ const CuttingHistorySummary = () => {
         </div>
       </div>
 
-      {/* Loading State */}
+      {/* Loading & Error */}
       {loading && (
         <div className="loading-container">
           <div className="loading-spinner"></div>
@@ -225,7 +269,6 @@ const CuttingHistorySummary = () => {
         </div>
       )}
 
-      {/* Error State */}
       {error && !loading && (
         <div className="error-container">
           <AlertTriangle size={20} />
@@ -294,6 +337,17 @@ const CuttingHistorySummary = () => {
 
                     <div className="info-row">
                       <div className="info-item">
+                        <strong>Machine:</strong>
+                        <span>{item.machine || "-"}</span>
+                      </div>
+                      <div className="info-item">
+                        <strong>Operator:</strong>
+                        <span>{item.operator || "-"}</span>
+                      </div>
+                    </div>
+
+                    <div className="info-row">
+                      <div className="info-item">
                         <strong>Customer:</strong>
                         <span>{item.entries?.[0]?.customer || "-"}</span>
                       </div>
@@ -349,6 +403,15 @@ const CuttingHistorySummary = () => {
                         <AlertTriangle size={14} color="#f59e0b" />
                       )}
                     </span>
+
+                    {/* ✅ Tombol Detail */}
+                    <button
+                      className="btn-detail"
+                      onClick={() => handleDetailClick(item.id)} // ✅ Klik detail
+                    >
+                      <Eye size={14} />
+                      Detail
+                    </button>
                   </div>
                 </div>
               ))
