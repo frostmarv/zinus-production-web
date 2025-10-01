@@ -12,19 +12,20 @@ import {
   CheckCircle,
   Settings,
   User,
-  Eye, // ✅ Icon untuk tombol detail
+  Eye,
+  X,
+  Edit3,
+  Trash2,
+  Save,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // ✅ Untuk navigasi
-import { cuttingProductionAPI } from "../../../api/cutting"; // ✅ Import API helper
-import "../../../styles/History/Cutting/CuttingHistorySummary.css"; // ✅ Import CSS
+import { cuttingProductionAPI } from "../../../api/cutting";
+import "../../../styles/History/Cutting/CuttingHistorySummary.css";
 
 const CuttingHistorySummary = () => {
-  const navigate = useNavigate(); // ✅ Hook untuk navigasi
   const [summaryData, setSummaryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Filter state
   const [filters, setFilters] = useState({
     date: "",
     shift: "",
@@ -33,17 +34,24 @@ const CuttingHistorySummary = () => {
     operator: "",
   });
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Fetch data dari API
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [draftHeader, setDraftHeader] = useState({});
+  const [draftEntries, setDraftEntries] = useState([]);
+  const [opLoading, setOpLoading] = useState({ save: false, delete: false });
+  const [opError, setOpError] = useState(null);
+
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
       console.log("🔄 Memuat data cutting production summary...");
-      const result = await cuttingProductionAPI.getAll(); // ✅ Panggil /api/cutting/production
+      const result = await cuttingProductionAPI.getAll();
 
       let rawData;
       if (Array.isArray(result)) {
@@ -60,7 +68,6 @@ const CuttingHistorySummary = () => {
         rawData = [];
       }
 
-      // Filter di frontend
       const filtered = rawData.filter((item) => {
         return (
           (!filters.date || item.timestamp?.includes(filters.date)) &&
@@ -86,19 +93,16 @@ const CuttingHistorySummary = () => {
     fetchData();
   }, [filters]);
 
-  // Handle filter change
   const handleFilterChange = (field, value) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
     setCurrentPage(1);
   };
 
-  // Reset filters
   const resetFilters = () => {
     setFilters({ date: "", shift: "", group: "", machine: "", operator: "" });
     setCurrentPage(1);
   };
 
-  // Format timestamp
   const formatTimestamp = (dateString) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("id-ID", {
@@ -110,7 +114,6 @@ const CuttingHistorySummary = () => {
     });
   };
 
-  // Format date only
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("id-ID", {
@@ -120,7 +123,6 @@ const CuttingHistorySummary = () => {
     });
   };
 
-  // Hitung total quantity
   const getTotalQuantity = (entries) => {
     return (
       entries?.reduce(
@@ -130,7 +132,6 @@ const CuttingHistorySummary = () => {
     );
   };
 
-  // Hitung total remain
   const getTotalRemain = (entries) => {
     return (
       entries?.reduce(
@@ -140,7 +141,6 @@ const CuttingHistorySummary = () => {
     );
   };
 
-  // Pagination logic
   const paginationData = {
     currentItems: summaryData.slice(
       (currentPage - 1) * itemsPerPage,
@@ -149,14 +149,185 @@ const CuttingHistorySummary = () => {
     totalPages: Math.ceil(summaryData.length / itemsPerPage),
   };
 
-  // ✅ Handle klik tombol detail
-  const handleDetailClick = (id) => {
-    navigate(`/history/cutting/summary/${id}`); // ✅ Arahkan ke halaman detail
+  // Modal handlers
+  const openModal = (item) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+    setIsEditMode(false);
+    setOpError(null);
+    document.body.style.overflow = 'hidden';
   };
+
+  const closeModal = () => {
+    if (isEditMode && window.confirm('Anda memiliki perubahan yang belum disimpan. Tutup modal?')) {
+      // Confirmed
+    } else if (isEditMode) {
+      return; // Don't close if user cancels
+    }
+    
+    setIsModalOpen(false);
+    setSelectedItem(null);
+    setIsEditMode(false);
+    setDraftHeader({});
+    setDraftEntries([]);
+    setOpError(null);
+    document.body.style.overflow = 'auto';
+  };
+
+  const handleEdit = () => {
+    setIsEditMode(true);
+    setDraftHeader({
+      shift: selectedItem.shift,
+      group: selectedItem.group,
+      time: selectedItem.time,
+      machine: selectedItem.machine || '',
+      operator: selectedItem.operator || '',
+    });
+    // Initialize with computed remainQuantity
+    setDraftEntries(selectedItem.entries?.map(e => {
+      const qtyOrder = parseInt(e.quantityOrder) || 0;
+      const qtyProd = parseInt(e.quantityProduksi) || 0;
+      return {
+        ...e,
+        quantityProduksi: qtyProd,
+        remainQuantity: Math.max(0, qtyOrder - qtyProd),
+      };
+    }) || []);
+    setOpError(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false);
+    setDraftHeader({});
+    setDraftEntries([]);
+    setOpError(null);
+  };
+
+  const handleHeaderChange = (field, value) => {
+    setDraftHeader(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleEntryQtyChange = (index, newQty) => {
+    const qty = parseInt(newQty) || 0;
+    setDraftEntries(prev => {
+      const updated = [...prev];
+      const entry = updated[index];
+      const remain = (entry.quantityOrder || 0) - qty;
+      updated[index] = {
+        ...entry,
+        quantityProduksi: qty,
+        remainQuantity: remain,
+      };
+      return updated;
+    });
+  };
+
+  const handleSave = async () => {
+    setOpLoading(prev => ({ ...prev, save: true }));
+    setOpError(null);
+
+    // Validation
+    if (!draftHeader.shift || !draftHeader.group || !draftHeader.time) {
+      setOpError('Shift, Group, dan Time harus diisi');
+      setOpLoading(prev => ({ ...prev, save: false }));
+      return;
+    }
+
+    // Validate quantities
+    for (let i = 0; i < draftEntries.length; i++) {
+      const entry = draftEntries[i];
+      const qty = parseInt(entry.quantityProduksi) || 0;
+      const order = parseInt(entry.quantityOrder) || 0;
+
+      if (isNaN(qty) || qty < 0) {
+        setOpError(`Entry ${i + 1}: Quantity Produksi harus angka positif`);
+        setOpLoading(prev => ({ ...prev, save: false }));
+        return;
+      }
+
+      if (qty > order) {
+        setOpError(`Entry ${i + 1}: Quantity Produksi (${qty}) tidak boleh melebihi Quantity Order (${order})`);
+        setOpLoading(prev => ({ ...prev, save: false }));
+        return;
+      }
+    }
+
+    // Recompute all remainQuantity before saving
+    const normalizedEntries = draftEntries.map(entry => ({
+      ...entry,
+      quantityProduksi: parseInt(entry.quantityProduksi) || 0,
+      remainQuantity: Math.max(0, (parseInt(entry.quantityOrder) || 0) - (parseInt(entry.quantityProduksi) || 0)),
+    }));
+
+    try {
+      const payload = {
+        ...selectedItem,
+        shift: draftHeader.shift,
+        group: draftHeader.group,
+        time: draftHeader.time,
+        machine: draftHeader.machine,
+        operator: draftHeader.operator,
+        entries: normalizedEntries,
+      };
+
+      await cuttingProductionAPI.update(selectedItem.id, payload);
+      
+      // Refresh data and close modal
+      await fetchData();
+      setIsModalOpen(false);
+      setSelectedItem(null);
+      setIsEditMode(false);
+      document.body.style.overflow = 'auto';
+      
+      alert('✅ Data berhasil diupdate!');
+    } catch (err) {
+      console.error('❌ Gagal update data:', err);
+      setOpError(`Gagal update: ${err.message}`);
+    } finally {
+      setOpLoading(prev => ({ ...prev, save: false }));
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('⚠️ Apakah Anda yakin ingin menghapus data ini? Aksi ini tidak dapat dibatalkan.')) {
+      return;
+    }
+
+    setOpLoading(prev => ({ ...prev, delete: true }));
+    setOpError(null);
+
+    try {
+      await cuttingProductionAPI.delete(selectedItem.id);
+      
+      // Refresh data and close modal
+      await fetchData();
+      setIsModalOpen(false);
+      setSelectedItem(null);
+      setIsEditMode(false);
+      document.body.style.overflow = 'auto';
+      
+      alert('✅ Data berhasil dihapus!');
+    } catch (err) {
+      console.error('❌ Gagal hapus data:', err);
+      setOpError(`Gagal hapus: ${err.message}`);
+    } finally {
+      setOpLoading(prev => ({ ...prev, delete: false }));
+    }
+  };
+
+  // Esc key to close modal
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        closeModal();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isModalOpen]);
 
   return (
     <div className="cutting-history-summary-container">
-      {/* Header */}
       <div className="cutting-history-summary-header">
         <h1>
           <BarChart3 size={32} />
@@ -165,7 +336,6 @@ const CuttingHistorySummary = () => {
         <p>Ringkasan data produksi cutting dari API production</p>
       </div>
 
-      {/* Filter Section */}
       <div className="filter-section">
         <div className="filter-header">
           <h3>
@@ -261,7 +431,6 @@ const CuttingHistorySummary = () => {
         </div>
       </div>
 
-      {/* Loading & Error */}
       {loading && (
         <div className="loading-container">
           <div className="loading-spinner"></div>
@@ -280,7 +449,6 @@ const CuttingHistorySummary = () => {
         </div>
       )}
 
-      {/* Summary Cards */}
       {!loading && !error && (
         <>
           <div className="results-info">
@@ -403,11 +571,9 @@ const CuttingHistorySummary = () => {
                         <AlertTriangle size={14} color="#f59e0b" />
                       )}
                     </span>
-
-                    {/* ✅ Tombol Detail */}
                     <button
                       className="btn-detail"
-                      onClick={() => handleDetailClick(item.id)} // ✅ Klik detail
+                      onClick={() => openModal(item)}
                     >
                       <Eye size={14} />
                       Detail
@@ -418,7 +584,6 @@ const CuttingHistorySummary = () => {
             )}
           </div>
 
-          {/* Pagination */}
           {paginationData.totalPages > 1 && (
             <div className="pagination">
               <button
@@ -447,6 +612,224 @@ const CuttingHistorySummary = () => {
             </div>
           )}
         </>
+      )}
+
+      {/* Modal Detail */}
+      {isModalOpen && selectedItem && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>
+                <Package size={24} />
+                Production Detail #{selectedItem.id?.substring(0, 8)}
+              </h2>
+              <button className="modal-close" onClick={closeModal}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {/* Error Message */}
+              {opError && (
+                <div className="modal-error">
+                  <AlertTriangle size={16} />
+                  {opError}
+                </div>
+              )}
+
+              {/* Header Info */}
+              <div className="modal-info-grid">
+                <div className="modal-info-item">
+                  <strong>Tanggal:</strong>
+                  <span>{formatDate(selectedItem.timestamp)}</span>
+                </div>
+                <div className="modal-info-item">
+                  <strong>Shift:</strong>
+                  {isEditMode ? (
+                    <select
+                      value={draftHeader.shift}
+                      onChange={(e) => handleHeaderChange('shift', e.target.value)}
+                      className="modal-input"
+                    >
+                      <option value="1">Shift 1</option>
+                      <option value="2">Shift 2</option>
+                    </select>
+                  ) : (
+                    <span className="shift-badge">{selectedItem.shift}</span>
+                  )}
+                </div>
+                <div className="modal-info-item">
+                  <strong>Group:</strong>
+                  {isEditMode ? (
+                    <select
+                      value={draftHeader.group}
+                      onChange={(e) => handleHeaderChange('group', e.target.value)}
+                      className="modal-input"
+                    >
+                      <option value="A">Group A</option>
+                      <option value="B">Group B</option>
+                    </select>
+                  ) : (
+                    <span className="group-badge">{selectedItem.group}</span>
+                  )}
+                </div>
+                <div className="modal-info-item">
+                  <strong>Time:</strong>
+                  {isEditMode ? (
+                    <input
+                      type="time"
+                      value={draftHeader.time}
+                      onChange={(e) => handleHeaderChange('time', e.target.value)}
+                      className="modal-input"
+                    />
+                  ) : (
+                    <span>{selectedItem.time}</span>
+                  )}
+                </div>
+                <div className="modal-info-item">
+                  <strong>Week:</strong>
+                  <span className="week-badge">{selectedItem.week}</span>
+                </div>
+                <div className="modal-info-item">
+                  <strong>Machine:</strong>
+                  {isEditMode ? (
+                    <input
+                      type="text"
+                      value={draftHeader.machine}
+                      onChange={(e) => handleHeaderChange('machine', e.target.value)}
+                      className="modal-input"
+                      placeholder="Machine"
+                    />
+                  ) : (
+                    <span>{selectedItem.machine || "-"}</span>
+                  )}
+                </div>
+                <div className="modal-info-item">
+                  <strong>Operator:</strong>
+                  {isEditMode ? (
+                    <input
+                      type="text"
+                      value={draftHeader.operator}
+                      onChange={(e) => handleHeaderChange('operator', e.target.value)}
+                      className="modal-input"
+                      placeholder="Nama operator"
+                    />
+                  ) : (
+                    <span>{selectedItem.operator || "-"}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Entries Table */}
+              <div className="modal-section">
+                <h3>Detail Entries ({isEditMode ? draftEntries.length : (selectedItem.entries?.length || 0)} items)</h3>
+                <div className="modal-table-wrapper">
+                  <table className="modal-table">
+                    <thead>
+                      <tr>
+                        <th>No</th>
+                        <th>Customer</th>
+                        <th>PO Number</th>
+                        <th>Customer PO</th>
+                        <th>SKU</th>
+                        <th>S.CODE</th>
+                        <th>Description</th>
+                        <th>Qty Order</th>
+                        <th>Qty Produksi</th>
+                        <th>Remain</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(isEditMode ? draftEntries : selectedItem.entries)?.map((entry, index) => (
+                        <tr key={entry.id || index}>
+                          <td>{index + 1}</td>
+                          <td>{entry.customer || "-"}</td>
+                          <td>{entry.poNumber || "-"}</td>
+                          <td>{entry.customerPO || "-"}</td>
+                          <td>{entry.sku || "-"}</td>
+                          <td>{entry.sCode || "-"}</td>
+                          <td>{entry.description || "-"}</td>
+                          <td>{entry.quantityOrder || 0}</td>
+                          <td className="qty-produksi">
+                            {isEditMode ? (
+                              <input
+                                type="number"
+                                value={entry.quantityProduksi}
+                                onChange={(e) => handleEntryQtyChange(index, e.target.value)}
+                                min="0"
+                                max={entry.quantityOrder}
+                                className="modal-input modal-input-small"
+                              />
+                            ) : (
+                              entry.quantityProduksi || 0
+                            )}
+                          </td>
+                          <td className="qty-remain">{entry.remainQuantity || 0}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              {isEditMode ? (
+                <>
+                  <button
+                    className="btn-cancel"
+                    onClick={handleCancelEdit}
+                    disabled={opLoading.save}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    className="btn-update"
+                    onClick={handleSave}
+                    disabled={opLoading.save}
+                  >
+                    {opLoading.save ? (
+                      'Menyimpan...'
+                    ) : (
+                      <>
+                        <Save size={16} />
+                        Simpan
+                      </>
+                    )}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="btn-delete"
+                    onClick={handleDelete}
+                    disabled={opLoading.delete}
+                  >
+                    {opLoading.delete ? (
+                      'Menghapus...'
+                    ) : (
+                      <>
+                        <Trash2 size={16} />
+                        Delete
+                      </>
+                    )}
+                  </button>
+                  <button
+                    className="btn-edit"
+                    onClick={handleEdit}
+                    disabled={opLoading.delete}
+                  >
+                    <Edit3 size={16} />
+                    Edit
+                  </button>
+                  <button className="btn-close" onClick={closeModal}>
+                    Tutup
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

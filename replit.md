@@ -18,8 +18,11 @@ Preferred communication style: Simple, everyday language.
 ## Component Structure
 The application follows a modular component architecture organized by feature:
 - **Cutting Module**: Handles wood/material cutting operations with input forms, editing capabilities, and history tracking
+  - InputCutting.jsx: Production input with Machine and Operator fields (9 machine options: Multi Cutting 1-2, Rountable 1-4, Vertikal 1-3)
+  - CuttingHistorySummary.jsx: Production history with modal popup for view/edit/delete operations
 - **Master Data Module**: Manages customer information, PO numbers, SKUs, and quantity planning
 - **History Module**: Provides tracking and audit trails for various operations
+  - CuttingHistorySummary: Features filter (date, shift, group, machine, operator), pagination, and modal popup with edit/delete capabilities
 - **Workable Module**: Manages production workflow and department operations
 - **Stock Opname Module**: Handles inventory management and location-based tracking
 
@@ -28,6 +31,17 @@ The application follows a modular component architecture organized by feature:
 - API client abstraction for centralized HTTP request handling
 - Modular API services for different business domains (cutting, masterData, etc.)
 - **Persistent Remain Quantity Tracking Per Layer**: InputCutting component implements session-level cumulative remain tracking using baseRemainByKey state that persists across multiple production entries for the same CustomerPO+SKU+S.CODE combination. Each layer (S.CODE) has independent remain tracking.
+- **Modal State Management**: CuttingHistorySummary uses functional setState for concurrent operation handling (edit/delete) with proper loading states and error handling
+
+## Key Features
+- **Cutting Production Summary Modal**:
+  - View detailed production information with all entries
+  - Edit mode: Modify shift, group, time, machine, operator, and entry quantities
+  - Delete function with confirmation dialog
+  - Quantity validation: Ensures qty ≥ 0 and qty ≤ quantityOrder
+  - Automatic remainQuantity recalculation
+  - Real-time data refresh after edit/delete operations
+  - ESC key and overlay click to close with unsaved changes warning
 
 ## Styling System
 - CSS custom properties (CSS variables) for consistent theming
