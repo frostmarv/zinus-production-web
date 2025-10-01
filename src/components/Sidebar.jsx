@@ -6,9 +6,8 @@ import {
   Users,
   Database,
   History,
-  AlertCircle,
   CheckCircle,
-  Scissors,
+  Package,
   FileText,
 } from "lucide-react";
 import "../styles/Sidebar.css";
@@ -17,10 +16,11 @@ import logo from "@assets/logo.png";
 const Sidebar = () => {
   const menuItems = [
     { name: "Dashboard", path: "/", icon: BarChart3 },
+    { name: "Master Data", path: "/master", icon: Package },
     { name: "History Production", path: "/history", icon: History },
     { name: "Workable Data", path: "/workable", icon: CheckCircle },
-    { name: "Input Cutting", path: "/cutting/index-cutting", icon: FileText },
     { name: "JDE", path: "/jde/history", icon: Database },
+    { name: "Input Cutting", path: "/cutting/index-cutting", icon: FileText },
   ];
 
   return (

@@ -6,7 +6,6 @@ import Dashboard from "./pages/Dashboard";
 import StockOpname from "./pages/StockOpname";
 import ProblematicData from "./pages/ProblematicData";
 import History from "./pages/JDE/History";
-import MasterData from "./pages/MasterData";
 import WorkableIndex from "./pages/Workable/WorkableIndex";
 import BalokCutting from "./pages/Cutting/BalokCutting";
 import HistoryIndex from "./pages/History/HistoryIndex";
@@ -19,6 +18,8 @@ import CuttingInput from "./pages/Cutting/InputCutting";
 import CuttingHistorySummary from "./pages/History/Cutting/CuttingHistorySummary";
 import WorkableBonding from "./pages/Workable/WorkableBonding";
 import DetailWorkableBonding from "./pages/Workable/Detail/DetailWorkableBonding";
+import MasterDataIndex from "./pages/MasterData/MasterDataIndex";
+import MasterPlanning from "./pages/MasterData/Planning/MasterPlanning";
 import "./styles/App.css";
 
 function App() {
@@ -40,7 +41,6 @@ function App() {
               path="/history/cutting/balok"
               element={<CuttingHistoryBalok />}
             />
-            <Route path="/master-data" element={<MasterData />} />
             <Route path="/workable" element={<WorkableIndex />} />
             <Route path="/cutting/input-balok" element={<BalokCutting />} />
             <Route path="/users" element={<UserManagement />} />
@@ -56,6 +56,8 @@ function App() {
               path="/workable/bonding/detail"
               element={<DetailWorkableBonding />}
             />
+            <Route path="/master" element={<MasterDataIndex />} />
+            <Route path="/master/planning" element={<MasterPlanning />} />
           </Routes>
         </div>
       </div>
