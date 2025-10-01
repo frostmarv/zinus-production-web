@@ -8,7 +8,7 @@ export const masterPlanningAPI = {
    */
   getAll: async () => {
     try {
-      const data = await apiClient.get("/production-planning");
+      const data = await apiClient.get("/api/production-planning");
       return data;
     } catch (error) {
       console.error("Gagal mengambil data production planning:", error);
@@ -23,7 +23,7 @@ export const masterPlanningAPI = {
    */
   create: async (data) => {
     try {
-      const response = await apiClient.post("/production-planning", data);
+      const response = await apiClient.post("/api/production-planning", data);
       return response;
     } catch (error) {
       console.error("Gagal menambahkan data production planning:", error);
@@ -39,7 +39,7 @@ export const masterPlanningAPI = {
    */
   update: async (id, data) => {
     try {
-      const response = await apiClient.put(`/production-planning/${id}`, data);
+      const response = await apiClient.put(`/api/production-planning/${id}`, data);
       return response;
     } catch (error) {
       console.error(
@@ -57,7 +57,7 @@ export const masterPlanningAPI = {
    */
   delete: async (id) => {
     try {
-      const response = await apiClient.delete(`/production-planning/${id}`);
+      const response = await apiClient.delete(`/api/production-planning/${id}`);
       return response;
     } catch (error) {
       console.error(
