@@ -1,4 +1,4 @@
-// src/pages/MasterData/Planning/MasterFoam.jsx
+// src/pages/MasterData/Foam/MasterFoam.jsx
 import React, { useState, useEffect } from "react";
 import {
   Package,
@@ -10,11 +10,14 @@ import {
   X,
   Save,
   RotateCcw,
+  ArrowLeft,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { masterPlanningAPI } from "../../../api/masterPlanning";
 import "../../../styles/MasterData/Planning/MasterFoam.css";
 
 const MasterFoam = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -144,7 +147,6 @@ const MasterFoam = () => {
     e.preventDefault();
     try {
       if (isEditing) {
-        // Gunakan "Cust. PO" sebagai identifier untuk update
         await masterPlanningAPI.update(
           "foam",
           currentRecord["Cust. PO"],
@@ -182,18 +184,36 @@ const MasterFoam = () => {
   if (error) return <div className="error">Error: {error}</div>;
 
   return (
-    <div className="master-planning-container">
-      <div className="header">
-        <h1>
-          <Package size={32} />
-          Master Data Foam
-        </h1>
-        <p>Manajemen data foam produksi</p>
+    <div className="master-foam-container">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-left">
+          <button
+            className="btn-back"
+            onClick={() => navigate("/master")}
+            title="Kembali ke Master Data Index"
+          >
+            <ArrowLeft size={18} />
+            Kembali
+          </button>
+          <div className="header-title">
+            <Package size={24} />
+            <h1>Master Data Foam</h1>
+          </div>
+          <p className="header-subtitle">Manajemen data foam produksi</p>
+        </div>
+        <div className="header-right">
+          <button className="btn-add" onClick={() => openModal()}>
+            <Plus size={16} />
+            Tambah Data
+          </button>
+        </div>
       </div>
 
-      <div className="controls">
-        <div className="search-bar">
-          <Search size={18} />
+      {/* Search & Filters */}
+      <div className="search-filter-section">
+        <div className="search-box">
+          <Search size={16} />
           <input
             type="text"
             placeholder="Cari data..."
@@ -202,51 +222,45 @@ const MasterFoam = () => {
           />
         </div>
 
-        <div className="filter-bar">
-          <div className="filter-group">
-            <label>Category</label>
-            <input
-              type="text"
-              value={filters.category}
-              onChange={(e) =>
-                setFilters({ ...filters, category: e.target.value })
-              }
-              placeholder="Filter category..."
-            />
-          </div>
-          <div className="filter-group">
-            <label>Week</label>
-            <input
-              type="text"
-              value={filters.week}
-              onChange={(e) => setFilters({ ...filters, week: e.target.value })}
-              placeholder="Filter week..."
-            />
-          </div>
-          <div className="filter-group">
-            <label>Customer</label>
-            <input
-              type="text"
-              value={filters["Ship to Name"]}
-              onChange={(e) =>
-                setFilters({ ...filters, "Ship to Name": e.target.value })
-              }
-              placeholder="Filter customer..."
-            />
-          </div>
-          <button onClick={resetFilters} className="btn-reset">
-            <RotateCcw size={16} />
-            Reset
-          </button>
+        <div className="filter-group">
+          <label>Category</label>
+          <input
+            type="text"
+            value={filters.category}
+            onChange={(e) =>
+              setFilters({ ...filters, category: e.target.value })
+            }
+            placeholder="Filter category..."
+          />
         </div>
-
-        <button className="btn-add" onClick={() => openModal()}>
-          <Plus size={16} />
-          Tambah Data
+        <div className="filter-group">
+          <label>Week</label>
+          <input
+            type="text"
+            value={filters.week}
+            onChange={(e) => setFilters({ ...filters, week: e.target.value })}
+            placeholder="Filter week..."
+          />
+        </div>
+        <div className="filter-group">
+          <label>Customer</label>
+          <input
+            type="text"
+            value={filters["Ship to Name"]}
+            onChange={(e) =>
+              setFilters({ ...filters, "Ship to Name": e.target.value })
+            }
+            placeholder="Filter customer..."
+          />
+        </div>
+        <button onClick={resetFilters} className="btn-reset">
+          <RotateCcw size={16} />
+          Reset
         </button>
       </div>
 
-      <div className="table-container">
+      {/* Table */}
+      <div className="table-wrapper">
         <table className="data-table">
           <thead>
             <tr>
@@ -263,7 +277,9 @@ const MasterFoam = () => {
           <tbody>
             {filteredData.length === 0 ? (
               <tr>
-                <td colSpan="8">Tidak ada data</td>
+                <td colSpan="8" className="no-data">
+                  Tidak ada data ditemukan
+                </td>
               </tr>
             ) : (
               filteredData.map((item) => (
@@ -275,18 +291,22 @@ const MasterFoam = () => {
                   <td>{item["Order QTY"]}</td>
                   <td>{item.Week}</td>
                   <td>{item.Category}</td>
-                  <td className="action-buttons">
+                  <td className="action-cell">
                     <button
                       className="btn-edit"
                       onClick={() => openModal(item)}
+                      title="Edit data"
                     >
-                      <Edit3 size={14} />
+                      <Edit3 size={16} />
+                      <span>Edit</span>
                     </button>
                     <button
                       className="btn-delete"
                       onClick={() => handleDelete(item["Cust. PO"])}
+                      title="Hapus data"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={16} />
+                      <span>Hapus</span>
                     </button>
                   </td>
                 </tr>
@@ -296,7 +316,7 @@ const MasterFoam = () => {
         </table>
       </div>
 
-      {/* Modal Form */}
+      {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -444,16 +464,16 @@ const MasterFoam = () => {
               </div>
 
               <div className="modal-actions">
-                <button type="submit" className="btn-save">
-                  <Save size={16} />
-                  {isEditing ? "Update" : "Simpan"}
-                </button>
                 <button
                   type="button"
                   className="btn-cancel"
                   onClick={closeModal}
                 >
                   Batal
+                </button>
+                <button type="submit" className="btn-save">
+                  <Save size={16} />
+                  {isEditing ? "Update" : "Simpan"}
                 </button>
               </div>
             </form>
