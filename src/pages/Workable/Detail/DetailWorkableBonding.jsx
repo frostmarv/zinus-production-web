@@ -12,7 +12,25 @@ const DetailWorkableBonding = () => {
     const fetchData = async () => {
       try {
         const result = await getWorkableBondingDetail(); // ✅ Pakai API call
-        setData(result);
+        
+        // Sort berdasarkan Ship To Name (Customer) kemudian SKU
+        const sortedData = [...result].sort((a, b) => {
+          const nameCompare = String(a.shipToName ?? '').localeCompare(
+            String(b.shipToName ?? ''), 
+            undefined, 
+            { sensitivity: 'base' }
+          );
+          
+          if (nameCompare !== 0) return nameCompare;
+          
+          return String(a.sku ?? '').localeCompare(
+            String(b.sku ?? ''), 
+            undefined, 
+            { sensitivity: 'base' }
+          );
+        });
+        
+        setData(sortedData);
       } catch (err) {
         setError(err.message);
       } finally {
