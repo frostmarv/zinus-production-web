@@ -466,11 +466,29 @@ const InputCutting = () => {
           sCodesData: [],
         },
       ]);
-      // Reset baseline remain tracking
-      setBaseRemainByKey({});
     } catch (err) {
       console.error("Error submitting data:", err);
-      const msg = err.message || "Terjadi kesalahan saat menyimpan data";
+      
+      // Extract detailed error from backend response
+      let msg = "Terjadi kesalahan saat menyimpan data";
+      if (err.response?.data) {
+        // Backend sent detailed error
+        const errorData = err.response.data;
+        if (typeof errorData === 'string') {
+          msg = errorData;
+        } else if (errorData.message) {
+          msg = errorData.message;
+        } else if (errorData.error) {
+          msg = errorData.error;
+        } else if (errorData.errors) {
+          // Validation errors array
+          msg = JSON.stringify(errorData.errors);
+        }
+        console.error("Backend error details:", errorData);
+      } else if (err.message) {
+        msg = err.message;
+      }
+      
       setError(msg);
       alert(`❌ Gagal menyimpan data: ${msg}`);
     } finally {
