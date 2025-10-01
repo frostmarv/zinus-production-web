@@ -19,6 +19,8 @@ const InputCutting = () => {
     shift: "1",
     group: "A",
     time: "08:00",
+    machine: "",
+    operator: "",
   });
 
   const [formEntries, setFormEntries] = useState([
@@ -430,6 +432,8 @@ const InputCutting = () => {
       shift: headerData.shift,
       group: headerData.group,
       time: headerData.time,
+      machine: headerData.machine,
+      operator: headerData.operator,
       entries: formEntries.map(
         ({
           id,
@@ -615,6 +619,51 @@ const InputCutting = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+                <div className="cutting-field-group">
+                  <label className="cutting-label">
+                    <div className="cutting-label-icon">
+                      <Package />
+                    </div>
+                    Machine
+                  </label>
+                  <select
+                    name="machine"
+                    value={headerData.machine}
+                    onChange={handleHeaderChange}
+                    className="cutting-select"
+                    required
+                    disabled={isSubmitting}
+                  >
+                    <option value="">Pilih Machine</option>
+                    <option value="Multi Cutting 1">Multi Cutting 1</option>
+                    <option value="Multi Cutting 2">Multi Cutting 2</option>
+                    <option value="Rountable 1">Rountable 1</option>
+                    <option value="Rountable 2">Rountable 2</option>
+                    <option value="Rountable 3">Rountable 3</option>
+                    <option value="Rountable 4">Rountable 4</option>
+                    <option value="Vertikal 1">Vertikal 1</option>
+                    <option value="Vertikal 2">Vertikal 2</option>
+                    <option value="Vertikal 3">Vertikal 3</option>
+                  </select>
+                </div>
+                <div className="cutting-field-group">
+                  <label className="cutting-label">
+                    <div className="cutting-label-icon">
+                      <Users />
+                    </div>
+                    Nama Operator
+                  </label>
+                  <input
+                    type="text"
+                    name="operator"
+                    value={headerData.operator}
+                    onChange={handleHeaderChange}
+                    className="cutting-input"
+                    placeholder="Masukkan nama operator"
+                    required
+                    disabled={isSubmitting}
+                  />
                 </div>
               </div>
             </div>
