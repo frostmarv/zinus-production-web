@@ -12,7 +12,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { masterPlanningAPI } from "../../../api/masterPlanning";
-import "../../../styles/MasterData/Planning/MasterPlanning.css";
+import "../../../styles/MasterData/Planning/MasterFoam.css";
 
 const MasterFoam = () => {
   const [data, setData] = useState([]);
@@ -54,7 +54,7 @@ const MasterFoam = () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await masterPlanningAPI.getAll('foam');
+      const result = await masterPlanningAPI.getAll("foam");
       let rawData = Array.isArray(result) ? result : result.data || [];
       setData(rawData);
     } catch (err) {
@@ -145,9 +145,13 @@ const MasterFoam = () => {
     try {
       if (isEditing) {
         // Gunakan "Cust. PO" sebagai identifier untuk update
-        await masterPlanningAPI.update('foam', currentRecord["Cust. PO"], formData);
+        await masterPlanningAPI.update(
+          "foam",
+          currentRecord["Cust. PO"],
+          formData,
+        );
       } else {
-        await masterPlanningAPI.create('foam', formData);
+        await masterPlanningAPI.create("foam", formData);
       }
       fetchData();
       closeModal();
@@ -160,7 +164,7 @@ const MasterFoam = () => {
   const handleDelete = async (custPO) => {
     if (window.confirm("Yakin ingin menghapus data ini?")) {
       try {
-        await masterPlanningAPI.delete('foam', custPO);
+        await masterPlanningAPI.delete("foam", custPO);
         fetchData();
       } catch (err) {
         alert(`Gagal menghapus  ${err.message}`);
@@ -297,9 +301,7 @@ const MasterFoam = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>
-                {isEditing ? "Edit Data Foam" : "Tambah Data Foam"}
-              </h3>
+              <h3>{isEditing ? "Edit Data Foam" : "Tambah Data Foam"}</h3>
               <button className="modal-close" onClick={closeModal}>
                 <X size={20} />
               </button>
