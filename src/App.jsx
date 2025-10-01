@@ -20,6 +20,7 @@ import WorkableBonding from "./pages/Workable/WorkableBonding";
 import DetailWorkableBonding from "./pages/Workable/Detail/DetailWorkableBonding";
 import MasterDataIndex from "./pages/MasterData/MasterDataIndex";
 import MasterFoam from "./pages/MasterData/Planning/MasterFoam";
+import MasterSpring from "./pages/MasterData/Planning/MasterSpring";
 import "./styles/App.css";
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
             />
             <Route path="/master" element={<MasterDataIndex />} />
             <Route path="/master/foam" element={<MasterFoam />} />
+            <Route path="/master/spring" element={<MasterSpring />} />
           </Routes>
         </div>
       </div>
