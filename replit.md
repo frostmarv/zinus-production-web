@@ -2,6 +2,17 @@
 
 Zinus Production Web is a modern React-based production management system built with Vite. The application provides a comprehensive dashboard for managing manufacturing operations including cutting processes, master data management, stock operations, and production workflow tracking. The system features a clean, responsive interface with multiple specialized modules for different aspects of production management.
 
+# Recent Changes
+
+## October 1, 2025 - InputCutting Bug Fixes
+- **HTTP 400 Error Resolution**: Fixed critical bug where `remainQuantity` field was being sent to backend, causing DTO validation errors
+  - Solution: Excluded `remainQuantity` from submission payload (UI-only field, computed server-side)
+  - Architecture alignment: RemainQuantity fetched from `/api/master-data/remain-quantity` API, not stored in database
+- **Enhanced Error Handling**: Improved error extraction from backend responses to display detailed validation messages
+  - Extracts errorData.message, errorData.error, or errorData.errors from backend
+  - Better debugging with console logging of backend error details
+- **Controlled Input Fix**: Added `machine` and `operator` fields to form reset state to prevent controlled/uncontrolled input warnings
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.

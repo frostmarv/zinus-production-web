@@ -408,6 +408,7 @@ const InputCutting = () => {
           sCodes,
           sCodesData,
           plannedQtyCache,
+          remainQuantity,
           ...entry
         }) => {
           const customerName =
@@ -422,7 +423,6 @@ const InputCutting = () => {
             quantityOrder: Number(entry.quantityOrder) || 0,
             quantityProduksi: Number(entry.quantityProduksi) || 0,
             week: entry.week,
-            remainQuantity: Number(entry.remainQuantity) || 0,
           };
         },
       ),
@@ -443,6 +443,8 @@ const InputCutting = () => {
         shift: "1",
         group: "A",
         time: "08:00",
+        machine: "",
+        operator: "",
       });
       setFormEntries([
         {

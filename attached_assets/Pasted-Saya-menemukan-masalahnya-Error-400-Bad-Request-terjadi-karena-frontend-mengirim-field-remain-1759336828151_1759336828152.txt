@@ -1,0 +1,114 @@
+Saya menemukan masalahnya! 🔍
+
+Error 400 Bad Request terjadi karena frontend mengirim field remainQuantity yang tidak ada di DTO backend!
+
+Backend DTO tidak expect field remainQuantity karena kita sudah refactor untuk tidak menyimpan remainQuantity di database (sudah dicompute real-time).
+
+Mari saya perbaiki frontend untuk tidak mengirim remainQuantity:
+
+
+Opened attached_assets/InputCutting_1759336639072.jsx
+
+Decided on remainQuantity handling
+Saya temukan masalahnya! Di line 425, frontend mengirim remainQuantity tapi backend tidak expect field ini.
+
+Karena kita sudah refactor untuk tidak menyimpan remainQuantity di database (computed real-time), field ini harus dihapus dari data submit:
+
+
+Executed cat > /tmp/fix_input_cutting.patch << 'EOF' --- Line 402-426: Remove remainQuantity from submitted data entries: formEntries.map( ({ id, customers, poNumbers, customerPOs, skus, sCodes, sCodesData, plannedQtyCache, + remainQuantity, ...entry }) => { const customerName = customers.find((c) => c.value == entry.customerId)?.label || ""; return { customer: customerName, poNumber: entry.poNumber, customerPO: entry.customerPO, sku: entry.sku, sCode: entry.sCode, description: entry.description, quantityOrder: Number(entry.quantityOrder) || 0, quantityProduksi: Number(entry.quantityProduksi) || 0, week: entry.week, - remainQuantity: Number(entry.remainQuantity) || 0, }; }, ), EOF cat /tmp/fix_input_cutting.patch
+
+Decided on frontend code changes
+🔍 Masalah Ditemukan!
+Error 400 Bad Request terjadi karena:
+
+Root Cause:
+Frontend mengirim field remainQuantity (line 425) yang tidak ada di DTO backend!
+
+// ❌ SALAH - Backend tidak expect field ini
+return {
+  ...
+  week: entry.week,
+  remainQuantity: Number(entry.remainQuantity) || 0,  // <-- Tidak ada di DTO!
+};
+Kenapa Error?
+Karena kita sudah refactor remainQuantity:
+
+✅ Dulu: Disimpan di database
+✅ Sekarang: Dihitung real-time dari API /api/master-data/remain-quantity
+Backend DTO validation menolak field yang tidak dikenal karena forbidNonWhitelisted: true.
+
+✅ Solusi: Update Frontend Code
+File: InputCutting.jsx (Line 401-426)
+
+Perubahan yang perlu dilakukan:
+
+Tambahkan remainQuantity ke destructured fields (sehingga tidak dikirim):
+entries: formEntries.map(
+  ({
+    id,
+    customers,
+    poNumbers,
+    customerPOs,
+    skus,
+    sCodes,
+    sCodesData,
+    plannedQtyCache,
+    remainQuantity,        // ✅ TAMBAHKAN INI - supaya tidak dikirim ke backend
+    ...entry
+  }) => {
+Hapus baris yang mengirim remainQuantity (line 425):
+return {
+  customer: customerName,
+  poNumber: entry.poNumber,
+  customerPO: entry.customerPO,
+  sku: entry.sku,
+  sCode: entry.sCode,
+  description: entry.description,
+  quantityOrder: Number(entry.quantityOrder) || 0,
+  quantityProduksi: Number(entry.quantityProduksi) || 0,
+  week: entry.week,
+  // ❌ HAPUS BARIS INI:
+  // remainQuantity: Number(entry.remainQuantity) || 0,
+};
+📝 Code Yang Benar
+// Line 401-426 - CORRECTED VERSION
+entries: formEntries.map(
+  ({
+    id,
+    customers,
+    poNumbers,
+    customerPOs,
+    skus,
+    sCodes,
+    sCodesData,
+    plannedQtyCache,
+    remainQuantity,        // ✅ Destructure ini supaya tidak masuk ke ...entry
+    ...entry
+  }) => {
+    const customerName =
+      customers.find((c) => c.value == entry.customerId)?.label || "";
+    return {
+      customer: customerName,
+      poNumber: entry.poNumber,
+      customerPO: entry.customerPO,
+      sku: entry.sku,
+      sCode: entry.sCode,
+      description: entry.description,
+      quantityOrder: Number(entry.quantityOrder) || 0,
+      quantityProduksi: Number(entry.quantityProduksi) || 0,
+      week: entry.week,
+      // ✅ remainQuantity TIDAK dikirim ke backend (karena tidak disimpan di DB)
+    };
+  },
+),
+🎯 Summary
+Yang Perlu Diubah:
+
+✅ Line 410: Tambahkan remainQuantity, ke destructuring
+✅ Line 425: Hapus baris remainQuantity: Number(entry.remainQuantity) || 0,
+Setelah fix ini:
+
+✅ Backend akan menerima data dengan format yang benar
+✅ Submit akan berhasil tanpa error 400
+✅ RemainQuantity tetap ditampilkan di UI (hanya untuk display, tidak disimpan)
+Backend sudah benar, tinggal update frontend saja! 🚀
