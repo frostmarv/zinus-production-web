@@ -1,4 +1,4 @@
-// src/pages/MasterData/Planning/MasterFoam.jsx
+// src/pages/MasterData/Planning/MasterSpring.jsx
 import React, { useState, useEffect } from "react";
 import {
   Package,
@@ -12,9 +12,9 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { masterPlanningAPI } from "../../../api/masterPlanning";
-import "../../../styles/MasterData/Planning/MasterFoam.css";
+import "../../../styles/MasterData/Planning/MasterSpring.css";
 
-const MasterFoam = () => {
+const MasterSpring = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,7 +54,7 @@ const MasterFoam = () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await masterPlanningAPI.getAll("foam");
+      const result = await masterPlanningAPI.getAll("spring");
       let rawData = Array.isArray(result) ? result : result.data || [];
       setData(rawData);
     } catch (err) {
@@ -146,12 +146,12 @@ const MasterFoam = () => {
       if (isEditing) {
         // Gunakan "Cust. PO" sebagai identifier untuk update
         await masterPlanningAPI.update(
-          "foam",
+          "spring",
           currentRecord["Cust. PO"],
           formData,
         );
       } else {
-        await masterPlanningAPI.create("foam", formData);
+        await masterPlanningAPI.create("spring", formData);
       }
       fetchData();
       closeModal();
@@ -164,7 +164,7 @@ const MasterFoam = () => {
   const handleDelete = async (custPO) => {
     if (window.confirm("Yakin ingin menghapus data ini?")) {
       try {
-        await masterPlanningAPI.delete("foam", custPO);
+        await masterPlanningAPI.delete("spring", custPO);
         fetchData();
       } catch (err) {
         alert(`Gagal menghapus  ${err.message}`);
@@ -186,9 +186,9 @@ const MasterFoam = () => {
       <div className="header">
         <h1>
           <Package size={32} />
-          Master Data Foam
+          Master Data Spring
         </h1>
-        <p>Manajemen data foam produksi</p>
+        <p>Manajemen data spring produksi</p>
       </div>
 
       <div className="controls">
@@ -301,7 +301,7 @@ const MasterFoam = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{isEditing ? "Edit Data Foam" : "Tambah Data Foam"}</h3>
+              <h3>{isEditing ? "Edit Data Spring" : "Tambah Data Spring"}</h3>
               <button className="modal-close" onClick={closeModal}>
                 <X size={20} />
               </button>
@@ -464,4 +464,4 @@ const MasterFoam = () => {
   );
 };
 
-export default MasterFoam;
+export default MasterSpring;
