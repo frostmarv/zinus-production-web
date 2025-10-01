@@ -1,6 +1,6 @@
 // src/pages/MasterData/MasterDataIndex.jsx
 import React from "react";
-import { Package, Layers, ChevronRight } from "lucide-react";
+import { Package, Layers, ChevronRight, Square, Leaf } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/MasterData/MasterDataIndex.css";
 
@@ -9,20 +9,28 @@ const MasterDataIndex = () => {
 
   const menuItems = [
     {
-      id: "production",
-      title: "Production Master Data",
-      description: "Manage production data, processes, and configurations",
-      icon: Package,
-      path: "/master/planning",
+      id: "foam",
+      title: "Master Data Foam",
+      description: "Manage foam types, materials, and specifications",
+      icon: Square, // Bisa ganti ikon lain jika cocok
+      path: "/master/foam",
       color: "bg-blue-500",
     },
     {
-      id: "layers",
-      title: "Layers Master Data",
-      description: "Manage material layers, types, and specifications",
-      icon: Layers,
-      path: "/master/layers",
+      id: "spring",
+      title: "Master Data Spring",
+      description: "Manage spring types, dimensions, and specifications",
+      icon: Leaf, // Bisa ganti ikon lain
+      path: "/master/spring",
       color: "bg-green-500",
+    },
+    {
+      id: "cutting",
+      title: "Master Data Cutting/Layers",
+      description: "Manage cutting layers, materials, and processes",
+      icon: Layers,
+      path: "/master/cutting",
+      color: "bg-amber-500",
     },
   ];
 

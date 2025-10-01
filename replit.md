@@ -4,6 +4,21 @@ Zinus Production Web is a modern React-based production management system built 
 
 # Recent Changes
 
+## October 1, 2025 - Master Data Foam/Spring Refactoring
+- **Renamed MasterPlanning → MasterFoam**: Component renamed to better reflect its purpose
+  - File: `src/pages/MasterData/Planning/MasterFoam.jsx`
+  - Route updated: `/master/planning` → `/master/foam`
+  - UI labels: "Master Data Planning" → "Master Data Foam"
+- **API Refactoring for Foam/Spring Support**: masterPlanning.js now supports type-based endpoints
+  - Added `type` parameter to all API functions (foam/spring)
+  - Endpoints structure:
+    - `GET /api/production-planning/{type}` (getAll)
+    - `POST /api/production-planning/{type}` (create)
+    - `PUT /api/production-planning/{type}/{id}` (update)
+    - `DELETE /api/production-planning/{type}/{id}` (delete)
+  - MasterFoam.jsx integrated with type 'foam' for all CRUD operations
+  - Ready for Spring component implementation (same API, type 'spring')
+
 ## October 1, 2025 - InputCutting Bug Fixes
 - **HTTP 400 Error Resolution**: Fixed critical bug where `remainQuantity` field was being sent to backend, causing DTO validation errors
   - Solution: Excluded `remainQuantity` from submission payload (UI-only field, computed server-side)

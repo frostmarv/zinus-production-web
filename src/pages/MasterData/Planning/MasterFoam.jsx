@@ -1,4 +1,4 @@
-// src/pages/MasterData/Planning/MasterPlanning.jsx
+// src/pages/MasterData/Planning/MasterFoam.jsx
 import React, { useState, useEffect } from "react";
 import {
   Package,
@@ -14,7 +14,7 @@ import {
 import { masterPlanningAPI } from "../../../api/masterPlanning";
 import "../../../styles/MasterData/Planning/MasterPlanning.css";
 
-const MasterPlanning = () => {
+const MasterFoam = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,7 +54,7 @@ const MasterPlanning = () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await masterPlanningAPI.getAll();
+      const result = await masterPlanningAPI.getAll('foam');
       let rawData = Array.isArray(result) ? result : result.data || [];
       setData(rawData);
     } catch (err) {
@@ -145,9 +145,9 @@ const MasterPlanning = () => {
     try {
       if (isEditing) {
         // Gunakan "Cust. PO" sebagai identifier untuk update
-        await masterPlanningAPI.update(currentRecord["Cust. PO"], formData);
+        await masterPlanningAPI.update('foam', currentRecord["Cust. PO"], formData);
       } else {
-        await masterPlanningAPI.create(formData);
+        await masterPlanningAPI.create('foam', formData);
       }
       fetchData();
       closeModal();
@@ -160,7 +160,7 @@ const MasterPlanning = () => {
   const handleDelete = async (custPO) => {
     if (window.confirm("Yakin ingin menghapus data ini?")) {
       try {
-        await masterPlanningAPI.delete(custPO);
+        await masterPlanningAPI.delete('foam', custPO);
         fetchData();
       } catch (err) {
         alert(`Gagal menghapus  ${err.message}`);
@@ -182,9 +182,9 @@ const MasterPlanning = () => {
       <div className="header">
         <h1>
           <Package size={32} />
-          Master Data Planning
+          Master Data Foam
         </h1>
-        <p>Manajemen data planning produksi</p>
+        <p>Manajemen data foam produksi</p>
       </div>
 
       <div className="controls">
@@ -298,7 +298,7 @@ const MasterPlanning = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>
-                {isEditing ? "Edit Data Planning" : "Tambah Data Planning"}
+                {isEditing ? "Edit Data Foam" : "Tambah Data Foam"}
               </h3>
               <button className="modal-close" onClick={closeModal}>
                 <X size={20} />
@@ -462,4 +462,4 @@ const MasterPlanning = () => {
   );
 };
 
-export default MasterPlanning;
+export default MasterFoam;

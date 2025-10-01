@@ -19,7 +19,7 @@ import CuttingHistorySummary from "./pages/History/Cutting/CuttingHistorySummary
 import WorkableBonding from "./pages/Workable/WorkableBonding";
 import DetailWorkableBonding from "./pages/Workable/Detail/DetailWorkableBonding";
 import MasterDataIndex from "./pages/MasterData/MasterDataIndex";
-import MasterPlanning from "./pages/MasterData/Planning/MasterPlanning";
+import MasterFoam from "./pages/MasterData/Planning/MasterFoam";
 import "./styles/App.css";
 
 function App() {
@@ -57,7 +57,7 @@ function App() {
               element={<DetailWorkableBonding />}
             />
             <Route path="/master" element={<MasterDataIndex />} />
-            <Route path="/master/planning" element={<MasterPlanning />} />
+            <Route path="/master/foam" element={<MasterFoam />} />
           </Routes>
         </div>
       </div>
