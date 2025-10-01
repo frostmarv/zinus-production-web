@@ -1,0 +1,87 @@
+🔧 Perubahan yang Sudah Dilakukan
+1. Hapus remainQuantity dari Database
+❌ Tidak lagi disimpan di tabel production_cutting_entries
+✅ Entity sudah diupdate (kolom dihapus)
+2. Update DTO
+❌ remainQuantity dihapus dari CreateProductionCuttingEntryDto
+✅ Frontend tidak perlu kirim remainQuantity lagi (optional, diabaikan)
+3. Service - Real-time Calculation
+Tambah helper computeRemainQuantities() yang:
+
+Query total produksi actual dari database per layer (CustomerPO + SKU + S.CODE)
+Hitung remain: Qty Order - Total Produksi Actual
+Inject ke response GET
+// Untuk setiap layer, hitung total produksi dari DB
+const totalProduced = SUM(quantityProduksi) 
+  WHERE customerPO = X AND sku = Y AND sCode = Z
+// Remain actual
+remain = quantityOrder - totalProduced
+4. Controller - Google Sheets
+Untuk sync ke sheets, gunakan simple calculation (input saja):
+
+simpleRemain = quantityOrder - quantityProduksi
+📊 Test Results - Remain Actual dari Database
+Test Case: Multiple Entries untuk Layer yang Sama
+Setup:
+
+Product: SPT-STR-800F, Qty Order: 1560
+Layer 1 (S.MB01.05414.00): Input 200, kemudian input 300
+Layer 2 (S.MB02.00176.00): Input 150
+POST #1 - Layer 1 (200)
+
+{
+  "quantityProduksi": 200,
+  "remainQuantity": 1360  // ✅ 1560 - 200 = 1360
+}
+POST #2 - Layer 1 (300) - Layer yang sama!
+
+{
+  "quantityProduksi": 300,
+  "remainQuantity": 1060  // ✅ 1560 - (200+300) = 1060
+}
+GET All - Melihat Record #1 lagi
+
+{
+  "quantityProduksi": 200,
+  "remainQuantity": 1060  // ✅ Berubah! Sekarang 1560 - 500 total = 1060
+}
+POST #3 - Layer 2 (150)
+
+{
+  "quantityProduksi": 150,
+  "remainQuantity": 1410  // ✅ 1560 - 150 = 1410
+}
+Workable Bonding - Remain Actual
+GET /api/workable-bonding/detail
+
+{
+  "customerPO": "0879611929",
+  "sku": "SPT-STR-800F",
+  "week": "1",
+  "quantityOrder": 1560,
+  "Layer 1": 500,    // Total actual dari DB (200+300)
+  "Layer 2": 150,    // Total actual dari DB
+  "Layer 3": 0,
+  "Layer 4": 0,
+  "Hole": 0,
+  "remain": 1410,    // ✅ 1560 - MIN(500,150) = 1410
+  "status": "Running"
+}
+GET /api/workable-bonding
+
+{
+  "week": "1",
+  "sku": "SPT-STR-800F",
+  "quantityOrder": 1560,
+  "progress": 150,    // MIN dari semua layer
+  "remain": 1410,     // ✅ Actual remain
+  "status": "Running"
+}
+✅ Kesimpulan
+Sekarang remain quantity:
+
+❌ TIDAK disimpan ke database
+✅ Dihitung real-time saat GET berdasarkan total produksi actual
+✅ Selalu akurat - reflect total produksi yang sudah ada di database
+✅ Per layer - tracking berdasarkan CustomerPO + SKU + S.CODE
+Frontend akan selalu mendapat remain yang benar dari API! 🎉

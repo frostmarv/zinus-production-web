@@ -688,7 +688,7 @@ const CuttingHistorySummary = () => {
                 </div>
                 <div className="modal-info-item">
                   <strong>Week:</strong>
-                  <span className="week-badge">{selectedItem.week}</span>
+                  <span className="week-badge">{selectedItem.entries?.[0]?.week || "-"}</span>
                 </div>
                 <div className="modal-info-item">
                   <strong>Machine:</strong>

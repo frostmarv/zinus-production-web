@@ -30,18 +30,23 @@ The application follows a modular component architecture organized by feature:
 - Uses React's built-in state management (useState, useEffect)
 - API client abstraction for centralized HTTP request handling
 - Modular API services for different business domains (cutting, masterData, etc.)
-- **Persistent Remain Quantity Tracking Per Layer**: InputCutting component implements session-level cumulative remain tracking using baseRemainByKey state that persists across multiple production entries for the same CustomerPO+SKU+S.CODE combination. Each layer (S.CODE) has independent remain tracking.
 - **Modal State Management**: CuttingHistorySummary uses functional setState for concurrent operation handling (edit/delete) with proper loading states and error handling
 
 ## Key Features
 - **Cutting Production Summary Modal**:
-  - View detailed production information with all entries
+  - View detailed production information with all entries (including Week from entries)
   - Edit mode: Modify shift, group, time, machine, operator, and entry quantities
   - Delete function with confirmation dialog
   - Quantity validation: Ensures qty ≥ 0 and qty ≤ quantityOrder
   - Automatic remainQuantity recalculation
   - Real-time data refresh after edit/delete operations
   - ESC key and overlay click to close with unsaved changes warning
+  
+- **Real-time Remain Quantity (Backend-Driven)**:
+  - Frontend no longer calculates remain manually
+  - Calls API `/api/master-data/remain-quantity?customerPo=X&sku=Y&sCode=Z` when S.CODE is selected
+  - Backend returns actual remain based on database: `remainQuantity = quantityOrder - SUM(quantityProduksi)` for same layer (CustomerPO + SKU + S.CODE)
+  - Ensures accurate remain tracking across multiple production entries
 
 ## Styling System
 - CSS custom properties (CSS variables) for consistent theming

@@ -51,45 +51,6 @@ const InputCutting = () => {
   const [loadingCustomers, setLoadingCustomers] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  
-  // Track baseline remain per unique CustomerPO+SKU+S.CODE combination (per layer)
-  const [baseRemainByKey, setBaseRemainByKey] = useState({});
-
-  // Helper: Generate unique key for CustomerPO+SKU+S.CODE combination (per layer)
-  const computeKey = (entry) => {
-    if (!entry.customerPO || !entry.sku) return null;
-    // Include S.CODE untuk tracking per layer
-    if (!entry.sCode) return null; // S.CODE harus ada untuk tracking remain
-    return `${entry.customerPO}|${entry.sku}|${entry.sCode}`;
-  };
-
-  // Pure function: Recompute remain quantities for all entries
-  const recomputeRemains = (entries, baseByKey) => {
-    // Group entries by key and calculate total produced per key
-    const totalProducedByKey = {};
-    entries.forEach((entry) => {
-      const key = computeKey(entry);
-      if (key) {
-        const qtyProd = Number(entry.quantityProduksi) || 0;
-        totalProducedByKey[key] = (totalProducedByKey[key] || 0) + qtyProd;
-      }
-    });
-
-    // Update each entry's remainQuantity
-    return entries.map((entry) => {
-      const key = computeKey(entry);
-      if (!key) return entry;
-
-      const baseRemain = baseByKey[key] || 0;
-      const totalProduced = totalProducedByKey[key] || 0;
-      const newRemain = baseRemain - totalProduced;
-
-      return {
-        ...entry,
-        remainQuantity: newRemain,
-      };
-    });
-  };
 
   // Load customers data
   useEffect(() => {
@@ -259,6 +220,42 @@ const InputCutting = () => {
     }
   }, []);
 
+  // Load remain quantity from backend (Real calculation from database)
+  const loadRemainQuantity = useCallback(async (entryId, customerPo, sku, sCode) => {
+    try {
+      const response = await masterDataAPI.getRemainQuantity(customerPo, sku, sCode);
+      console.log('📊 Remain Quantity dari API:', response);
+      
+      const remainQty = response?.remainQuantity !== undefined 
+        ? Number(response.remainQuantity) 
+        : 0;
+      
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId
+            ? {
+                ...entry,
+                remainQuantity: remainQty,
+              }
+            : entry,
+        ),
+      );
+    } catch (err) {
+      console.error("Gagal memuat Remain Quantity:", err);
+      // Jika gagal, set remain ke 0
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId
+            ? {
+                ...entry,
+                remainQuantity: 0,
+              }
+            : entry,
+        ),
+      );
+    }
+  }, []);
+
   // Handle form entry changes with cascading logic
   const handleFormEntryChange = async (id, field, value) => {
     setFormEntries((prev) =>
@@ -339,8 +336,10 @@ const InputCutting = () => {
           );
           updated.description = selectedSCode?.description || "";
           
-          // Jika S.CODE di-clear, reset remainQuantity
-          if (!value) {
+          // Fetch remain quantity dari backend (Real dari database)
+          if (value && updated.customerPO && updated.sku) {
+            loadRemainQuantity(id, updated.customerPO, updated.sku, value);
+          } else {
             updated.remainQuantity = 0;
           }
         }
@@ -348,37 +347,6 @@ const InputCutting = () => {
         return updated;
       }),
     );
-    
-    // Handle S.CODE selection: set baseline remain per layer dan recompute
-    if (field === "sCode") {
-      setFormEntries((prev) => {
-        // Find current entry untuk get planned qty
-        const currentEntry = prev.find((e) => e.id === id);
-        if (currentEntry && currentEntry.customerPO && currentEntry.sku && value) {
-          const key = `${currentEntry.customerPO}|${currentEntry.sku}|${value}`;
-          const plannedQty = currentEntry.plannedQtyCache || 0;
-          
-          // Set baseline remain untuk layer ini dan recompute atomically
-          setBaseRemainByKey((prevBase) => {
-            const nextBase = prevBase[key] === undefined 
-              ? { ...prevBase, [key]: plannedQty }
-              : prevBase;
-            
-            // Recompute with updated baseline (menggunakan prev yang sudah updated dengan sCode)
-            setFormEntries((entries) => recomputeRemains(entries, nextBase));
-            
-            return nextBase;
-          });
-        }
-        
-        return prev;
-      });
-    }
-    
-    // Recompute all remains when quantityProduksi changes
-    if (field === "quantityProduksi") {
-      setFormEntries((prev) => recomputeRemains(prev, baseRemainByKey));
-    }
   };
 
   // Add/remove entries
@@ -413,11 +381,7 @@ const InputCutting = () => {
 
   const removeFormEntry = (id) => {
     if (formEntries.length > 1) {
-      setFormEntries((prev) => {
-        const filtered = prev.filter((e) => e.id !== id);
-        // Recompute remains after removing entry
-        return recomputeRemains(filtered, baseRemainByKey);
-      });
+      setFormEntries((prev) => prev.filter((e) => e.id !== id));
     }
   };
 
