@@ -1,20 +1,66 @@
-/* src/css/App.css */
+/* src/styles/App.css */
+
+/* Reset dasar */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Scroll default browser */
+html, body {
+  height: 100%;
+  overflow-y: auto; /* Scroll default browser */
+  margin: 0;
+  padding: 0;
+  background: #f8f9fa;
+}
+
+/* Container utama aplikasi */
 .app-container {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  /* overflow: hidden; */ /* ✅ HAPUS INI */
 }
 
-.app-sidebar {
-  width: 240px;
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow-y: auto;
   position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
+  z-index: 100;
+  background: #003628;
 }
 
-.app-content {
+/* Konten utama (semua halaman) */
+.app-container > main {
   flex: 1;
-  margin-left: 240px;
-  padding: 20px;
-  background-color: #f8fafc;
+  margin-left: 260px;
+  min-width: 0;
+  min-height: 100vh; /* ✅ Tambahkan ini */
+  overflow: auto; /* ✅ Ganti dari 'visible' ke 'auto' */
+  background: #f8f9fa;
+  padding-bottom: 4rem;
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 230px;
+  }
+  .app-container > main {
+    margin-left: 230px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 210px;
+  }
+  .app-container > main {
+    margin-left: 210px;
+  }
 }

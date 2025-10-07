@@ -1,17 +1,14 @@
 // src/pages/Workable/WorkableBonding.jsx
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // ✅ Untuk navigasi ke detail
+import { useNavigate, Link } from "react-router-dom";
 import {
   Package,
-  Calendar,
-  Clock,
-  Users,
-  Settings,
   BarChart3,
-  Eye,
-  AlertCircle,
   CheckCircle,
-  RefreshCw,
+  Clock,
+  AlertCircle,
+  Eye,
+  ArrowLeft,
 } from "lucide-react";
 import { getWorkableBonding } from "../../api/workable-bonding";
 import "../../styles/Workable/WorkableBonding.css";
@@ -20,95 +17,69 @@ const WorkableBonding = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const [autoRefreshActive, setAutoRefreshActive] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const result = await getWorkableBonding();
-
-        // Sort berdasarkan Ship To Name (Customer) kemudian SKU
         const sortedData = [...result].sort((a, b) => {
           const nameCompare = String(a.shipToName ?? "").localeCompare(
             String(b.shipToName ?? ""),
             undefined,
             { sensitivity: "base" },
           );
-
           if (nameCompare !== 0) return nameCompare;
-
           return String(a.sku ?? "").localeCompare(
             String(b.sku ?? ""),
             undefined,
             { sensitivity: "base" },
           );
         });
-
         setData(sortedData);
+        setError(null);
+        setAutoRefreshActive(false);
       } catch (err) {
         setError(err.message);
+        setAutoRefreshActive(true);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
 
+    let intervalId = null;
+    if (autoRefreshActive) {
+      intervalId = setInterval(fetchData, 10000);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [autoRefreshActive]);
+
+  // Perbarui class berdasarkan status baru
   const getStatusClass = (status) => {
     const lower = (status || "").toLowerCase();
     if (lower === "workable") return "status-workable";
     if (lower === "running") return "status-running";
-    return "";
+    if (lower === "not started") return "status-not-started";
+    return "status-unknown";
   };
 
-  if (loading)
-    return (
-      <div className="workable-container">
-        <div className="page-header">
-          <div className="header-content">
-            <div className="header-icon">
-              <Package className="w-8 h-8" />
-            </div>
-            <div className="header-text">
-              <h1 className="header-title">Workable Bonding</h1>
-              <p className="header-subtitle">Memuat data workable bonding...</p>
-            </div>
-          </div>
-        </div>
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
+  const handleBack = () => {
+    navigate("/workable");
+  };
 
-  if (error)
-    return (
-      <div className="workable-container">
-        <div className="page-header">
-          <div className="header-content">
-            <div className="header-icon">
-              <Package className="w-8 h-8" />
-            </div>
-            <div className="header-text">
-              <h1 className="header-title">Workable Bonding</h1>
-              <p className="header-subtitle">Error memuat data</p>
-            </div>
-          </div>
-        </div>
-        <div className="error-container">
-          <AlertCircle size={20} />
-          <p>Error: {error}</p>
-          <button
-            className="btn-retry"
-            onClick={() => window.location.reload()}
-          >
-            <RefreshCw size={16} />
-            Coba Lagi
-          </button>
-        </div>
-      </div>
-    );
+  // Helper untuk menghitung berdasarkan status
+  const countByStatus = (targetStatus) => {
+    return data.filter(
+      (d) => (d.status || "N/A").toLowerCase() === targetStatus.toLowerCase(),
+    ).length;
+  };
 
   return (
     <div className="workable-container">
@@ -116,7 +87,7 @@ const WorkableBonding = () => {
       <div className="page-header">
         <div className="header-content">
           <div className="header-icon">
-            <Package className="w-8 h-8" />
+            <Package size={32} />
           </div>
           <div className="header-text">
             <h1 className="header-title">Workable Bonding</h1>
@@ -126,10 +97,10 @@ const WorkableBonding = () => {
           </div>
         </div>
         <div className="header-actions">
-          <Link to="/workable/bonding/detail" className="btn-detail-header">
-            <Eye size={16} />
-            Lihat Detail Workable
-          </Link>
+          <button onClick={handleBack} className="btn-back">
+            <ArrowLeft size={16} />
+            Kembali
+          </button>
         </div>
       </div>
 
@@ -150,12 +121,7 @@ const WorkableBonding = () => {
             <CheckCircle size={24} />
           </div>
           <div className="stat-content">
-            <h3>
-              {
-                data.filter((d) => d.status?.toLowerCase() === "workable")
-                  .length
-              }
-            </h3>
+            <h3>{countByStatus("Workable")}</h3>
             <p>Workable</p>
           </div>
         </div>
@@ -165,9 +131,7 @@ const WorkableBonding = () => {
             <Clock size={24} />
           </div>
           <div className="stat-content">
-            <h3>
-              {data.filter((d) => d.status?.toLowerCase() === "running").length}
-            </h3>
+            <h3>{countByStatus("Running")}</h3>
             <p>Running</p>
           </div>
         </div>
@@ -177,16 +141,18 @@ const WorkableBonding = () => {
             <AlertCircle size={24} />
           </div>
           <div className="stat-content">
-            <h3>
-              {
-                data.filter(
-                  (d) => !d.status || d.status?.toLowerCase() === "n/a",
-                ).length
-              }
-            </h3>
-            <p>Belum Ada Status</p>
+            <h3>{countByStatus("Not Started") + countByStatus("N/A")}</h3>
+            <p>Belum Dimulai</p>
           </div>
         </div>
+      </div>
+
+      {/* Tombol Lihat Detail Workable */}
+      <div className="action-button-wrapper">
+        <Link to="/workable/bonding/detail" className="btn-detail-header">
+          <Eye size={16} />
+          Lihat Detail Workable
+        </Link>
       </div>
 
       {/* Tabel Data */}
@@ -198,23 +164,41 @@ const WorkableBonding = () => {
               <th>SHIP TO NAME</th>
               <th>SKU</th>
               <th>QUANTITY ORDER</th>
-              <th>PROGRESS</th>
+              <th>WORKABLE</th> {/* Ganti PROGRESS → WORKABLE */}
+              <th>BONDING</th> {/* Tambah kolom BONDING */}
               <th>REMAIN</th>
               <th>REMARKS</th>
               <th>STATUS</th>
             </tr>
           </thead>
           <tbody>
-            {data.length === 0 ? (
+            {loading ? (
               <tr>
-                <td colSpan="8" className="no-data">
+                <td colSpan="9" className="no-data">
+                  {" "}
+                  {/* colSpan jadi 9 */}
+                  <div className="loading-spinner"></div>
+                  <p>Memuat data...</p>
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan="9" className="no-data">
+                  <AlertCircle size={24} />
+                  <p>Gagal memuat: {error}</p>
+                  <p>Sistem akan mencoba lagi secara otomatis...</p>
+                </td>
+              </tr>
+            ) : data.length === 0 ? (
+              <tr>
+                <td colSpan="9" className="no-data">
                   <Package size={48} />
                   <p>Tidak ada data workable bonding</p>
                 </td>
               </tr>
             ) : (
-              data.map((row, index) => (
-                <tr key={index}>
+              data.map((row) => (
+                <tr key={`${row.sku}-${row.week}-${row.shipToName}`}>
                   <td>{row.week || "-"}</td>
                   <td>{row.shipToName || "-"}</td>
                   <td className="sku-cell">
@@ -223,8 +207,11 @@ const WorkableBonding = () => {
                   <td className="qty-cell">
                     {row.quantityOrder?.toLocaleString() || 0}
                   </td>
-                  <td className="progress-cell">
-                    {row.progress?.toLocaleString() || 0}
+                  <td className="workable-cell">
+                    {row.workable?.toLocaleString() || 0}
+                  </td>
+                  <td className="bonding-cell">
+                    {row.bonding?.toLocaleString() || 0}
                   </td>
                   <td
                     className={`remain-cell ${row.remain < 0 ? "negative" : ""}`}

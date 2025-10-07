@@ -1,0 +1,141 @@
+/* src/styles/MasterData/Foam/MasterFoam.css */
+.master-foam {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.master-foam__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.master-foam__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin: 0;
+}
+
+.master-foam__back-btn {
+  padding: 8px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.master-foam__back-btn:hover {
+  background-color: #2563eb;
+}
+
+.master-foam__controls {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.master-foam__search {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.master-foam__search label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.master-foam__search-input {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.master-foam__search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.master-foam__table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: white;
+  border: 1px solid #e2e8f0;
+}
+
+.master-foam__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1200px;
+}
+
+.master-foam__table th {
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-weight: 600;
+  padding: 14px 12px;
+  text-align: left;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+}
+
+.master-foam__table td {
+  padding: 12px 12px;
+  border-bottom: 1px solid #edf2f7;
+  font-size: 14px;
+  color: #374151;
+}
+
+.master-foam__table tbody tr:hover {
+  background-color: #f0f9ff;
+}
+
+.master-foam__loading,
+.master-foam__error,
+.master-foam__no-data {
+  text-align: center;
+  padding: 32px;
+  font-size: 16px;
+  color: #64748b;
+}
+
+.master-foam__error {
+  color: #ef4444;
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+  .master-foam {
+    padding: 16px;
+  }
+
+  .master-foam__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .master-foam__controls {
+    justify-content: flex-start;
+  }
+
+  .master-foam__search {
+    max-width: 100%;
+  }
+}

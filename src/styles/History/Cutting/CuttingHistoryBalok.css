@@ -1,4 +1,5 @@
-/* Modern History Cutting CSS */
+/* Modern History Cutting CSS - Compatible with App.css */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
@@ -101,36 +102,24 @@
   box-sizing: border-box;
 }
 
-.history-container {
-  min-height: 100vh;
+/* ❌ HAPUS .history-container — biarkan <main> dari App.css yang atur layout */
+
+/* Header */
+.history-header {
   background: linear-gradient(135deg, var(--primary-50) 0%, var(--secondary-50) 100%);
-  font-family: var(--font-primary);
-  padding: var(--space-6);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  margin: var(--space-8) var(--space-12) var(--space-6);
+  text-align: center;
   animation: fadeIn 0.6s ease-out;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Header */
-.history-header {
-  text-align: center;
-  margin-bottom: var(--space-12);
-  animation: slideInDown 0.8s ease-out;
-}
-
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-50px);
   }
   to {
     opacity: 1;
@@ -162,12 +151,11 @@
 
 /* Filter Section */
 .filter-section {
-  max-width: 1200px;
-  margin: 0 auto var(--space-12);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: var(--radius-2xl);
   padding: var(--space-8);
+  margin: 0 var(--space-12) var(--space-8);
   box-shadow: var(--shadow-lg);
   border: 1px solid rgba(255, 255, 255, 0.2);
   animation: slideInUp 0.8s ease-out;
@@ -289,6 +277,7 @@
   margin: 0 auto;
   max-width: 600px;
   box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .loading-spinner {
@@ -338,8 +327,7 @@
 
 /* Results Info */
 .results-info {
-  max-width: 1200px;
-  margin: 0 auto var(--space-6);
+  margin: 0 var(--space-12) var(--space-6);
   text-align: center;
 }
 
@@ -356,25 +344,26 @@
 
 /* Table Container */
 .table-container {
-  max-width: 1200px;
-  margin: 0 auto var(--space-8);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: var(--radius-2xl);
-  overflow: hidden;
+  margin: 0 var(--space-12) var(--space-8);
   box-shadow: var(--shadow-xl);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* ❌ HAPUS overflow-x: auto — biarkan browser handle scroll */
 .table-wrapper {
-  overflow-x: auto;
+  /* overflow-x: auto; ❌ */
 }
 
 .history-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 0.875rem;
-  min-width: 1000px;
+  min-width: 1000px; /* Untuk desktop */
+  table-layout: fixed; /* ✅ Penting untuk kontrol lebar kolom */
 }
 
 .history-table thead {
@@ -389,7 +378,8 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 0.75rem;
-  white-space: nowrap;
+  white-space: normal; /* ✅ Biarkan wrap di mobile */
+  word-wrap: break-word;
 }
 
 .history-table tbody tr {
@@ -409,6 +399,8 @@
 .history-table td {
   padding: var(--space-4) var(--space-3);
   vertical-align: middle;
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .machine-cell {
@@ -590,8 +582,7 @@
   justify-content: center;
   align-items: center;
   gap: var(--space-4);
-  max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 var(--space-12) var(--space-8);
   padding: var(--space-6);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -904,37 +895,47 @@
 }
 
 /* Custom Scrollbar */
-.modal-content::-webkit-scrollbar,
-.table-wrapper::-webkit-scrollbar {
+.modal-content::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.modal-content::-webkit-scrollbar-track,
-.table-wrapper::-webkit-scrollbar-track {
+.modal-content::-webkit-scrollbar-track {
   background: var(--neutral-100);
   border-radius: var(--radius-sm);
 }
 
-.modal-content::-webkit-scrollbar-thumb,
-.table-wrapper::-webkit-scrollbar-thumb {
+.modal-content::-webkit-scrollbar-thumb {
   background: var(--neutral-400);
   border-radius: var(--radius-sm);
 }
 
-.modal-content::-webkit-scrollbar-thumb:hover,
-.table-wrapper::-webkit-scrollbar-thumb:hover {
+.modal-content::-webkit-scrollbar-thumb:hover {
   background: var(--neutral-500);
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .history-container {
-    padding: var(--space-4);
+  .history-header {
+    margin: var(--space-6) var(--space-6) var(--space-4);
+    padding: var(--space-6);
   }
 
   .filter-section {
+    margin: 0 var(--space-6) var(--space-6);
     padding: var(--space-6);
+  }
+
+  .table-container {
+    margin: 0 var(--space-6) var(--space-6);
+  }
+
+  .results-info {
+    margin: 0 var(--space-6) var(--space-4);
+  }
+
+  .pagination {
+    margin: 0 var(--space-6) var(--space-6);
   }
 
   .header-content h1 {
@@ -943,12 +944,32 @@
 }
 
 @media (max-width: 768px) {
-  .history-container {
-    padding: var(--space-3);
+  .history-header {
+    margin: var(--space-4) var(--space-4) var(--space-3);
+    padding: var(--space-4);
   }
 
   .filter-section {
+    margin: 0 var(--space-4) var(--space-4);
     padding: var(--space-4);
+  }
+
+  .table-container {
+    margin: 0 var(--space-4) var(--space-4);
+  }
+
+  .results-info {
+    margin: 0 var(--space-4) var(--space-3);
+  }
+
+  .pagination {
+    margin: 0 var(--space-4) var(--space-4);
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .pagination-info {
+    order: -1;
   }
 
   .header-content h1 {
@@ -965,15 +986,6 @@
     grid-template-columns: 1fr;
   }
 
-  .pagination {
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .pagination-info {
-    order: -1;
-  }
-
   .modal-content {
     padding: var(--space-6);
     margin: var(--space-4);
@@ -986,18 +998,15 @@
   .action-buttons {
     flex-direction: column;
   }
-}
-
-@media (max-width: 640px) {
-  .history-table {
-    font-size: 0.75rem;
-  }
 
   .history-table th,
   .history-table td {
     padding: var(--space-2);
+    font-size: 0.75rem;
   }
+}
 
+@media (max-width: 640px) {
   .action-buttons {
     flex-direction: row;
     gap: var(--space-1);
@@ -1009,14 +1018,20 @@
     width: 28px;
     height: 28px;
   }
+
+  .history-table {
+    font-size: 0.7rem;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: var(--space-1);
+  }
 }
 
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
-  .history-container {
-    background: linear-gradient(135deg, var(--neutral-900) 0%, var(--neutral-800) 100%);
-  }
-
+  .history-header,
   .filter-section,
   .table-container,
   .pagination {
@@ -1066,11 +1081,6 @@
 
 /* Print Styles */
 @media print {
-  .history-container {
-    background: white;
-    padding: 0;
-  }
-
   .filter-section,
   .pagination,
   .action-buttons,

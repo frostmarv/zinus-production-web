@@ -1,7 +1,7 @@
 // src/pages/Workable/WorkableIndex.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import "../../styles/Workable/Index.css";
+import "../../styles/Workable/WorkableIndex.css";
 
 const WorkableIndex = () => {
   const departments = [
@@ -32,15 +32,20 @@ const WorkableIndex = () => {
   ];
 
   return (
-    <div className="workable-index-container">
+    <>
       {/* Header */}
-      <div className="header-section">
+      <div className="workable-header">
         <div className="header-content">
           <h1>📊 Department Workable</h1>
           <p>Select a department to view workable data for today</p>
           <div className="last-update">
             <span>
-              🕒 LAST UPDATE: {new Date().toLocaleTimeString("id-ID")}
+              🕒 LAST UPDATE:{" "}
+              {new Date().toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
             </span>
           </div>
         </div>
@@ -60,7 +65,7 @@ const WorkableIndex = () => {
           </Link>
         ))}
       </div>
-    </div>
+    </>
   );
 };
 

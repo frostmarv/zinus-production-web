@@ -5,7 +5,6 @@ import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import StockOpname from "./pages/StockOpname";
 import ProblematicData from "./pages/ProblematicData";
-import History from "./pages/JDE/History";
 import WorkableIndex from "./pages/Workable/WorkableIndex";
 import BalokCutting from "./pages/Cutting/BalokCutting";
 import HistoryIndex from "./pages/History/HistoryIndex";
@@ -19,23 +18,24 @@ import CuttingHistorySummary from "./pages/History/Cutting/CuttingHistorySummary
 import WorkableBonding from "./pages/Workable/WorkableBonding";
 import DetailWorkableBonding from "./pages/Workable/Detail/DetailWorkableBonding";
 import MasterDataIndex from "./pages/MasterData/MasterDataIndex";
-import MasterFoam from "./pages/MasterData/Planning/MasterFoam";
-import MasterSpring from "./pages/MasterData/Planning/MasterSpring";
+import MasterFoam from "./pages/MasterData/Foam/MasterFoam";
+import MasterSpring from "./pages/MasterData/Spring/MasterSpring";
+import MasterCutting from "./pages/MasterData/Cutting/MasterCutting";
+import JdeIndex from "./pages/JDE/JdeIndex";
+import FormIndex from "./pages/Input/FormIndex";
 import "./styles/App.css";
 
 function App() {
   return (
     <Router>
       <div className="app-container">
-        <div className="app-sidebar">
-          <Sidebar />
-        </div>
-        <div className="app-content">
+        <Sidebar />
+        {/* ✅ Gunakan <main> sebagai wrapper konten */}
+        <main>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/stock-opname" element={<StockOpname />} />
             <Route path="/problems" element={<ProblematicData />} />
-            <Route path="/jde/history" element={<History />} />
             <Route path="/history" element={<HistoryIndex />} />
             <Route path="/history/cutting" element={<CuttingHistoryIndex />} />
             <Route
@@ -60,8 +60,11 @@ function App() {
             <Route path="/master" element={<MasterDataIndex />} />
             <Route path="/master/foam" element={<MasterFoam />} />
             <Route path="/master/spring" element={<MasterSpring />} />
+            <Route path="/master/cutting" element={<MasterCutting />} />
+            <Route path="/jde" element={<JdeIndex />} />
+            <Route path="/form-index" element={<FormIndex />} />
           </Routes>
-        </div>
+        </main>
       </div>
     </Router>
   );

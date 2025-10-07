@@ -1,6 +1,6 @@
 // src/pages/MasterData/MasterDataIndex.jsx
 import React from "react";
-import { Package, Layers, ChevronRight, Square, Leaf } from "lucide-react";
+import { Cuboid, Leaf, Scissors, Database, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/MasterData/MasterDataIndex.css";
 
@@ -11,37 +11,43 @@ const MasterDataIndex = () => {
     {
       id: "foam",
       title: "Master Data Foam",
-      description: "Manage foam types, materials, and specifications",
-      icon: Square, // Bisa ganti ikon lain jika cocok
+      description:
+        "Kelola jenis foam, spesifikasi material, dan parameter produksi.",
+      icon: Cuboid,
       path: "/master/foam",
-      color: "bg-blue-500",
+      color: "#3b82f6",
     },
     {
       id: "spring",
       title: "Master Data Spring",
-      description: "Manage spring types, dimensions, and specifications",
-      icon: Leaf, // Bisa ganti ikon lain
+      description: "Kelola jenis pegas, dimensi, dan karakteristik teknis.",
+      icon: Leaf,
       path: "/master/spring",
-      color: "bg-green-500",
+      color: "#10b981",
     },
     {
       id: "cutting",
-      title: "Master Data Cutting/Layers",
-      description: "Manage cutting layers, materials, and processes",
-      icon: Layers,
+      title: "Master Data Cutting",
+      description:
+        "Kelola layer cutting, konfigurasi material, dan proses produksi.",
+      icon: Scissors,
       path: "/master/cutting",
-      color: "bg-amber-500",
+      color: "#8b5cf6",
     },
   ];
 
   return (
+    // ✅ HANYA kembalikan konten utama, TANPA .app-container
     <div className="master-data-index-container">
       <div className="master-data-header">
-        <h1>
-          <Package size={32} />
-          Master Data Management
-        </h1>
-        <p>Kelola data utama sistem produksi cutting</p>
+        <div className="header-icon">
+          <Database size={36} />
+        </div>
+        <h1>Master Data Management</h1>
+        <p>
+          Sistem terpusat untuk mengelola data inti produksi secara efisien dan
+          akurat.
+        </p>
       </div>
 
       <div className="menu-grid">
@@ -52,15 +58,16 @@ const MasterDataIndex = () => {
               key={item.id}
               className="menu-card"
               onClick={() => navigate(item.path)}
+              style={{ "--card-accent-color": item.color }}
             >
-              <div className={`icon-container ${item.color}`}>
-                <Icon size={32} color="white" />
+              <div className="icon-container">
+                <Icon size={28} />
               </div>
               <div className="menu-content">
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
               </div>
-              <ChevronRight size={24} className="arrow-icon" />
+              <ChevronRight size={20} className="arrow-icon" />
             </div>
           );
         })}

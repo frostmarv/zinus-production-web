@@ -155,23 +155,28 @@ const CuttingHistorySummary = () => {
     setIsModalOpen(true);
     setIsEditMode(false);
     setOpError(null);
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
   };
 
   const closeModal = () => {
-    if (isEditMode && window.confirm('Anda memiliki perubahan yang belum disimpan. Tutup modal?')) {
+    if (
+      isEditMode &&
+      window.confirm(
+        "Anda memiliki perubahan yang belum disimpan. Tutup modal?",
+      )
+    ) {
       // Confirmed
     } else if (isEditMode) {
       return; // Don't close if user cancels
     }
-    
+
     setIsModalOpen(false);
     setSelectedItem(null);
     setIsEditMode(false);
     setDraftHeader({});
     setDraftEntries([]);
     setOpError(null);
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = "auto";
   };
 
   const handleEdit = () => {
@@ -180,19 +185,21 @@ const CuttingHistorySummary = () => {
       shift: selectedItem.shift,
       group: selectedItem.group,
       time: selectedItem.time,
-      machine: selectedItem.machine || '',
-      operator: selectedItem.operator || '',
+      machine: selectedItem.machine || "",
+      operator: selectedItem.operator || "",
     });
     // Initialize with computed remainQuantity
-    setDraftEntries(selectedItem.entries?.map(e => {
-      const qtyOrder = parseInt(e.quantityOrder) || 0;
-      const qtyProd = parseInt(e.quantityProduksi) || 0;
-      return {
-        ...e,
-        quantityProduksi: qtyProd,
-        remainQuantity: Math.max(0, qtyOrder - qtyProd),
-      };
-    }) || []);
+    setDraftEntries(
+      selectedItem.entries?.map((e) => {
+        const qtyOrder = parseInt(e.quantityOrder) || 0;
+        const qtyProd = parseInt(e.quantityProduksi) || 0;
+        return {
+          ...e,
+          quantityProduksi: qtyProd,
+          remainQuantity: Math.max(0, qtyOrder - qtyProd),
+        };
+      }) || [],
+    );
     setOpError(null);
   };
 
@@ -204,12 +211,12 @@ const CuttingHistorySummary = () => {
   };
 
   const handleHeaderChange = (field, value) => {
-    setDraftHeader(prev => ({ ...prev, [field]: value }));
+    setDraftHeader((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleEntryQtyChange = (index, newQty) => {
     const qty = parseInt(newQty) || 0;
-    setDraftEntries(prev => {
+    setDraftEntries((prev) => {
       const updated = [...prev];
       const entry = updated[index];
       const remain = (entry.quantityOrder || 0) - qty;
@@ -223,13 +230,13 @@ const CuttingHistorySummary = () => {
   };
 
   const handleSave = async () => {
-    setOpLoading(prev => ({ ...prev, save: true }));
+    setOpLoading((prev) => ({ ...prev, save: true }));
     setOpError(null);
 
     // Validation
     if (!draftHeader.shift || !draftHeader.group || !draftHeader.time) {
-      setOpError('Shift, Group, dan Time harus diisi');
-      setOpLoading(prev => ({ ...prev, save: false }));
+      setOpError("Shift, Group, dan Time harus diisi");
+      setOpLoading((prev) => ({ ...prev, save: false }));
       return;
     }
 
@@ -241,22 +248,28 @@ const CuttingHistorySummary = () => {
 
       if (isNaN(qty) || qty < 0) {
         setOpError(`Entry ${i + 1}: Quantity Produksi harus angka positif`);
-        setOpLoading(prev => ({ ...prev, save: false }));
+        setOpLoading((prev) => ({ ...prev, save: false }));
         return;
       }
 
       if (qty > order) {
-        setOpError(`Entry ${i + 1}: Quantity Produksi (${qty}) tidak boleh melebihi Quantity Order (${order})`);
-        setOpLoading(prev => ({ ...prev, save: false }));
+        setOpError(
+          `Entry ${i + 1}: Quantity Produksi (${qty}) tidak boleh melebihi Quantity Order (${order})`,
+        );
+        setOpLoading((prev) => ({ ...prev, save: false }));
         return;
       }
     }
 
     // Recompute all remainQuantity before saving
-    const normalizedEntries = draftEntries.map(entry => ({
+    const normalizedEntries = draftEntries.map((entry) => ({
       ...entry,
       quantityProduksi: parseInt(entry.quantityProduksi) || 0,
-      remainQuantity: Math.max(0, (parseInt(entry.quantityOrder) || 0) - (parseInt(entry.quantityProduksi) || 0)),
+      remainQuantity: Math.max(
+        0,
+        (parseInt(entry.quantityOrder) || 0) -
+          (parseInt(entry.quantityProduksi) || 0),
+      ),
     }));
 
     try {
@@ -271,63 +284,68 @@ const CuttingHistorySummary = () => {
       };
 
       await cuttingProductionAPI.update(selectedItem.id, payload);
-      
+
       // Refresh data and close modal
       await fetchData();
       setIsModalOpen(false);
       setSelectedItem(null);
       setIsEditMode(false);
-      document.body.style.overflow = 'auto';
-      
-      alert('✅ Data berhasil diupdate!');
+      document.body.style.overflow = "auto";
+
+      alert("✅ Data berhasil diupdate!");
     } catch (err) {
-      console.error('❌ Gagal update data:', err);
+      console.error("❌ Gagal update data:", err);
       setOpError(`Gagal update: ${err.message}`);
     } finally {
-      setOpLoading(prev => ({ ...prev, save: false }));
+      setOpLoading((prev) => ({ ...prev, save: false }));
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('⚠️ Apakah Anda yakin ingin menghapus data ini? Aksi ini tidak dapat dibatalkan.')) {
+    if (
+      !window.confirm(
+        "⚠️ Apakah Anda yakin ingin menghapus data ini? Aksi ini tidak dapat dibatalkan.",
+      )
+    ) {
       return;
     }
 
-    setOpLoading(prev => ({ ...prev, delete: true }));
+    setOpLoading((prev) => ({ ...prev, delete: true }));
     setOpError(null);
 
     try {
       await cuttingProductionAPI.delete(selectedItem.id);
-      
+
       // Refresh data and close modal
       await fetchData();
       setIsModalOpen(false);
       setSelectedItem(null);
       setIsEditMode(false);
-      document.body.style.overflow = 'auto';
-      
-      alert('✅ Data berhasil dihapus!');
+      document.body.style.overflow = "auto";
+
+      alert("✅ Data berhasil dihapus!");
     } catch (err) {
-      console.error('❌ Gagal hapus data:', err);
+      console.error("❌ Gagal hapus data:", err);
       setOpError(`Gagal hapus: ${err.message}`);
     } finally {
-      setOpLoading(prev => ({ ...prev, delete: false }));
+      setOpLoading((prev) => ({ ...prev, delete: false }));
     }
   };
 
   // Esc key to close modal
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === 'Escape' && isModalOpen) {
+      if (e.key === "Escape" && isModalOpen) {
         closeModal();
       }
     };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
   }, [isModalOpen]);
 
   return (
-    <div className="cutting-history-summary-container">
+    <>
+      {/* Header */}
       <div className="cutting-history-summary-header">
         <h1>
           <BarChart3 size={32} />
@@ -336,6 +354,7 @@ const CuttingHistorySummary = () => {
         <p>Ringkasan data produksi cutting dari API production</p>
       </div>
 
+      {/* Filter Section */}
       <div className="filter-section">
         <div className="filter-header">
           <h3>
@@ -431,6 +450,7 @@ const CuttingHistorySummary = () => {
         </div>
       </div>
 
+      {/* Loading State */}
       {loading && (
         <div className="loading-container">
           <div className="loading-spinner"></div>
@@ -438,6 +458,7 @@ const CuttingHistorySummary = () => {
         </div>
       )}
 
+      {/* Error State */}
       {error && !loading && (
         <div className="error-container">
           <AlertTriangle size={20} />
@@ -449,6 +470,7 @@ const CuttingHistorySummary = () => {
         </div>
       )}
 
+      {/* Table & Pagination */}
       {!loading && !error && (
         <>
           <div className="results-info">
@@ -461,116 +483,121 @@ const CuttingHistorySummary = () => {
             </p>
           </div>
 
-          <div className="summary-grid">
+          <div className="summary-list">
             {paginationData.currentItems.length === 0 ? (
-              <div className="no-data-card">
+              <div className="no-data-message">
                 <Package size={48} />
                 <p>Tidak ada data production</p>
               </div>
             ) : (
               paginationData.currentItems.map((item) => (
-                <div key={item.id} className="summary-card">
-                  <div className="card-header">
-                    <h3>
+                <div key={item.id} className="summary-item">
+                  <div className="item-header">
+                    <div className="item-title">
                       <Package size={20} />
-                      Production #{item.id?.substring(0, 8)}
-                    </h3>
-                    <span className="card-date">
-                      {formatDate(item.timestamp)}
-                    </span>
+                      <span>Production #{item.id?.substring(0, 8)}</span>
+                    </div>
+                    <div className="item-date">
+                      <span>{formatDate(item.timestamp)}</span>
+                    </div>
                   </div>
 
-                  <div className="card-content">
+                  <div className="item-content">
                     <div className="info-row">
-                      <div className="info-item">
-                        <strong>Shift:</strong>
-                        <span className="shift-badge">{item.shift}</span>
+                      <div className="info-col">
+                        <div className="info-label">Shift:</div>
+                        <div className="info-value shift-badge">
+                          {item.shift}
+                        </div>
                       </div>
-                      <div className="info-item">
-                        <strong>Group:</strong>
-                        <span className="group-badge">{item.group}</span>
+                      <div className="info-col">
+                        <div className="info-label">Group:</div>
+                        <div className="info-value group-badge">
+                          {item.group}
+                        </div>
+                      </div>
+                      <div className="info-col">
+                        <div className="info-label">Time:</div>
+                        <div className="info-value">{item.time}</div>
+                      </div>
+                      <div className="info-col">
+                        <div className="info-label">Week:</div>
+                        <div className="info-value week-badge">{item.week}</div>
                       </div>
                     </div>
 
                     <div className="info-row">
-                      <div className="info-item">
-                        <strong>Time:</strong>
-                        <span>{item.time}</span>
+                      <div className="info-col">
+                        <div className="info-label">Machine:</div>
+                        <div className="info-value">{item.machine || "-"}</div>
                       </div>
-                      <div className="info-item">
-                        <strong>Week:</strong>
-                        <span className="week-badge">{item.week}</span>
+                      <div className="info-col">
+                        <div className="info-label">Operator:</div>
+                        <div className="info-value">{item.operator || "-"}</div>
                       </div>
-                    </div>
-
-                    <div className="info-row">
-                      <div className="info-item">
-                        <strong>Machine:</strong>
-                        <span>{item.machine || "-"}</span>
+                      <div className="info-col">
+                        <div className="info-label">Customer:</div>
+                        <div className="info-value">
+                          {item.entries?.[0]?.customer || "-"}
+                        </div>
                       </div>
-                      <div className="info-item">
-                        <strong>Operator:</strong>
-                        <span>{item.operator || "-"}</span>
-                      </div>
-                    </div>
-
-                    <div className="info-row">
-                      <div className="info-item">
-                        <strong>Customer:</strong>
-                        <span>{item.entries?.[0]?.customer || "-"}</span>
-                      </div>
-                      <div className="info-item">
-                        <strong>PO:</strong>
-                        <span>{item.entries?.[0]?.poNumber || "-"}</span>
+                      <div className="info-col">
+                        <div className="info-label">PO:</div>
+                        <div className="info-value">
+                          {item.entries?.[0]?.poNumber || "-"}
+                        </div>
                       </div>
                     </div>
 
                     <div className="info-row">
-                      <div className="info-item">
-                        <strong>SKU:</strong>
-                        <span>{item.entries?.[0]?.sku || "-"}</span>
+                      <div className="info-col">
+                        <div className="info-label">SKU:</div>
+                        <div className="info-value">
+                          {item.entries?.[0]?.sku || "-"}
+                        </div>
                       </div>
-                      <div className="info-item">
-                        <strong>Qty Order:</strong>
-                        <span>{item.entries?.[0]?.quantityOrder || 0}</span>
+                      <div className="info-col">
+                        <div className="info-label">Qty Order:</div>
+                        <div className="info-value">
+                          {item.entries?.[0]?.quantityOrder || 0}
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="info-row">
-                      <div className="info-item">
-                        <strong>Qty Produksi:</strong>
-                        <span className="qty-produksi">
+                      <div className="info-col">
+                        <div className="info-label">Qty Produksi:</div>
+                        <div className="info-value qty-produksi">
                           {getTotalQuantity(item.entries)}
-                        </span>
+                        </div>
                       </div>
-                      <div className="info-item">
-                        <strong>Remain:</strong>
-                        <span className="qty-remain">
+                      <div className="info-col">
+                        <div className="info-label">Remain:</div>
+                        <div className="info-value qty-remain">
                           {getTotalRemain(item.entries)}
-                        </span>
+                        </div>
                       </div>
                     </div>
 
                     <div className="info-row">
-                      <div className="info-item full-width">
-                        <strong>Entries:</strong>
-                        <span>{item.entries?.length || 0} item</span>
+                      <div className="info-col full-width">
+                        <div className="info-label">Entries:</div>
+                        <div className="info-value">
+                          {item.entries?.length || 0} item
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="card-footer">
-                    <span className="timestamp">
+                  <div className="item-footer">
+                    <div className="item-timestamp">
                       <Clock size={14} />
                       {formatTimestamp(item.timestamp)}
-                    </span>
-                    <span className="status">
+                    </div>
+                    <div className="item-status">
                       {item.entries?.length > 0 ? (
                         <CheckCircle size={14} color="#10b981" />
                       ) : (
                         <AlertTriangle size={14} color="#f59e0b" />
                       )}
-                    </span>
+                    </div>
                     <button
                       className="btn-detail"
                       onClick={() => openModal(item)}
@@ -648,7 +675,9 @@ const CuttingHistorySummary = () => {
                   {isEditMode ? (
                     <select
                       value={draftHeader.shift}
-                      onChange={(e) => handleHeaderChange('shift', e.target.value)}
+                      onChange={(e) =>
+                        handleHeaderChange("shift", e.target.value)
+                      }
                       className="modal-input"
                     >
                       <option value="1">Shift 1</option>
@@ -663,7 +692,9 @@ const CuttingHistorySummary = () => {
                   {isEditMode ? (
                     <select
                       value={draftHeader.group}
-                      onChange={(e) => handleHeaderChange('group', e.target.value)}
+                      onChange={(e) =>
+                        handleHeaderChange("group", e.target.value)
+                      }
                       className="modal-input"
                     >
                       <option value="A">Group A</option>
@@ -679,7 +710,9 @@ const CuttingHistorySummary = () => {
                     <input
                       type="time"
                       value={draftHeader.time}
-                      onChange={(e) => handleHeaderChange('time', e.target.value)}
+                      onChange={(e) =>
+                        handleHeaderChange("time", e.target.value)
+                      }
                       className="modal-input"
                     />
                   ) : (
@@ -688,7 +721,9 @@ const CuttingHistorySummary = () => {
                 </div>
                 <div className="modal-info-item">
                   <strong>Week:</strong>
-                  <span className="week-badge">{selectedItem.entries?.[0]?.week || "-"}</span>
+                  <span className="week-badge">
+                    {selectedItem.entries?.[0]?.week || "-"}
+                  </span>
                 </div>
                 <div className="modal-info-item">
                   <strong>Machine:</strong>
@@ -696,7 +731,9 @@ const CuttingHistorySummary = () => {
                     <input
                       type="text"
                       value={draftHeader.machine}
-                      onChange={(e) => handleHeaderChange('machine', e.target.value)}
+                      onChange={(e) =>
+                        handleHeaderChange("machine", e.target.value)
+                      }
                       className="modal-input"
                       placeholder="Machine"
                     />
@@ -710,7 +747,9 @@ const CuttingHistorySummary = () => {
                     <input
                       type="text"
                       value={draftHeader.operator}
-                      onChange={(e) => handleHeaderChange('operator', e.target.value)}
+                      onChange={(e) =>
+                        handleHeaderChange("operator", e.target.value)
+                      }
                       className="modal-input"
                       placeholder="Nama operator"
                     />
@@ -722,7 +761,13 @@ const CuttingHistorySummary = () => {
 
               {/* Entries Table */}
               <div className="modal-section">
-                <h3>Detail Entries ({isEditMode ? draftEntries.length : (selectedItem.entries?.length || 0)} items)</h3>
+                <h3>
+                  Detail Entries (
+                  {isEditMode
+                    ? draftEntries.length
+                    : selectedItem.entries?.length || 0}{" "}
+                  items)
+                </h3>
                 <div className="modal-table-wrapper">
                   <table className="modal-table">
                     <thead>
@@ -740,33 +785,39 @@ const CuttingHistorySummary = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(isEditMode ? draftEntries : selectedItem.entries)?.map((entry, index) => (
-                        <tr key={entry.id || index}>
-                          <td>{index + 1}</td>
-                          <td>{entry.customer || "-"}</td>
-                          <td>{entry.poNumber || "-"}</td>
-                          <td>{entry.customerPO || "-"}</td>
-                          <td>{entry.sku || "-"}</td>
-                          <td>{entry.sCode || "-"}</td>
-                          <td>{entry.description || "-"}</td>
-                          <td>{entry.quantityOrder || 0}</td>
-                          <td className="qty-produksi">
-                            {isEditMode ? (
-                              <input
-                                type="number"
-                                value={entry.quantityProduksi}
-                                onChange={(e) => handleEntryQtyChange(index, e.target.value)}
-                                min="0"
-                                max={entry.quantityOrder}
-                                className="modal-input modal-input-small"
-                              />
-                            ) : (
-                              entry.quantityProduksi || 0
-                            )}
-                          </td>
-                          <td className="qty-remain">{entry.remainQuantity || 0}</td>
-                        </tr>
-                      ))}
+                      {(isEditMode ? draftEntries : selectedItem.entries)?.map(
+                        (entry, index) => (
+                          <tr key={entry.id || index}>
+                            <td>{index + 1}</td>
+                            <td>{entry.customer || "-"}</td>
+                            <td>{entry.poNumber || "-"}</td>
+                            <td>{entry.customerPO || "-"}</td>
+                            <td>{entry.sku || "-"}</td>
+                            <td>{entry.sCode || "-"}</td>
+                            <td>{entry.description || "-"}</td>
+                            <td>{entry.quantityOrder || 0}</td>
+                            <td className="qty-produksi">
+                              {isEditMode ? (
+                                <input
+                                  type="number"
+                                  value={entry.quantityProduksi}
+                                  onChange={(e) =>
+                                    handleEntryQtyChange(index, e.target.value)
+                                  }
+                                  min="0"
+                                  max={entry.quantityOrder}
+                                  className="modal-input modal-input-small"
+                                />
+                              ) : (
+                                entry.quantityProduksi || 0
+                              )}
+                            </td>
+                            <td className="qty-remain">
+                              {entry.remainQuantity || 0}
+                            </td>
+                          </tr>
+                        ),
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -789,7 +840,7 @@ const CuttingHistorySummary = () => {
                     disabled={opLoading.save}
                   >
                     {opLoading.save ? (
-                      'Menyimpan...'
+                      "Menyimpan..."
                     ) : (
                       <>
                         <Save size={16} />
@@ -806,7 +857,7 @@ const CuttingHistorySummary = () => {
                     disabled={opLoading.delete}
                   >
                     {opLoading.delete ? (
-                      'Menghapus...'
+                      "Menghapus..."
                     ) : (
                       <>
                         <Trash2 size={16} />
@@ -831,7 +882,7 @@ const CuttingHistorySummary = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

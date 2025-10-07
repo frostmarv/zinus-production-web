@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { getWorkableBondingDetail } from "../../../api/workable-bonding"; // ✅ Import API call
+import { getWorkableBondingDetail } from "../../../api/workable-bonding";
 import "../../../styles/Workable/Detail/DetailWorkableBonding.css";
 
 const DetailWorkableBonding = () => {
@@ -14,18 +14,15 @@ const DetailWorkableBonding = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await getWorkableBondingDetail(); // ✅ Pakai API call
+        const result = await getWorkableBondingDetail();
 
-        // Sort berdasarkan Ship To Name (Customer) kemudian SKU
         const sortedData = [...result].sort((a, b) => {
           const nameCompare = String(a.shipToName ?? "").localeCompare(
             String(b.shipToName ?? ""),
             undefined,
             { sensitivity: "base" },
           );
-
           if (nameCompare !== 0) return nameCompare;
-
           return String(a.sku ?? "").localeCompare(
             String(b.sku ?? ""),
             undefined,
@@ -45,14 +42,24 @@ const DetailWorkableBonding = () => {
   }, []);
 
   const renderLayerCell = (value, orderQty) => {
-    if (value == null || value === "") return "-";
+    // Tangani null, undefined, atau string kosong
+    if (value == null || value === "" || isNaN(value)) return "-";
+
     const numValue = Number(value);
-    const isComplete = numValue >= (Number(orderQty) || 0);
+    const orderNum = Number(orderQty) || 0;
+    const isComplete = numValue >= orderNum;
+
     return (
       <span className={isComplete ? "layer-complete" : "layer-incomplete"}>
         {numValue.toLocaleString()}
       </span>
     );
+  };
+
+  // Helper untuk membuat class status yang aman
+  const getStatusClass = (status) => {
+    if (!status) return "status-n-a";
+    return `status-${status.toLowerCase().replace(/\s+/g, "-")}`;
   };
 
   if (loading) return <div className="detail-loading">Loading detail...</div>;
@@ -61,10 +68,10 @@ const DetailWorkableBonding = () => {
   return (
     <div className="detail-container">
       <div className="detail-header">
-        <button 
+        <button
           type="button"
-          className="back-button" 
-          onClick={() => navigate('/workable/bonding')}
+          className="back-button"
+          onClick={() => navigate("/workable/bonding")}
         >
           <ArrowLeft size={20} />
           Kembali
@@ -76,6 +83,7 @@ const DetailWorkableBonding = () => {
         <table className="detail-table">
           <thead>
             <tr>
+              <th>CUSTOMER PO</th> {/* ✅ Tambahkan kolom ini */}
               <th>WEEK</th>
               <th>SHIP TO NAME</th>
               <th>SKU</th>
@@ -93,18 +101,25 @@ const DetailWorkableBonding = () => {
           <tbody>
             {data.length === 0 ? (
               <tr>
-                <td colSpan="12" className="no-data">
+                <td colSpan="13" className="no-data">
+                  {" "}
+                  {/* 13 kolom sekarang */}
                   Tidak ada data detail.
                 </td>
               </tr>
             ) : (
-              data.map((row, index) => (
-                <tr key={index}>
-                  <td>{row.week}</td>
-                  <td>{row.shipToName}</td>
-                  <td className="sku-cell">{row.sku}</td>
+              data.map((row) => (
+                <tr
+                  key={`${row.customerPO}-${row.sku}-${row.week}`} // ✅ Key unik
+                >
+                  <td>{row.customerPO || "-"}</td>
+                  <td>{row.week || "-"}</td>
+                  <td>{row.shipToName || "-"}</td>
+                  <td className="sku-cell">{row.sku || "-"}</td>
                   <td className="qty-cell">
-                    {row.quantityOrder?.toLocaleString() || 0}
+                    {row.quantityOrder != null
+                      ? row.quantityOrder.toLocaleString()
+                      : 0}
                   </td>
                   <td>{renderLayerCell(row["Layer 1"], row.quantityOrder)}</td>
                   <td>{renderLayerCell(row["Layer 2"], row.quantityOrder)}</td>
@@ -112,12 +127,12 @@ const DetailWorkableBonding = () => {
                   <td>{renderLayerCell(row["Layer 4"], row.quantityOrder)}</td>
                   <td>{renderLayerCell(row["Hole"], row.quantityOrder)}</td>
                   <td className="remain-cell">
-                    {row.remain?.toLocaleString() || 0}
+                    {row.remain != null ? row.remain.toLocaleString() : 0}
                   </td>
                   <td className="remarks-cell">{row.remarks || "-"}</td>
                   <td>
                     <span
-                      className={`status-badge status-${row.status?.toLowerCase() || "n-a"}`}
+                      className={`status-badge ${getStatusClass(row.status)}`}
                     >
                       {row.status || "N/A"}
                     </span>

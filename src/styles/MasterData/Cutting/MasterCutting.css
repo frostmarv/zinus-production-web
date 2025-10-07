@@ -1,0 +1,147 @@
+                       /* src/styles/MasterData/Cutting/MasterCutting.css */
+                       .master-cutting {
+                         padding: 24px;
+                         background-color: #f8fafc;
+                         min-height: 100vh;
+                         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                       }
+
+                       .master-cutting__header {
+                         display: flex;
+                         justify-content: space-between;
+                         align-items: center;
+                         margin-bottom: 20px;
+                         flex-wrap: wrap;
+                         gap: 12px;
+                       }
+
+                       .master-cutting__title {
+                         font-size: 28px;
+                         font-weight: 700;
+                         color: #7e22ce; /* Ungu elegan untuk cutting */
+                         margin: 0;
+                       }
+
+                       .master-cutting__back-btn {
+                         padding: 8px 16px;
+                         background-color: #8b5cf6;
+                         color: white;
+                         border: none;
+                         border-radius: 6px;
+                         font-weight: 600;
+                         cursor: pointer;
+                         transition: background-color 0.2s;
+                       }
+
+                       .master-cutting__back-btn:hover {
+                         background-color: #7c3aed;
+                       }
+
+                       .master-cutting__controls {
+                         margin-bottom: 24px;
+                         display: flex;
+                         justify-content: flex-end;
+                       }
+
+                       .master-cutting__search {
+                         display: flex;
+                         flex-direction: column;
+                         gap: 6px;
+                         max-width: 450px;
+                         width: 100%;
+                       }
+
+                       .master-cutting__search label {
+                         font-size: 14px;
+                         font-weight: 600;
+                         color: #4b5563;
+                       }
+
+                       .master-cutting__search-input {
+                         padding: 10px 14px;
+                         border: 1px solid #d1d5db;
+                         border-radius: 8px;
+                         font-size: 15px;
+                         outline: none;
+                         transition: border-color 0.2s;
+                       }
+
+                       .master-cutting__search-input:focus {
+                         border-color: #8b5cf6;
+                         box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+                       }
+
+                       .master-cutting__table-container {
+                         overflow-x: auto;
+                         border-radius: 12px;
+                         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+                         background: white;
+                         border: 1px solid #e2e8f0;
+                       }
+
+                       .master-cutting__table {
+                         width: 100%;
+                         border-collapse: collapse;
+                         min-width: 1000px;
+                       }
+
+                       .master-cutting__table th {
+                         background-color: #f5f3ff;
+                         color: #5b21b6;
+                         font-weight: 600;
+                         padding: 14px 12px;
+                         text-align: left;
+                         font-size: 14px;
+                         position: sticky;
+                         top: 0;
+                       }
+
+                       .master-cutting__table td {
+                         padding: 12px 12px;
+                         border-bottom: 1px solid #edf2f7;
+                         font-size: 14px;
+                         color: #374151;
+                       }
+
+                       .master-cutting__table tbody tr:hover {
+                         background-color: #faf5ff;
+                       }
+
+                       .master-cutting__loading,
+                       .master-cutting__error,
+                       .master-cutting__no-data {
+                         text-align: center;
+                         padding: 32px;
+                         font-size: 16px;
+                         color: #64748b;
+                       }
+
+                       .master-cutting__error {
+                         color: #ef4444;
+                       }
+
+                       /* Responsif */
+                       @media (max-width: 768px) {
+                         .master-cutting {
+                           padding: 16px;
+                         }
+
+                         .master-cutting__header {
+                           flex-direction: column;
+                           align-items: flex-start;
+                         }
+
+                         .master-cutting__controls {
+                           justify-content: flex-start;
+                         }
+
+                         .master-cutting__search {
+                           max-width: 100%;
+                         }
+
+                         .master-cutting__table th,
+                         .master-cutting__table td {
+                           padding: 10px 8px;
+                           font-size: 13px;
+                         }
+                       }

@@ -18,7 +18,7 @@ import {
   AlertTriangle,
   CheckCircle,
 } from "lucide-react";
-import "../../../styles/History/Cutting.css";
+import "../../../styles/History/Cutting/CuttingHistoryBalok.css";
 
 const CuttingHistoryBalok = () => {
   const navigate = useNavigate(); // ✅ Gunakan useNavigate
@@ -200,7 +200,7 @@ const CuttingHistoryBalok = () => {
   }, [selectedData, deleteConfirm, isDeleting, closeModal, closeDeleteConfirm]);
 
   return (
-    <div className="history-container">
+    <>
       {/* Header */}
       <div className="history-header">
         <div className="header-content">
@@ -749,7 +749,7 @@ const CuttingHistoryBalok = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

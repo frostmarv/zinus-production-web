@@ -1,0 +1,141 @@
+/* src/styles/MasterData/Spring/MasterSpring.css */
+.master-spring {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.master-spring__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.master-spring__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #166534; /* Hijau tua untuk pembeda dari foam */
+  margin: 0;
+}
+
+.master-spring__back-btn {
+  padding: 8px 16px;
+  background-color: #22c55e; /* Hijau sesuai tema spring */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.master-spring__back-btn:hover {
+  background-color: #16a34a;
+}
+
+.master-spring__controls {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.master-spring__search {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.master-spring__search label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.master-spring__search-input {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.master-spring__search-input:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.master-spring__table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: white;
+  border: 1px solid #e2e8f0;
+}
+
+.master-spring__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1200px;
+}
+
+.master-spring__table th {
+  background-color: #dcfce7; /* Hijau muda */
+  color: #166534;
+  font-weight: 600;
+  padding: 14px 12px;
+  text-align: left;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+}
+
+.master-spring__table td {
+  padding: 12px 12px;
+  border-bottom: 1px solid #edf2f7;
+  font-size: 14px;
+  color: #374151;
+}
+
+.master-spring__table tbody tr:hover {
+  background-color: #f0fdf4;
+}
+
+.master-spring__loading,
+.master-spring__error,
+.master-spring__no-data {
+  text-align: center;
+  padding: 32px;
+  font-size: 16px;
+  color: #64748b;
+}
+
+.master-spring__error {
+  color: #ef4444;
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+  .master-spring {
+    padding: 16px;
+  }
+
+  .master-spring__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .master-spring__controls {
+    justify-content: flex-start;
+  }
+
+  .master-spring__search {
+    max-width: 100%;
+  }
+}

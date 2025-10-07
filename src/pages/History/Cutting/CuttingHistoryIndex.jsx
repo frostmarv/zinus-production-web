@@ -14,7 +14,6 @@ import "../../../styles/History/Cutting/CuttingHistoryIndex.css";
 const CuttingHistoryIndex = () => {
   const navigate = useNavigate();
 
-  // Menu items for navigation
   const menuItems = [
     {
       id: "balok",
@@ -39,7 +38,7 @@ const CuttingHistoryIndex = () => {
   };
 
   return (
-    <div className="cutting-history-index-container">
+    <>
       {/* Header */}
       <div className="cutting-history-index-header">
         <div className="header-content">
@@ -60,6 +59,8 @@ const CuttingHistoryIndex = () => {
               style={{
                 borderLeft: `4px solid ${item.color}`,
               }}
+              tabIndex={0}
+              role="button"
             >
               <div className="card-icon" style={{ color: item.color }}>
                 <IconComponent size={32} />
@@ -116,7 +117,7 @@ const CuttingHistoryIndex = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

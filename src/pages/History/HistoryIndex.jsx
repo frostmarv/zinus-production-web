@@ -1,6 +1,6 @@
 // src/pages/History/HistoryIndex.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Tambahkan useNavigate
+import { useNavigate } from "react-router-dom";
 import {
   Scissors,
   Shirt,
@@ -13,13 +13,13 @@ import {
   BarChart3,
   ChevronRight,
   Clock,
+  AlertTriangle,
 } from "lucide-react";
-import "../../styles/History/Index.css";
+import "../../styles/History/HistoryIndex.css";
 
 const HistoryDashboard = () => {
-  const navigate = useNavigate(); // ✅ Inisialisasi navigate
+  const navigate = useNavigate();
 
-  // Get current time for last update
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString("id-ID", {
       hour: "2-digit",
@@ -30,7 +30,6 @@ const HistoryDashboard = () => {
 
   const [lastUpdate] = useState(getCurrentTime());
 
-  // Data departemen dengan informasi lengkap
   const departments = [
     {
       id: "cutting",
@@ -42,6 +41,7 @@ const HistoryDashboard = () => {
       path: "/history/cutting",
       description: "Data cutting balok foam",
       status: "ACTIVE",
+      isActive: true,
     },
     {
       id: "sewing",
@@ -53,6 +53,7 @@ const HistoryDashboard = () => {
       path: "/history/sewing",
       description: "Data sewing outcover",
       status: "ACTIVE",
+      isActive: false,
     },
     {
       id: "quilting",
@@ -64,6 +65,7 @@ const HistoryDashboard = () => {
       path: "/history/quilting",
       description: "Data quilting mattress",
       status: "ACTIVE",
+      isActive: false,
     },
     {
       id: "spring-core",
@@ -75,6 +77,7 @@ const HistoryDashboard = () => {
       path: "/history/spring-core",
       description: "Data spring core assembly",
       status: "ACTIVE",
+      isActive: false,
     },
     {
       id: "packing-foam",
@@ -86,6 +89,7 @@ const HistoryDashboard = () => {
       path: "/history/packing-foam",
       description: "Data packing foam products",
       status: "ACTIVE",
+      isActive: false,
     },
     {
       id: "packing-spring",
@@ -97,6 +101,7 @@ const HistoryDashboard = () => {
       path: "/history/packing-spring",
       description: "Data packing spring products",
       status: "ACTIVE",
+      isActive: false,
     },
     {
       id: "finish-good",
@@ -108,6 +113,7 @@ const HistoryDashboard = () => {
       path: "/history/finish-good",
       description: "Data finish good products",
       status: "ACTIVE",
+      isActive: false,
     },
     {
       id: "cd-box",
@@ -119,18 +125,22 @@ const HistoryDashboard = () => {
       path: "/history/cd-box",
       description: "Data C/D box packaging",
       status: "ACTIVE",
+      isActive: false,
     },
   ];
 
-  // ✅ Perbaiki fungsi handleDepartmentClick untuk navigasi
-  const handleDepartmentClick = (path, deptName) => {
+  const handleDepartmentClick = (path, deptName, isActive) => {
+    if (!isActive) {
+      // Tampilkan notifikasi "Coming Soon"
+      alert("🛠️ Fitur ini sedang dalam pengembangan.\nAkan segera tersedia!");
+      return;
+    }
     console.log(`Navigating to ${deptName}: ${path}`);
-    navigate(path); // ✅ Gunakan navigate untuk routing
+    navigate(path);
   };
 
   return (
-    <div className="history-dashboard-container">
-      {/* Header */}
+    <>
       <div className="dashboard-header">
         <div className="header-content">
           <div className="header-icon">
@@ -149,47 +159,59 @@ const HistoryDashboard = () => {
         </div>
       </div>
 
-      {/* Department List */}
       <div className="departments-list">
         {departments.map((dept) => {
           const IconComponent = dept.icon;
           return (
             <div
               key={dept.id}
-              className="department-item"
-              onClick={() => handleDepartmentClick(dept.path, dept.name)} // ✅ Klik akan navigasi
-              style={{ cursor: "pointer" }} // ✅ Tambahkan cursor pointer untuk UX
+              className={`department-item ${!dept.isActive ? "department-item--disabled" : ""}`}
+              onClick={() =>
+                handleDepartmentClick(dept.path, dept.name, dept.isActive)
+              }
+              tabIndex={dept.isActive ? 0 : -1}
+              role="button"
             >
               <div
                 className="department-icon"
                 style={{ backgroundColor: dept.bgColor }}
               >
                 <IconComponent size={24} style={{ color: dept.color }} />
+                {!dept.isActive && (
+                  <div className="coming-soon-badge">
+                    <AlertTriangle size={12} />
+                  </div>
+                )}
               </div>
 
               <div className="department-info">
                 <div className="department-header">
                   <h3>{dept.name}</h3>
-                  <span className="status-badge" style={{ color: dept.color }}>
-                    {dept.status}
-                  </span>
+                  <span className="status-badge">{dept.status}</span>
                 </div>
                 <p className="department-description">{dept.description}</p>
                 <div className="department-stats">
                   <span className="record-count">
                     {dept.count} records today
                   </span>
+                  {!dept.isActive && (
+                    <span className="coming-soon-label">Coming Soon</span>
+                  )}
                 </div>
               </div>
 
-              <div className="department-arrow">
-                <ChevronRight size={20} />
-              </div>
+              {dept.isActive ? (
+                <div className="department-arrow">
+                  <ChevronRight size={20} />
+                </div>
+              ) : (
+                <div className="arrow-placeholder"></div>
+              )}
             </div>
           );
         })}
       </div>
-    </div>
+    </>
   );
 };
 
