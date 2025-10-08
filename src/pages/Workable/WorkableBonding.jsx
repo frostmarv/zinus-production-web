@@ -1,4 +1,3 @@
-// src/pages/Workable/WorkableBonding.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -61,7 +60,6 @@ const WorkableBonding = () => {
     };
   }, [autoRefreshActive]);
 
-  // Perbarui class berdasarkan status baru
   const getStatusClass = (status) => {
     const lower = (status || "").toLowerCase();
     if (lower === "workable") return "status-workable";
@@ -74,7 +72,6 @@ const WorkableBonding = () => {
     navigate("/workable");
   };
 
-  // Helper untuk menghitung berdasarkan status
   const countByStatus = (targetStatus) => {
     return data.filter(
       (d) => (d.status || "N/A").toLowerCase() === targetStatus.toLowerCase(),
@@ -155,82 +152,84 @@ const WorkableBonding = () => {
         </Link>
       </div>
 
-      {/* Tabel Data */}
+      {/* Tabel Data - Dengan Scroll Horizontal */}
       <div className="table-wrapper">
-        <table className="workable-table">
-          <thead>
-            <tr>
-              <th>WEEK</th>
-              <th>SHIP TO NAME</th>
-              <th>SKU</th>
-              <th>QUANTITY ORDER</th>
-              <th>WORKABLE</th> {/* Ganti PROGRESS → WORKABLE */}
-              <th>BONDING</th> {/* Tambah kolom BONDING */}
-              <th>REMAIN</th>
-              <th>REMARKS</th>
-              <th>STATUS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+        <div className="table-scroll-container">
+          <table className="workable-table">
+            <thead>
               <tr>
-                <td colSpan="9" className="no-data">
-                  {" "}
-                  {/* colSpan jadi 9 */}
-                  <div className="loading-spinner"></div>
-                  <p>Memuat data...</p>
-                </td>
+                <th>WEEK</th>
+                <th>SHIP TO NAME</th>
+                <th>SKU</th>
+                <th>QUANTITY ORDER</th>
+                <th>WORKABLE</th>
+                <th>BONDING</th>
+                <th>REMAIN</th>
+                <th>REMARKS</th>
+                <th>STATUS</th>
               </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan="9" className="no-data">
-                  <AlertCircle size={24} />
-                  <p>Gagal memuat: {error}</p>
-                  <p>Sistem akan mencoba lagi secara otomatis...</p>
-                </td>
-              </tr>
-            ) : data.length === 0 ? (
-              <tr>
-                <td colSpan="9" className="no-data">
-                  <Package size={48} />
-                  <p>Tidak ada data workable bonding</p>
-                </td>
-              </tr>
-            ) : (
-              data.map((row) => (
-                <tr key={`${row.sku}-${row.week}-${row.shipToName}`}>
-                  <td>{row.week || "-"}</td>
-                  <td>{row.shipToName || "-"}</td>
-                  <td className="sku-cell">
-                    <span>{row.sku || "-"}</span>
-                  </td>
-                  <td className="qty-cell">
-                    {row.quantityOrder?.toLocaleString() || 0}
-                  </td>
-                  <td className="workable-cell">
-                    {row.workable?.toLocaleString() || 0}
-                  </td>
-                  <td className="bonding-cell">
-                    {row.bonding?.toLocaleString() || 0}
-                  </td>
-                  <td
-                    className={`remain-cell ${row.remain < 0 ? "negative" : ""}`}
-                  >
-                    {row.remain?.toLocaleString() || 0}
-                  </td>
-                  <td className="remarks-cell">{row.remarks || "-"}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${getStatusClass(row.status)}`}
-                    >
-                      {row.status || "N/A"}
-                    </span>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="9" className="no-data">
+                    <div className="loading-spinner"></div>
+                    <p>Memuat data...</p>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : error ? (
+                <tr>
+                  <td colSpan="9" className="no-data">
+                    <AlertCircle size={24} />
+                    <p>Gagal memuat: {error}</p>
+                    <p>Sistem akan mencoba lagi secara otomatis...</p>
+                  </td>
+                </tr>
+              ) : data.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="no-data">
+                    <Package size={48} />
+                    <p>Tidak ada data workable bonding</p>
+                  </td>
+                </tr>
+              ) : (
+                data.map((row) => (
+                  <tr key={`${row.sku}-${row.week}-${row.shipToName}`}>
+                    <td>{row.week || "-"}</td>
+                    <td>{row.shipToName || "-"}</td>
+                    <td className="sku-cell">
+                      <span>{row.sku || "-"}</span>
+                    </td>
+                    <td className="qty-cell">
+                      {row.quantityOrder?.toLocaleString() || 0}
+                    </td>
+                    <td className="workable-cell">
+                      {row.workable?.toLocaleString() || 0}
+                    </td>
+                    <td className="bonding-cell">
+                      {row.bonding?.toLocaleString() || 0}
+                    </td>
+                    <td
+                      className={`remain-cell ${
+                        row.remain < 0 ? "negative" : ""
+                      }`}
+                    >
+                      {row.remain?.toLocaleString() || 0}
+                    </td>
+                    <td className="remarks-cell">{row.remarks || "-"}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${getStatusClass(row.status)}`}
+                      >
+                        {row.status || "N/A"}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
