@@ -8,6 +8,7 @@ import {
   Clock,
   Users,
   Settings,
+  Repeat, // ✅ Tambahkan ikon Repeat untuk Replacement
 } from "lucide-react";
 import "../../../styles/History/Cutting/CuttingHistoryIndex.css";
 
@@ -30,6 +31,15 @@ const CuttingHistoryIndex = () => {
       description: "Lihat ringkasan data cutting",
       path: "/history/cutting/summary",
       color: "#0ea5e9", // Biru
+    },
+    // ✅ TAMBAHKAN MENU REPLACEMENT DI SINI
+    {
+      id: "replacement",
+      name: "Replacement",
+      icon: Repeat,
+      description: "Kelola penggantian NG dari Bonding",
+      path: "/cutting/replacements",
+      color: "#d97706", // Orange (sesuai tema warning/pending)
     },
   ];
 

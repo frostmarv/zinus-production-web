@@ -5,13 +5,20 @@ if (!API_BASE_URL) {
   console.warn("⚠️ VITE_API_BASE_URL tidak ditemukan di environment variables");
 }
 
+// Helper: build URL dengan query params
+function buildUrl(baseUrl, endpoint, params = {}) {
+  const url = new URL(endpoint, baseUrl);
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== "") {
+      url.searchParams.append(key, String(value));
+    }
+  }
+  return url.toString();
+}
+
 export const apiClient = {
-  // GET request
-  get: async (endpoint) => {
-    // Normalize URL to avoid double slashes
-    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-    const path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
-    const url = baseUrl + path;
+  get: async (endpoint, params = {}) => {
+    const url = buildUrl(API_BASE_URL, endpoint, params);
     console.log("🔍 GET:", url);
 
     const response = await fetch(url, {
@@ -28,12 +35,8 @@ export const apiClient = {
     return response.json();
   },
 
-  // POST request
   post: async (endpoint, data) => {
-    // Normalize URL to avoid double slashes
-    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-    const path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
-    const url = baseUrl + path;
+    const url = new URL(endpoint, API_BASE_URL).toString();
     console.log("📤 POST:", url, data);
 
     const response = await fetch(url, {
@@ -51,12 +54,8 @@ export const apiClient = {
     return response.json();
   },
 
-  // PUT request
   put: async (endpoint, data) => {
-    // Normalize URL to avoid double slashes
-    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-    const path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
-    const url = baseUrl + path;
+    const url = new URL(endpoint, API_BASE_URL).toString();
     console.log("🔄 PUT:", url, data);
 
     const response = await fetch(url, {
@@ -74,12 +73,8 @@ export const apiClient = {
     return response.json();
   },
 
-  // DELETE request
   delete: async (endpoint) => {
-    // Normalize URL to avoid double slashes
-    const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-    const path = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
-    const url = baseUrl + path;
+    const url = new URL(endpoint, API_BASE_URL).toString();
     console.log("🗑️ DELETE:", url);
 
     const response = await fetch(url, {
@@ -93,8 +88,6 @@ export const apiClient = {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    // Beberapa API DELETE mengembalikan data, beberapa tidak
-    // Cek apakah response punya konten sebelum parse JSON
     const text = await response.text();
     return text ? JSON.parse(text) : { message: "Deleted successfully" };
   },

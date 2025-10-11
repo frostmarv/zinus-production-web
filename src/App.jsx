@@ -23,6 +23,8 @@ import MasterSpring from "./pages/MasterData/Spring/MasterSpring";
 import MasterCutting from "./pages/MasterData/Cutting/MasterCutting";
 import JdeIndex from "./pages/JDE/JdeIndex";
 import FormIndex from "./pages/Input/FormIndex";
+import DashboardReplacement from "./pages/Cutting/Replacements/Dashboard";
+import ReplacementDetailPage from "./pages/Cutting/Replacements/DetailPage";
 import "./styles/App.css";
 
 function App() {
@@ -63,6 +65,14 @@ function App() {
             <Route path="/master/cutting" element={<MasterCutting />} />
             <Route path="/jde" element={<JdeIndex />} />
             <Route path="/form-index" element={<FormIndex />} />
+            <Route
+              path="/cutting/replacements"
+              element={<DashboardReplacement />}
+            />
+            <Route
+              path="/cutting/replacements/:id"
+              element={<ReplacementDetailPage />}
+            />
           </Routes>
         </main>
       </div>
