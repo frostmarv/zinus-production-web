@@ -13,7 +13,7 @@ export default function ProcessReplacementModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const remaining = replacement.requestedQty - replacement.processedQty;
+  const remaining = replacement.requestedQty - (replacement.processedQty || 0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,21 +32,16 @@ export default function ProcessReplacementModal({
       setLoading(true);
       setError("");
 
-      // Ambil operator dari localStorage / context (contoh: dummy)
-      const operatorName = localStorage.getItem("operatorName") || "Operator";
-
       await cuttingReplacementAPI.process({
         replacementId: replacement.id,
         processedQty: qty,
         remarks: remarks || undefined,
-        operatorName: operatorName,
-        // machineId bisa ditambahkan nanti
       });
 
       onSuccess();
     } catch (err) {
       console.error("Gagal memproses replacement:", err);
-      setError("Gagal memproses. Silakan coba lagi.");
+      setError(err.message || "Gagal memproses. Silakan coba lagi.");
     } finally {
       setLoading(false);
     }
@@ -73,14 +68,27 @@ export default function ProcessReplacementModal({
           <p>
             <strong>SKU:</strong> {replacement.bondingReject?.sku || "-"}
           </p>
+          {/* ✅ S-Code & Description: selalu tampilkan sebagai pasangan */}
           <p>
-            <strong>Alasan NG:</strong> {replacement.remarks}
+            <strong>S-Code (Slice):</strong>{" "}
+            <code className="s-code-inline">
+              {replacement.bondingReject?.s_code || "-"}
+            </code>
+          </p>
+          <p>
+            <strong>Deskripsi Slice:</strong>{" "}
+            {replacement.bondingReject?.description || "-"}
+          </p>
+          <p>
+            <strong>Alasan NG:</strong>{" "}
+            {replacement.bondingReject?.reason || "-"}
           </p>
           <p>
             <strong>Diminta:</strong> {replacement.requestedQty} unit
           </p>
           <p>
-            <strong>Sudah Diproses:</strong> {replacement.processedQty} unit
+            <strong>Sudah Diproses:</strong> {replacement.processedQty || 0}{" "}
+            unit
           </p>
           <p>
             <strong>Sisa:</strong>{" "}
@@ -99,7 +107,6 @@ export default function ProcessReplacementModal({
                 max={remaining}
                 required
               />
-              {error && <div className="form-error">{error}</div>}
             </div>
 
             <div className="form-group">
@@ -109,9 +116,11 @@ export default function ProcessReplacementModal({
                 className="form-input"
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
-                placeholder="Contoh: Mesin MC-001, shift pagi"
+                placeholder="Catatan tambahan..."
               />
             </div>
+
+            {error && <div className="form-error">{error}</div>}
 
             <div className="process-replacement-modal-footer">
               <button
@@ -125,7 +134,7 @@ export default function ProcessReplacementModal({
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={loading || !processedQty}
+                disabled={loading || !processedQty.trim()}
               >
                 {loading ? "Memproses..." : "Kirim"}
               </button>

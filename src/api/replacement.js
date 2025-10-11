@@ -1,37 +1,31 @@
 // src/api/replacement.js
 import { apiClient } from "./client";
 
-// ✅ Helper: konversi objek params ke query string
-const buildQueryString = (params) => {
-  if (!params || typeof params !== "object") return "";
-  const searchParams = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null) {
-      searchParams.append(key, value);
-    }
-  }
-  return searchParams.toString();
-};
-
+// ✅ API untuk Replacement Module (digunakan oleh Cutting Dashboard)
 export const replacementAPI = {
-  getAll: async (params = {}) => {
-    const queryString = buildQueryString(params);
-    const url = `/api/replacement${queryString ? "?" + queryString : ""}`;
-    return await apiClient.get(url);
+  // Digunakan untuk Cutting Dashboard: filter targetDept=CUTTING
+  getAllForCutting: async (params = {}) => {
+    // Biarkan apiClient menangani query params
+    return await apiClient.get("/api/replacement", {
+      ...params,
+      targetDept: "CUTTING",
+    });
+  },
+
+  getStatisticsForCutting: async () => {
+    return await apiClient.get("/api/replacement/statistics", {
+      targetDept: "CUTTING",
+    });
   },
 
   getById: async (id) => {
     return await apiClient.get(`/api/replacement/${id}`);
   },
 
-  getStatistics: async (params = {}) => {
-    const queryString = buildQueryString(params);
-    const url = `/api/replacement/statistics${queryString ? "?" + queryString : ""}`;
-    return await apiClient.get(url);
-  },
-
+  // ❌ SALAH: /replacement/request
+  // ✅ BENAR: /replacement
   createRequest: async (data) => {
-    return await apiClient.post("/api/replacement/request", data);
+    return await apiClient.post("/api/replacement", data);
   },
 
   updateStatus: async (id, status) => {
@@ -39,24 +33,10 @@ export const replacementAPI = {
   },
 };
 
+// ✅ API untuk Cutting Replacement Module (hanya untuk proses)
 export const cuttingReplacementAPI = {
   process: async (data) => {
     return await apiClient.post("/api/cutting/replacement/process", data);
   },
-
-  getHistory: async (params = {}) => {
-    const queryString = buildQueryString(params);
-    const url = `/api/cutting/replacement${queryString ? "?" + queryString : ""}`;
-    return await apiClient.get(url);
-  },
-
-  getStatistics: async (params = {}) => {
-    const queryString = buildQueryString(params);
-    const url = `/api/cutting/replacement/statistics${queryString ? "?" + queryString : ""}`;
-    return await apiClient.get(url);
-  },
-
-  markAsCompleted: async (id) => {
-    return await apiClient.put(`/api/cutting/replacement/${id}/complete`);
-  },
+  // Tidak ada endpoint lain — sesuai desain
 };

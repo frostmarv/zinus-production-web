@@ -5,7 +5,6 @@ if (!API_BASE_URL) {
   console.warn("⚠️ VITE_API_BASE_URL tidak ditemukan di environment variables");
 }
 
-// Helper: build URL dengan query params
 function buildUrl(baseUrl, endpoint, params = {}) {
   const url = new URL(endpoint, baseUrl);
   for (const [key, value] of Object.entries(params)) {
@@ -48,7 +47,10 @@ export const apiClient = {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(
+        `HTTP ${response.status}: ${errorText || response.statusText}`,
+      );
     }
 
     return response.json();
@@ -67,7 +69,10 @@ export const apiClient = {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(
+        `HTTP ${response.status}: ${errorText || response.statusText}`,
+      );
     }
 
     return response.json();
@@ -85,10 +90,21 @@ export const apiClient = {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(
+        `HTTP ${response.status}: ${errorText || response.statusText}`,
+      );
     }
 
+    // Handle response yang mungkin kosong
     const text = await response.text();
-    return text ? JSON.parse(text) : { message: "Deleted successfully" };
+    try {
+      return text
+        ? JSON.parse(text)
+        : { success: true, message: "Deleted successfully" };
+    } catch (e) {
+      // Jika bukan JSON, kembalikan sebagai teks atau sukses
+      return { success: true, message: "Deleted successfully" };
+    }
   },
 };

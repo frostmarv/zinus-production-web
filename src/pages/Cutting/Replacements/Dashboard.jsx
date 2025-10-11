@@ -1,8 +1,8 @@
 // src/pages/Cutting/Replacements/Dashboard.jsx
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Tambahkan useNavigate
 import "./../../../styles/Cutting/Replacements/Dashboard.css";
 import { replacementAPI } from "../../../api/replacement";
-import ProcessReplacementModal from "./components/ProcessReplacementModal";
 
 const StatusBadge = ({ status }) => {
   const statusClass = `status-badge status-${status.toLowerCase()}`;
@@ -10,6 +10,8 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function CuttingReplacementDashboard() {
+  const navigate = useNavigate(); // ✅ Inisialisasi navigate
+
   const [replacements, setReplacements] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,28 +19,23 @@ export default function CuttingReplacementDashboard() {
     status: "PENDING",
     sourceBatchNumber: "",
   });
-  const [selectedReplacement, setSelectedReplacement] = useState(null);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const params = {
-        targetDept: "CUTTING",
         status: filters.status || undefined,
         sourceBatchNumber: filters.sourceBatchNumber || undefined,
       };
 
       const [listRes, statsRes] = await Promise.all([
-        replacementAPI.getAll(params),
-        replacementAPI.getStatistics({ targetDept: "CUTTING" }),
+        replacementAPI.getAllForCutting(params),
+        replacementAPI.getStatisticsForCutting(),
       ]);
 
-      const replacementList = Array.isArray(listRes?.data?.data)
-        ? listRes.data.data
-        : [];
+      const replacementList = Array.isArray(listRes?.data) ? listRes.data : [];
 
-      // ✅ Transformasi respons statistik dari backend ke format UI
-      const backendStats = statsRes?.data?.data;
+      const backendStats = statsRes?.data;
       let statistics = {
         total: 0,
         pending: 0,
@@ -99,17 +96,9 @@ export default function CuttingReplacementDashboard() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleOpenProcess = (replacement) => {
-    setSelectedReplacement(replacement);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedReplacement(null);
-  };
-
-  const handleProcessSuccess = () => {
-    setSelectedReplacement(null);
-    fetchData();
+  // ✅ Fungsi navigasi ke halaman detail
+  const handleViewDetail = (id) => {
+    navigate(`/cutting/replacements/${id}`);
   };
 
   if (loading) {
@@ -197,7 +186,7 @@ export default function CuttingReplacementDashboard() {
               <th>Diproses</th>
               <th>Sisa</th>
               <th>Status</th>
-              <th>Aksi</th>
+              <th>Aksi</th> {/* Tetap ada, tapi hanya "Detail" */}
             </tr>
           </thead>
           <tbody>
@@ -226,15 +215,13 @@ export default function CuttingReplacementDashboard() {
                     <StatusBadge status={item.status} />
                   </td>
                   <td>
-                    {(item.status === "PENDING" ||
-                      item.status === "IN_PROGRESS") && (
-                      <button
-                        className="btn-process"
-                        onClick={() => handleOpenProcess(item)}
-                      >
-                        Proses
-                      </button>
-                    )}
+                    {/* ✅ Hanya tombol "Detail", tanpa kondisi */}
+                    <button
+                      className="btn-detail"
+                      onClick={() => handleViewDetail(item.id)}
+                    >
+                      Detail
+                    </button>
                   </td>
                 </tr>
               ))
@@ -243,14 +230,7 @@ export default function CuttingReplacementDashboard() {
         </table>
       </div>
 
-      {/* Modal Proses */}
-      {selectedReplacement && (
-        <ProcessReplacementModal
-          replacement={selectedReplacement}
-          onClose={handleCloseModal}
-          onSuccess={handleProcessSuccess}
-        />
-      )}
+      {/* ❌ Tidak ada modal proses di sini — pindah ke DetailPage */}
     </div>
   );
 }

@@ -2,10 +2,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./../../../styles/Cutting/Replacements/DetailPage.css";
-import {
-  replacementAPI,
-  cuttingReplacementAPI,
-} from "../../../api/replacement";
+import { replacementAPI } from "../../../api/replacement";
 import ProcessReplacementModal from "./components/ProcessReplacementModal";
 
 const StatusBadge = ({ status }) => {
@@ -17,19 +14,14 @@ export default function ReplacementDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [replacement, setReplacement] = useState(null);
-  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedReplacement, setSelectedReplacement] = useState(null);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [replacementRes, historyRes] = await Promise.all([
-        replacementAPI.getById(id),
-        cuttingReplacementAPI.getHistory({ replacementId: id }),
-      ]);
-      setReplacement(replacementRes.data.data);
-      setHistory(historyRes.data.data);
+      const replacementRes = await replacementAPI.getById(id);
+      setReplacement(replacementRes.data);
     } catch (err) {
       console.error("Gagal memuat detail:", err);
       alert("Gagal memuat data replacement");
@@ -55,7 +47,7 @@ export default function ReplacementDetailPage() {
 
   const handleProcessSuccess = () => {
     setSelectedReplacement(null);
-    fetchData(); // Refresh data
+    fetchData();
   };
 
   if (loading) {
@@ -74,7 +66,7 @@ export default function ReplacementDetailPage() {
     );
   }
 
-  const remaining = replacement.requestedQty - replacement.processedQty;
+  const remaining = replacement.requestedQty - (replacement.processedQty || 0);
   const isCompleted = replacement.status === "COMPLETED";
 
   return (
@@ -101,7 +93,9 @@ export default function ReplacementDetailPage() {
         </div>
         <div className="detail-row">
           <div className="detail-label">Sudah Diproses</div>
-          <div className="detail-value">{replacement.processedQty} unit</div>
+          <div className="detail-value">
+            {replacement.processedQty || 0} unit
+          </div>
         </div>
         <div className="detail-row">
           <div className="detail-label">Sisa</div>
@@ -134,12 +128,25 @@ export default function ReplacementDetailPage() {
           <div className="detail-row">
             <div className="detail-label">PO Number</div>
             <div className="detail-value">
-              {replacement.bondingReject.poNumber || "-"}
+              {replacement.bondingReject.po_number || "-"}
             </div>
           </div>
           <div className="detail-row">
             <div className="detail-label">SKU</div>
             <div className="detail-value">{replacement.bondingReject.sku}</div>
+          </div>
+          {/* ✅ S-Code & Description: selalu tampilkan sebagai pasangan */}
+          <div className="detail-row">
+            <div className="detail-label">S-Code (Slice)</div>
+            <div className="detail-value">
+              <code>{replacement.bondingReject.s_code || "-"}</code>
+            </div>
+          </div>
+          <div className="detail-row">
+            <div className="detail-label">Deskripsi Slice</div>
+            <div className="detail-value">
+              {replacement.bondingReject.description || "-"}
+            </div>
           </div>
           <div className="detail-row">
             <div className="detail-label">Alasan NG</div>
@@ -157,51 +164,14 @@ export default function ReplacementDetailPage() {
         </div>
       )}
 
-      {/* Riwayat Proses Cutting */}
-      <div className="detail-card">
-        <h2>Riwayat Pemrosesan</h2>
-        {history.length === 0 ? (
-          <p>Belum ada proses yang dilakukan.</p>
-        ) : (
-          <table className="history-table">
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Jumlah</th>
-                <th>Operator</th>
-                <th>Mesin</th>
-                <th>Keterangan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    {new Date(item.createdAt).toLocaleString("id-ID", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </td>
-                  <td>{item.processedQty} unit</td>
-                  <td>{item.operatorName || "-"}</td>
-                  <td>{item.machineId || "-"}</td>
-                  <td>{item.remarks || "-"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-
-        {/* Tombol Proses Lagi */}
-        {!isCompleted && (
+      {/* Tombol Proses Lagi */}
+      {!isCompleted && (
+        <div className="action-section">
           <button className="btn-process-again" onClick={handleOpenProcess}>
             Proses Lagi
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Modal */}
       {selectedReplacement && (
