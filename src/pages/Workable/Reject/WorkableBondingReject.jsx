@@ -49,7 +49,7 @@ const WorkableBondingReject = () => {
   }, []);
 
   const handleBack = () => {
-    navigate("/workable");
+    navigate("/workable/bonding/detail");
   };
 
   const totalNG = (row) => {
