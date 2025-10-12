@@ -120,51 +120,72 @@ const InputCutting = () => {
 
   const loadSkus = useCallback(async (entryId, poNumber) => {
     try {
-      const response = await masterDataAPI.getSkus(poNumber);
-      const data = Array.isArray(response) ? response : [];
-      setFormEntries((prev) =>
-        prev.map((entry) =>
-          entry.id === entryId ? { ...entry, skus: data } : entry,
-        ),
-      );
+      const response = await masterDataAPI.getCustomerPOs(poNumber);
+      const customerPOs = Array.isArray(response) ? response : [];
+
+      if (customerPOs.length > 0) {
+        const customerPO = customerPOs[0].value;
+        const skuResponse = await masterDataAPI.getSkus(customerPO);
+        const data = Array.isArray(skuResponse) ? skuResponse : [];
+        setFormEntries((prev) =>
+          prev.map((entry) =>
+            entry.id === entryId ? { ...entry, skus: data } : entry,
+          ),
+        );
+      } else {
+        setFormEntries((prev) =>
+          prev.map((entry) =>
+            entry.id === entryId ? { ...entry, skus: [] } : entry,
+          ),
+        );
+      }
     } catch (err) {
       console.error("Gagal memuat SKUs:", err);
+      setFormEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === entryId ? { ...entry, skus: [] } : entry,
+        ),
+      );
       alert("❌ Gagal memuat SKUs");
     }
   }, []);
 
   const loadQtyPlans = useCallback(async (entryId, poNumber, sku) => {
     try {
-      const response = await masterDataAPI.getQtyPlans(poNumber, sku);
-      const rawData = Array.isArray(response) ? response : [];
-      const qtyValue =
-        rawData.length > 0 && rawData[0].value !== undefined
-          ? rawData[0].value
-          : "";
+      const customerPOs = await masterDataAPI.getCustomerPOs(poNumber);
+      if (customerPOs.length > 0) {
+        const customerPO = customerPOs[0].value;
+        const response = await masterDataAPI.getQtyPlans(customerPO, sku);
+        const rawData = Array.isArray(response) ? response : [];
+        const qtyValue =
+          rawData.length > 0 && rawData[0].value !== undefined
+            ? rawData[0].value
+            : "";
 
-      const sCodesRaw =
-        rawData.length > 0 && rawData[0].s_codes ? rawData[0].s_codes : [];
+        const sCodesRaw =
+          rawData.length > 0 && rawData[0].s_codes ? rawData[0].s_codes : [];
 
-      const sCodesOptions = sCodesRaw.map((item) => ({
-        value: item.s_code,
-        label: item.s_code,
-      }));
+        const sCodesOptions = sCodesRaw.map((item) => ({
+          value: item.s_code,
+          label: item.s_code,
+        }));
 
-      const plannedQty = Number(qtyValue) || 0;
+        const plannedQty = Number(qtyValue) || 0;
 
-      setFormEntries((prevEntries) => {
-        return prevEntries.map((entry) => {
-          if (entry.id !== entryId) return entry;
+        setFormEntries((prevEntries) => {
+          return prevEntries.map((entry) => {
+            if (entry.id !== entryId) return entry;
 
-          return {
-            ...entry,
-            quantityOrder: qtyValue.toString(),
-            sCodes: sCodesOptions,
-            sCodesData: sCodesRaw,
-            plannedQtyCache: plannedQty,
-          };
+            return {
+              ...entry,
+              quantityOrder: qtyValue.toString(),
+              sCodes: sCodesOptions,
+              sCodesData: sCodesRaw,
+              plannedQtyCache: plannedQty,
+            };
+          });
         });
-      });
+      }
     } catch (err) {
       console.error("Gagal memuat Qty Plans:", err);
       alert("❌ Gagal memuat Qty Plans");
@@ -173,22 +194,26 @@ const InputCutting = () => {
 
   const loadWeeks = useCallback(async (entryId, poNumber, sku) => {
     try {
-      const response = await masterDataAPI.getWeeks(poNumber, sku);
-      const rawData = Array.isArray(response) ? response : [];
-      const weekValue =
-        rawData.length > 0 && rawData[0].value !== undefined
-          ? rawData[0].value
-          : "";
-      setFormEntries((prev) =>
-        prev.map((entry) =>
-          entry.id === entryId
-            ? {
-                ...entry,
-                week: weekValue.toString(),
-              }
-            : entry,
-        ),
-      );
+      const customerPOs = await masterDataAPI.getCustomerPOs(poNumber);
+      if (customerPOs.length > 0) {
+        const customerPO = customerPOs[0].value;
+        const response = await masterDataAPI.getWeeks(customerPO, sku);
+        const rawData = Array.isArray(response) ? response : [];
+        const weekValue =
+          rawData.length > 0 && rawData[0].value !== undefined
+            ? rawData[0].value
+            : "";
+        setFormEntries((prev) =>
+          prev.map((entry) =>
+            entry.id === entryId
+              ? {
+                  ...entry,
+                  week: weekValue.toString(),
+                }
+              : entry,
+          ),
+        );
+      }
     } catch (err) {
       console.error("Gagal memuat Weeks:", err);
       alert("❌ Gagal memuat Weeks");
@@ -198,28 +223,32 @@ const InputCutting = () => {
   const loadRemainQuantity = useCallback(
     async (entryId, poNumber, sku, sCode) => {
       try {
-        const response = await masterDataAPI.getRemainQuantity(
-          poNumber,
-          sku,
-          sCode,
-        );
-        console.log("📊 Remain Quantity dari API:", response);
+        const customerPOs = await masterDataAPI.getCustomerPOs(poNumber);
+        if (customerPOs.length > 0) {
+          const customerPO = customerPOs[0].value;
+          const response = await masterDataAPI.getRemainQuantity(
+            customerPO,
+            sku,
+            sCode,
+          );
+          console.log("📊 Remain Quantity dari API:", response);
 
-        const remainQty =
-          response?.remainQuantity !== undefined
-            ? Number(response.remainQuantity)
-            : 0;
+          const remainQty =
+            response?.remainQuantity !== undefined
+              ? Number(response.remainQuantity)
+              : 0;
 
-        setFormEntries((prev) =>
-          prev.map((entry) =>
-            entry.id === entryId
-              ? {
-                  ...entry,
-                  remainQuantity: remainQty,
-                }
-              : entry,
-          ),
-        );
+          setFormEntries((prev) =>
+            prev.map((entry) =>
+              entry.id === entryId
+                ? {
+                    ...entry,
+                    remainQuantity: remainQty,
+                  }
+                : entry,
+            ),
+          );
+        }
       } catch (err) {
         console.error("Gagal memuat Remain Quantity:", err);
         setFormEntries((prev) =>
@@ -343,7 +372,7 @@ const InputCutting = () => {
     }
   };
 
-  // Submit handler
+  // Submit handler — ✅ TANPA customerPO
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -370,10 +399,10 @@ const InputCutting = () => {
         }) => {
           const customerName =
             customers.find((c) => c.value == entry.customerId)?.label || "";
+          // ✅ HANYA KIRIM FIELD YANG DIIZINKAN OLEH DTO
           return {
             customer: customerName,
             poNumber: entry.poNumber,
-            customerPO: "", // Kosongkan karena tidak digunakan
             sku: entry.sku,
             sCode: entry.sCode,
             description: entry.description,
@@ -386,7 +415,7 @@ const InputCutting = () => {
     };
 
     try {
-      console.log("Submitting data:", submitData);
+      console.log("Submitting ", submitData);
 
       const response = await cuttingProductionAPI.save(submitData);
       console.log("Response dari server:", response);
@@ -423,7 +452,7 @@ const InputCutting = () => {
         },
       ]);
     } catch (err) {
-      console.error("Error submitting data:", err);
+      console.error("Error submitting ", err);
 
       let msg = "Terjadi kesalahan saat menyimpan data";
       if (err.response?.data) {
@@ -443,7 +472,7 @@ const InputCutting = () => {
       }
 
       setError(msg);
-      alert(`❌ Gagal menyimpan data: ${msg}`);
+      alert(`❌ Gagal menyimpan: ${msg}`);
     } finally {
       setIsSubmitting(false);
     }

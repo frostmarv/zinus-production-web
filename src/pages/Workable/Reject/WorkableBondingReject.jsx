@@ -1,30 +1,28 @@
-// src/components/Workable/WorkableBonding.jsx
+// src/pages/Workable/Reject/WorkableBondingReject.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Package,
   BarChart3,
-  CheckCircle,
-  Clock,
-  AlertCircle,
+  AlertTriangle,
   Eye,
   ArrowLeft,
+  RotateCcw,
 } from "lucide-react";
-import { getWorkableBonding } from "../../api/workable-bonding";
-import "../../styles/Workable/WorkableBonding.css";
+import { getWorkableBondingReject } from "../../../api/workable-bonding";
+import "../../../styles/Workable/Reject/WorkableBondingReject.css";
 
-const WorkableBonding = () => {
+const WorkableBondingReject = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [autoRefreshActive, setAutoRefreshActive] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const result = await getWorkableBonding();
+        const result = await getWorkableBondingReject();
         const sortedData = [...result].sort((a, b) => {
           const nameCompare = String(a.shipToName ?? "").localeCompare(
             String(b.shipToName ?? ""),
@@ -40,60 +38,52 @@ const WorkableBonding = () => {
         });
         setData(sortedData);
         setError(null);
-        setAutoRefreshActive(false);
       } catch (err) {
         setError(err.message);
-        setAutoRefreshActive(true);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-
-    let intervalId = null;
-    if (autoRefreshActive) {
-      intervalId = setInterval(fetchData, 10000);
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [autoRefreshActive]);
-
-  const getStatusClass = (status) => {
-    const lower = (status || "").toLowerCase();
-    if (lower === "completed") return "status-completed";
-    if (lower === "running") return "status-running";
-    if (lower === "not started") return "status-not-started";
-    return "status-unknown";
-  };
+  }, []);
 
   const handleBack = () => {
     navigate("/workable");
   };
 
-  const countByStatus = (targetStatus) => {
-    return data.filter(
-      (d) => (d.status || "N/A").toLowerCase() === targetStatus.toLowerCase(),
-    ).length;
+  const totalNG = (row) => {
+    return (
+      (row["NG Layer 1"] || 0) +
+      (row["NG Layer 2"] || 0) +
+      (row["NG Layer 3"] || 0) +
+      (row["NG Layer 4"] || 0) +
+      (row["NG Hole"] || 0)
+    );
   };
 
-  // Helper to safely get "Remain Produksi"
-  const getRemain = (row) => row["Remain Produksi"] ?? 0;
+  const totalReplacement = (row) => {
+    return (
+      (row["Replacement Layer 1"] || 0) +
+      (row["Replacement Layer 2"] || 0) +
+      (row["Replacement Layer 3"] || 0) +
+      (row["Replacement Layer 4"] || 0) +
+      (row["Replacement Hole"] || 0)
+    );
+  };
 
   return (
-    <div className="workable-container">
+    <div className="workable-reject-container">
       {/* Page Header */}
       <div className="page-header">
         <div className="header-content">
           <div className="header-icon">
-            <Package size={32} />
+            <AlertTriangle size={32} />
           </div>
           <div className="header-text">
-            <h1 className="header-title">Workable Bonding</h1>
+            <h1 className="header-title">Workable Bonding - Reject</h1>
             <p className="header-subtitle">
-              Daftar data workable bonding yang siap untuk diproses
+              Data NG (Not Good) dan replacement per layer
             </p>
           </div>
         </div>
@@ -119,81 +109,79 @@ const WorkableBonding = () => {
 
         <div className="stat-card">
           <div className="stat-icon">
-            <CheckCircle size={24} />
+            <AlertTriangle size={24} />
           </div>
           <div className="stat-content">
-            <h3>{countByStatus("Completed")}</h3>
-            <p>Completed</p>
+            <h3>{data.reduce((sum, row) => sum + totalNG(row), 0)}</h3>
+            <p>Total NG</p>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-icon">
-            <Clock size={24} />
+            <RotateCcw size={24} />
           </div>
           <div className="stat-content">
-            <h3>{countByStatus("Running")}</h3>
-            <p>Running</p>
+            <h3>{data.reduce((sum, row) => sum + totalReplacement(row), 0)}</h3>
+            <p>Total Replacement</p>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-icon">
-            <AlertCircle size={24} />
+            <Package size={24} />
           </div>
           <div className="stat-content">
-            <h3>{countByStatus("Not Started") + countByStatus("N/A")}</h3>
-            <p>Belum Dimulai</p>
+            <h3>
+              {data.reduce((sum, row) => sum + (row.quantityOrder || 0), 0)}
+            </h3>
+            <p>Total Order</p>
           </div>
         </div>
       </div>
 
-      {/* Tombol Lihat Detail Workable */}
-      <div className="action-button-wrapper">
-        <Link to="/workable/bonding/detail" className="btn-detail-header">
-          <Eye size={16} />
-          Lihat Detail Workable
-        </Link>
-      </div>
-
-      {/* Tabel Data - Dengan Scroll Horizontal */}
+      {/* Tabel Data */}
       <div className="table-wrapper">
         <div className="table-scroll-container">
-          <table className="workable-table">
+          <table className="workable-reject-table">
             <thead>
               <tr>
                 <th>WEEK</th>
                 <th>SHIP TO NAME</th>
                 <th>SKU</th>
                 <th>QUANTITY ORDER</th>
-                <th>WORKABLE</th>
-                <th>BONDING</th>
-                <th>REMAIN</th>
-                <th>REMARKS</th>
-                <th>STATUS</th>
+                <th>NG LAYER 1</th>
+                <th>NG LAYER 2</th>
+                <th>NG LAYER 3</th>
+                <th>NG LAYER 4</th>
+                <th>NG HOLE</th>
+                <th>REPLACEMENT L1</th>
+                <th>REPLACEMENT L2</th>
+                <th>REPLACEMENT L3</th>
+                <th>REPLACEMENT L4</th>
+                <th>REPLACEMENT HOLE</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="no-data">
+                  <td colSpan="14" className="no-data">
                     <div className="loading-spinner"></div>
                     <p>Memuat data...</p>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan="9" className="no-data">
-                    <AlertCircle size={24} />
+                  <td colSpan="14" className="no-data">
+                    <AlertTriangle size={24} />
                     <p>Gagal memuat: {error}</p>
-                    <p>Sistem akan mencoba lagi secara otomatis...</p>
                   </td>
                 </tr>
               ) : data.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="no-data">
+                  <td colSpan="14" className="no-data">
                     <Package size={48} />
-                    <p>Tidak ada data workable bonding</p>
+                    <p>Tidak ada data reject</p>
                   </td>
                 </tr>
               ) : (
@@ -207,26 +195,25 @@ const WorkableBonding = () => {
                     <td className="qty-cell">
                       {row.quantityOrder?.toLocaleString() || 0}
                     </td>
-                    <td className="workable-cell">
-                      {row.workable?.toLocaleString() || 0}
+                    <td className="ng-cell">{row["NG Layer 1"] || 0}</td>
+                    <td className="ng-cell">{row["NG Layer 2"] || 0}</td>
+                    <td className="ng-cell">{row["NG Layer 3"] || 0}</td>
+                    <td className="ng-cell">{row["NG Layer 4"] || 0}</td>
+                    <td className="ng-cell hole">{row["NG Hole"] || 0}</td>
+                    <td className="rep-cell">
+                      {row["Replacement Layer 1"] || 0}
                     </td>
-                    <td className="bonding-cell">
-                      {row.bonding?.toLocaleString() || 0}
+                    <td className="rep-cell">
+                      {row["Replacement Layer 2"] || 0}
                     </td>
-                    <td
-                      className={`remain-cell ${
-                        getRemain(row) < 0 ? "negative" : ""
-                      }`}
-                    >
-                      {getRemain(row).toLocaleString()}
+                    <td className="rep-cell">
+                      {row["Replacement Layer 3"] || 0}
                     </td>
-                    <td className="remarks-cell">{row.remarks || "-"}</td>
-                    <td>
-                      <span
-                        className={`status-badge ${getStatusClass(row.status)}`}
-                      >
-                        {row.status || "N/A"}
-                      </span>
+                    <td className="rep-cell">
+                      {row["Replacement Layer 4"] || 0}
+                    </td>
+                    <td className="rep-cell hole">
+                      {row["Replacement Hole"] || 0}
                     </td>
                   </tr>
                 ))
@@ -239,4 +226,4 @@ const WorkableBonding = () => {
   );
 };
 
-export default WorkableBonding;
+export default WorkableBondingReject;

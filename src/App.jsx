@@ -17,6 +17,7 @@ import CuttingInput from "./pages/Cutting/InputCutting";
 import CuttingHistorySummary from "./pages/History/Cutting/CuttingHistorySummary";
 import WorkableBonding from "./pages/Workable/WorkableBonding";
 import DetailWorkableBonding from "./pages/Workable/Detail/DetailWorkableBonding";
+import WorkableBondingReject from "./pages/Workable/Reject/WorkableBondingReject";
 import MasterDataIndex from "./pages/MasterData/MasterDataIndex";
 import MasterFoam from "./pages/MasterData/Foam/MasterFoam";
 import MasterSpring from "./pages/MasterData/Spring/MasterSpring";
@@ -58,6 +59,10 @@ function App() {
             <Route
               path="/workable/bonding/detail"
               element={<DetailWorkableBonding />}
+            />
+            <Route
+              path="/workable/bonding/reject"
+              element={<WorkableBondingReject />}
             />
             <Route path="/master" element={<MasterDataIndex />} />
             <Route path="/master/foam" element={<MasterFoam />} />

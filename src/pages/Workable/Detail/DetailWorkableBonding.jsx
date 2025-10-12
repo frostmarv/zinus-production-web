@@ -1,6 +1,7 @@
+// src/pages/Workable/Detail/DetailWorkableBonding.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, AlertTriangle, Eye } from "lucide-react";
 import { getWorkableBondingDetail } from "../../../api/workable-bonding";
 import "../../../styles/Workable/Detail/DetailWorkableBonding.css";
 
@@ -73,6 +74,12 @@ const DetailWorkableBonding = () => {
             Kembali
           </button>
           <h1>Detail Workable Bonding</h1>
+          <div className="header-actions">
+            <Link to="/workable/bonding/reject" className="btn-view-ng">
+              <AlertTriangle size={16} />
+              Lihat Data NG
+            </Link>
+          </div>
         </div>
         <div className="detail-loading">Memuat data...</div>
       </div>
@@ -92,6 +99,12 @@ const DetailWorkableBonding = () => {
             Kembali
           </button>
           <h1>Detail Workable Bonding</h1>
+          <div className="header-actions">
+            <Link to="/workable/bonding/reject" className="btn-view-ng">
+              <AlertTriangle size={16} />
+              Lihat Data NG
+            </Link>
+          </div>
         </div>
         <div className="detail-error">Gagal memuat data: {error}</div>
       </div>
@@ -110,6 +123,12 @@ const DetailWorkableBonding = () => {
           Kembali
         </button>
         <h1>Detail Workable Bonding</h1>
+        <div className="header-actions">
+          <Link to="/workable/bonding/reject" className="btn-view-ng">
+            <AlertTriangle size={16} />
+            Lihat Data NG
+          </Link>
+        </div>
       </div>
 
       <div className="detail-table-wrapper">
