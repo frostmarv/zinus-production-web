@@ -28,7 +28,6 @@ const InputCutting = () => {
       id: 1,
       customerId: "",
       poNumber: "",
-      customerPO: "",
       sku: "",
       sCode: "",
       description: "",
@@ -40,7 +39,6 @@ const InputCutting = () => {
       // Cache untuk dropdown
       customers: [],
       poNumbers: [],
-      customerPOs: [],
       skus: [],
       sCodes: [],
       sCodesData: [],
@@ -58,7 +56,6 @@ const InputCutting = () => {
       try {
         const response = await masterDataAPI.getCustomers();
         const data = Array.isArray(response) ? response : [];
-        // Backend sudah mengembalikan format {value, label} yang benar
         setCustomers(data);
         setFormEntries((prev) =>
           prev.map((entry) => ({
@@ -110,7 +107,6 @@ const InputCutting = () => {
     try {
       const response = await masterDataAPI.getPoNumbers(customerId);
       const data = Array.isArray(response) ? response : [];
-      // Backend mungkin sudah mengembalikan format {value, label}
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId ? { ...entry, poNumbers: data } : entry,
@@ -122,27 +118,10 @@ const InputCutting = () => {
     }
   }, []);
 
-  const loadCustomerPOs = useCallback(async (entryId, poNumber) => {
+  const loadSkus = useCallback(async (entryId, poNumber) => {
     try {
-      const response = await masterDataAPI.getCustomerPOs(poNumber);
+      const response = await masterDataAPI.getSkus(poNumber);
       const data = Array.isArray(response) ? response : [];
-      // Backend mungkin sudah mengembalikan format {value, label}
-      setFormEntries((prev) =>
-        prev.map((entry) =>
-          entry.id === entryId ? { ...entry, customerPOs: data } : entry,
-        ),
-      );
-    } catch (err) {
-      console.error("Gagal memuat Customer POs:", err);
-      alert("❌ Gagal memuat Customer POs");
-    }
-  }, []);
-
-  const loadSkus = useCallback(async (entryId, customerPo) => {
-    try {
-      const response = await masterDataAPI.getSkus(customerPo);
-      const data = Array.isArray(response) ? response : [];
-      // Backend mungkin sudah mengembalikan format {value, label}
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId ? { ...entry, skus: data } : entry,
@@ -154,39 +133,35 @@ const InputCutting = () => {
     }
   }, []);
 
-  const loadQtyPlans = useCallback(async (entryId, customerPo, sku) => {
+  const loadQtyPlans = useCallback(async (entryId, poNumber, sku) => {
     try {
-      const response = await masterDataAPI.getQtyPlans(customerPo, sku);
+      const response = await masterDataAPI.getQtyPlans(poNumber, sku);
       const rawData = Array.isArray(response) ? response : [];
-      // Backend mengembalikan [{value, label, f_code, s_codes: [{s_code, description}]}]
-      const qtyValue = rawData.length > 0 && rawData[0].value !== undefined 
-        ? rawData[0].value 
-        : "";
-      
-      // Extract s_codes dari response
-      const sCodesRaw = rawData.length > 0 && rawData[0].s_codes 
-        ? rawData[0].s_codes 
-        : [];
-      
-      // Transform s_codes untuk dropdown format {value, label}
+      const qtyValue =
+        rawData.length > 0 && rawData[0].value !== undefined
+          ? rawData[0].value
+          : "";
+
+      const sCodesRaw =
+        rawData.length > 0 && rawData[0].s_codes ? rawData[0].s_codes : [];
+
       const sCodesOptions = sCodesRaw.map((item) => ({
         value: item.s_code,
         label: item.s_code,
       }));
-      
+
       const plannedQty = Number(qtyValue) || 0;
-      
-      // Update entries dengan qty dan s_codes data
+
       setFormEntries((prevEntries) => {
         return prevEntries.map((entry) => {
           if (entry.id !== entryId) return entry;
-          
+
           return {
             ...entry,
             quantityOrder: qtyValue.toString(),
             sCodes: sCodesOptions,
             sCodesData: sCodesRaw,
-            plannedQtyCache: plannedQty, // Cache planned qty untuk digunakan saat S.CODE dipilih
+            plannedQtyCache: plannedQty,
           };
         });
       });
@@ -196,14 +171,14 @@ const InputCutting = () => {
     }
   }, []);
 
-  const loadWeeks = useCallback(async (entryId, customerPo, sku) => {
+  const loadWeeks = useCallback(async (entryId, poNumber, sku) => {
     try {
-      const response = await masterDataAPI.getWeeks(customerPo, sku);
+      const response = await masterDataAPI.getWeeks(poNumber, sku);
       const rawData = Array.isArray(response) ? response : [];
-      // Backend mengembalikan [{value, label}], ambil .value saja
-      const weekValue = rawData.length > 0 && rawData[0].value !== undefined 
-        ? rawData[0].value 
-        : "";
+      const weekValue =
+        rawData.length > 0 && rawData[0].value !== undefined
+          ? rawData[0].value
+          : "";
       setFormEntries((prev) =>
         prev.map((entry) =>
           entry.id === entryId
@@ -220,41 +195,47 @@ const InputCutting = () => {
     }
   }, []);
 
-  // Load remain quantity from backend (Real calculation from database)
-  const loadRemainQuantity = useCallback(async (entryId, customerPo, sku, sCode) => {
-    try {
-      const response = await masterDataAPI.getRemainQuantity(customerPo, sku, sCode);
-      console.log('📊 Remain Quantity dari API:', response);
-      
-      const remainQty = response?.remainQuantity !== undefined 
-        ? Number(response.remainQuantity) 
-        : 0;
-      
-      setFormEntries((prev) =>
-        prev.map((entry) =>
-          entry.id === entryId
-            ? {
-                ...entry,
-                remainQuantity: remainQty,
-              }
-            : entry,
-        ),
-      );
-    } catch (err) {
-      console.error("Gagal memuat Remain Quantity:", err);
-      // Jika gagal, set remain ke 0
-      setFormEntries((prev) =>
-        prev.map((entry) =>
-          entry.id === entryId
-            ? {
-                ...entry,
-                remainQuantity: 0,
-              }
-            : entry,
-        ),
-      );
-    }
-  }, []);
+  const loadRemainQuantity = useCallback(
+    async (entryId, poNumber, sku, sCode) => {
+      try {
+        const response = await masterDataAPI.getRemainQuantity(
+          poNumber,
+          sku,
+          sCode,
+        );
+        console.log("📊 Remain Quantity dari API:", response);
+
+        const remainQty =
+          response?.remainQuantity !== undefined
+            ? Number(response.remainQuantity)
+            : 0;
+
+        setFormEntries((prev) =>
+          prev.map((entry) =>
+            entry.id === entryId
+              ? {
+                  ...entry,
+                  remainQuantity: remainQty,
+                }
+              : entry,
+          ),
+        );
+      } catch (err) {
+        console.error("Gagal memuat Remain Quantity:", err);
+        setFormEntries((prev) =>
+          prev.map((entry) =>
+            entry.id === entryId
+              ? {
+                  ...entry,
+                  remainQuantity: 0,
+                }
+              : entry,
+          ),
+        );
+      }
+    },
+    [],
+  );
 
   // Handle form entry changes with cascading logic
   const handleFormEntryChange = async (id, field, value) => {
@@ -266,7 +247,6 @@ const InputCutting = () => {
 
         if (field === "customerId") {
           updated.poNumber = "";
-          updated.customerPO = "";
           updated.sku = "";
           updated.sCode = "";
           updated.description = "";
@@ -275,7 +255,6 @@ const InputCutting = () => {
           updated.week = "";
           updated.remainQuantity = 0;
           updated.poNumbers = [];
-          updated.customerPOs = [];
           updated.skus = [];
           updated.sCodes = [];
           updated.sCodesData = [];
@@ -284,23 +263,6 @@ const InputCutting = () => {
             loadPoNumbers(id, value);
           }
         } else if (field === "poNumber") {
-          updated.customerPO = "";
-          updated.sku = "";
-          updated.sCode = "";
-          updated.description = "";
-          updated.quantityOrder = "";
-          updated.quantityProduksi = "";
-          updated.week = "";
-          updated.remainQuantity = 0;
-          updated.customerPOs = [];
-          updated.skus = [];
-          updated.sCodes = [];
-          updated.sCodesData = [];
-
-          if (value) {
-            loadCustomerPOs(id, value);
-          }
-        } else if (field === "customerPO") {
           updated.sku = "";
           updated.sCode = "";
           updated.description = "";
@@ -325,20 +287,18 @@ const InputCutting = () => {
           updated.sCodes = [];
           updated.sCodesData = [];
 
-          if (value && updated.customerPO) {
-            loadQtyPlans(id, updated.customerPO, value);
-            loadWeeks(id, updated.customerPO, value);
+          if (value && updated.poNumber) {
+            loadQtyPlans(id, updated.poNumber, value);
+            loadWeeks(id, updated.poNumber, value);
           }
         } else if (field === "sCode") {
-          // Find description dari sCodesData berdasarkan selected sCode
           const selectedSCode = entry.sCodesData?.find(
-            (item) => item.s_code === value
+            (item) => item.s_code === value,
           );
           updated.description = selectedSCode?.description || "";
-          
-          // Fetch remain quantity dari backend (Real dari database)
-          if (value && updated.customerPO && updated.sku) {
-            loadRemainQuantity(id, updated.customerPO, updated.sku, value);
+
+          if (value && updated.poNumber && updated.sku) {
+            loadRemainQuantity(id, updated.poNumber, updated.sku, value);
           } else {
             updated.remainQuantity = 0;
           }
@@ -360,7 +320,6 @@ const InputCutting = () => {
         id: newId,
         customerId: "",
         poNumber: "",
-        customerPO: "",
         sku: "",
         sCode: "",
         description: "",
@@ -371,7 +330,6 @@ const InputCutting = () => {
         plannedQtyCache: 0,
         customers: customers,
         poNumbers: [],
-        customerPOs: [],
         skus: [],
         sCodes: [],
         sCodesData: [],
@@ -403,7 +361,6 @@ const InputCutting = () => {
           id,
           customers,
           poNumbers,
-          customerPOs,
           skus,
           sCodes,
           sCodesData,
@@ -412,11 +369,11 @@ const InputCutting = () => {
           ...entry
         }) => {
           const customerName =
-            customers.find((c) => c.value == entry.customerId)?.label || ""; // Use .value and .label
+            customers.find((c) => c.value == entry.customerId)?.label || "";
           return {
             customer: customerName,
             poNumber: entry.poNumber,
-            customerPO: entry.customerPO,
+            customerPO: "", // Kosongkan karena tidak digunakan
             sku: entry.sku,
             sCode: entry.sCode,
             description: entry.description,
@@ -430,11 +387,10 @@ const InputCutting = () => {
 
     try {
       console.log("Submitting data:", submitData);
-      
-      // Kirim data ke backend API
+
       const response = await cuttingProductionAPI.save(submitData);
       console.log("Response dari server:", response);
-      
+
       alert("✅ Data berhasil disimpan ke database!");
 
       // Reset form setelah berhasil submit
@@ -451,7 +407,6 @@ const InputCutting = () => {
           id: 1,
           customerId: "",
           poNumber: "",
-          customerPO: "",
           sku: "",
           sCode: "",
           description: "",
@@ -462,7 +417,6 @@ const InputCutting = () => {
           plannedQtyCache: 0,
           customers: customers,
           poNumbers: [],
-          customerPOs: [],
           skus: [],
           sCodes: [],
           sCodesData: [],
@@ -470,27 +424,24 @@ const InputCutting = () => {
       ]);
     } catch (err) {
       console.error("Error submitting data:", err);
-      
-      // Extract detailed error from backend response
+
       let msg = "Terjadi kesalahan saat menyimpan data";
       if (err.response?.data) {
-        // Backend sent detailed error
         const errorData = err.response.data;
-        if (typeof errorData === 'string') {
+        if (typeof errorData === "string") {
           msg = errorData;
         } else if (errorData.message) {
           msg = errorData.message;
         } else if (errorData.error) {
           msg = errorData.error;
         } else if (errorData.errors) {
-          // Validation errors array
           msg = JSON.stringify(errorData.errors);
         }
         console.error("Backend error details:", errorData);
       } else if (err.message) {
         msg = err.message;
       }
-      
+
       setError(msg);
       alert(`❌ Gagal menyimpan data: ${msg}`);
     } finally {
@@ -741,39 +692,6 @@ const InputCutting = () => {
                       </select>
                     </div>
 
-                    {/* Customer PO */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <FileText />
-                        </div>
-                        Customer PO
-                      </label>
-                      <select
-                        value={entry.customerPO}
-                        onChange={(e) =>
-                          handleFormEntryChange(
-                            entry.id,
-                            "customerPO",
-                            e.target.value,
-                          )
-                        }
-                        className="cutting-select"
-                        required
-                        disabled={!entry.poNumber || isSubmitting}
-                      >
-                        <option value="">Pilih Customer PO</option>
-                        {(entry.customerPOs || []).map((po, idx) => (
-                          <option
-                            key={`customerpo-${entry.id}-${po.value || idx}`}
-                            value={po.value}
-                          >
-                            {po.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
                     {/* SKU */}
                     <div className="cutting-field-group">
                       <label className="cutting-label">
@@ -789,7 +707,7 @@ const InputCutting = () => {
                         }
                         className="cutting-select"
                         required
-                        disabled={!entry.customerPO || isSubmitting}
+                        disabled={!entry.poNumber || isSubmitting}
                       >
                         <option value="">Pilih SKU</option>
                         {(entry.skus || []).map((sku, idx) => (
@@ -822,11 +740,15 @@ const InputCutting = () => {
                         }
                         className="cutting-select"
                         required={(entry.sCodes || []).length > 0}
-                        disabled={!entry.sku || (entry.sCodes || []).length === 0 || isSubmitting}
+                        disabled={
+                          !entry.sku ||
+                          (entry.sCodes || []).length === 0 ||
+                          isSubmitting
+                        }
                       >
                         <option value="">
-                          {(entry.sCodes || []).length === 0 
-                            ? "Tidak ada S.CODE" 
+                          {(entry.sCodes || []).length === 0
+                            ? "Tidak ada S.CODE"
                             : "Pilih S.CODE"}
                         </option>
                         {(entry.sCodes || []).map((sCode, idx) => (
