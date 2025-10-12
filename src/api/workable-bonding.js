@@ -10,9 +10,17 @@ export const getWorkableBonding = () => {
 };
 
 /**
- * Ambil data Detail Workable Bonding
+ * Ambil data Detail Workable Bonding (per layer)
  * @returns {Promise<Array>} Daftar detail workable bonding
  */
 export const getWorkableBondingDetail = () => {
   return apiClient.get("/api/workable-bonding/detail");
+};
+
+/**
+ * Ambil data NG dan Replacement per layer
+ * @returns {Promise<Array>} Daftar NG dan replacement per layer
+ */
+export const getWorkableBondingReject = () => {
+  return apiClient.get("/api/workable-bonding/reject");
 };
