@@ -8,9 +8,11 @@ import {
   CheckCircle,
   Database as DatabaseIcon,
   FileText,
+  LogOut,
 } from "lucide-react";
 import "../styles/Sidebar.css";
 import logo from "@assets/logo.png";
+import { logout } from "../api/authService"; // Sesuaikan path jika perlu
 
 const Sidebar = () => {
   const location = useLocation();
@@ -23,6 +25,12 @@ const Sidebar = () => {
     { name: "JDE", path: "/jde", icon: DatabaseIcon },
     { name: "Form Input", path: "/form-index", icon: FileText },
   ];
+
+  const handleLogout = () => {
+    logout();
+    // Opsional: redirect ke login
+    window.location.href = "/login";
+  };
 
   return (
     <div className="sidebar">
@@ -48,6 +56,14 @@ const Sidebar = () => {
           );
         })}
       </ul>
+
+      {/* Tombol Logout */}
+      <div className="sidebar-logout">
+        <button onClick={handleLogout} className="logout-button">
+          <LogOut size={20} strokeWidth={2} />
+          <span>Logout</span>
+        </button>
+      </div>
 
       {/* Footer copyright */}
       <div className="sidebar-footer">

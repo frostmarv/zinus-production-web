@@ -5,6 +5,24 @@ if (!API_BASE_URL) {
   console.warn("⚠️ VITE_API_BASE_URL tidak ditemukan di environment variables");
 }
 
+const getToken = () => {
+  return localStorage.getItem("token");
+};
+
+const getHeaders = () => {
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json", // 👈 Penting: minta JSON, bukan HTML
+  };
+
+  const token = getToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return headers;
+};
+
 function buildUrl(baseUrl, endpoint, params = {}) {
   const url = new URL(endpoint, baseUrl);
   for (const [key, value] of Object.entries(params)) {
@@ -15,6 +33,24 @@ function buildUrl(baseUrl, endpoint, params = {}) {
   return url.toString();
 }
 
+// Helper: parse respons teks ke JSON dengan aman
+async function parseJSON(response) {
+  const text = await response.text();
+
+  if (text === "") {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error("Gagal mengurai JSON dari respons:", text);
+    throw new Error(
+      `Respons dari server bukan JSON valid. Status: ${response.status}.`,
+    );
+  }
+}
+
 export const apiClient = {
   get: async (endpoint, params = {}) => {
     const url = buildUrl(API_BASE_URL, endpoint, params);
@@ -22,16 +58,19 @@ export const apiClient = {
 
     const response = await fetch(url, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const errorData = await parseJSON(response).catch(() => ({}));
+      const message =
+        errorData?.message ||
+        errorData?.error ||
+        `GET gagal: ${response.status} ${response.statusText}`;
+      throw new Error(message);
     }
 
-    return response.json();
+    return parseJSON(response);
   },
 
   post: async (endpoint, data) => {
@@ -40,20 +79,20 @@ export const apiClient = {
 
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `HTTP ${response.status}: ${errorText || response.statusText}`,
-      );
+      const errorData = await parseJSON(response).catch(() => ({}));
+      const message =
+        errorData?.message ||
+        errorData?.error ||
+        `POST gagal: ${response.status} ${response.statusText}`;
+      throw new Error(message);
     }
 
-    return response.json();
+    return parseJSON(response);
   },
 
   put: async (endpoint, data) => {
@@ -62,20 +101,20 @@ export const apiClient = {
 
     const response = await fetch(url, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `HTTP ${response.status}: ${errorText || response.statusText}`,
-      );
+      const errorData = await parseJSON(response).catch(() => ({}));
+      const message =
+        errorData?.message ||
+        errorData?.error ||
+        `PUT gagal: ${response.status} ${response.statusText}`;
+      throw new Error(message);
     }
 
-    return response.json();
+    return parseJSON(response);
   },
 
   delete: async (endpoint) => {
@@ -84,27 +123,18 @@ export const apiClient = {
 
     const response = await fetch(url, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getHeaders(),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `HTTP ${response.status}: ${errorText || response.statusText}`,
-      );
+      const errorData = await parseJSON(response).catch(() => ({}));
+      const message =
+        errorData?.message ||
+        errorData?.error ||
+        `DELETE gagal: ${response.status} ${response.statusText}`;
+      throw new Error(message);
     }
 
-    // Handle response yang mungkin kosong
-    const text = await response.text();
-    try {
-      return text
-        ? JSON.parse(text)
-        : { success: true, message: "Deleted successfully" };
-    } catch (e) {
-      // Jika bukan JSON, kembalikan sebagai teks atau sukses
-      return { success: true, message: "Deleted successfully" };
-    }
+    return parseJSON(response);
   },
 };

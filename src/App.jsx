@@ -1,7 +1,13 @@
 // src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Sidebar from "./components/Sidebar";
+import Login from "./components/Login";
 import Dashboard from "./pages/Dashboard";
 import StockOpname from "./pages/StockOpname";
 import ProblematicData from "./pages/ProblematicData";
@@ -26,61 +32,303 @@ import JdeIndex from "./pages/JDE/JdeIndex";
 import FormIndex from "./pages/Input/FormIndex";
 import DashboardReplacement from "./pages/Cutting/Replacements/Dashboard";
 import ReplacementDetailPage from "./pages/Cutting/Replacements/DetailPage";
+import { isAuthenticated } from "./api/authService";
 import "./styles/App.css";
+
+// HOC: Hanya untuk pengguna yang SUDAH login
+const ProtectedRoute = ({ children }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+// HOC: Hanya untuk pengguna yang BELUM login (misal: halaman login)
+const PublicRoute = ({ children }) => {
+  if (isAuthenticated()) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
+
+// Layout dengan Sidebar (untuk halaman terproteksi)
+const Layout = ({ children }) => {
+  return (
+    <div className="app-container">
+      <Sidebar />
+      <main>{children}</main>
+    </div>
+  );
+};
 
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <Sidebar />
-        {/* ✅ Gunakan <main> sebagai wrapper konten */}
-        <main>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/stock-opname" element={<StockOpname />} />
-            <Route path="/problems" element={<ProblematicData />} />
-            <Route path="/history" element={<HistoryIndex />} />
-            <Route path="/history/cutting" element={<CuttingHistoryIndex />} />
-            <Route
-              path="/history/cutting/balok"
-              element={<CuttingHistoryBalok />}
-            />
-            <Route path="/workable" element={<WorkableIndex />} />
-            <Route path="/cutting/input-balok" element={<BalokCutting />} />
-            <Route path="/users" element={<UserManagement />} />
-            <Route path="/cutting/edit/:id" element={<EditCutting />} />
-            <Route path="/cutting/index-cutting" element={<IndexCutting />} />
-            <Route path="/cutting/input-cutting" element={<CuttingInput />} />
-            <Route
-              path="/history/cutting/summary"
-              element={<CuttingHistorySummary />}
-            />
-            <Route path="/workable/bonding" element={<WorkableBonding />} />
-            <Route
-              path="/workable/bonding/detail"
-              element={<DetailWorkableBonding />}
-            />
-            <Route
-              path="/workable/bonding/reject"
-              element={<WorkableBondingReject />}
-            />
-            <Route path="/master" element={<MasterDataIndex />} />
-            <Route path="/master/foam" element={<MasterFoam />} />
-            <Route path="/master/spring" element={<MasterSpring />} />
-            <Route path="/master/cutting" element={<MasterCutting />} />
-            <Route path="/jde" element={<JdeIndex />} />
-            <Route path="/form-index" element={<FormIndex />} />
-            <Route
-              path="/cutting/replacements"
-              element={<DashboardReplacement />}
-            />
-            <Route
-              path="/cutting/replacements/:id"
-              element={<ReplacementDetailPage />}
-            />
-          </Routes>
-        </main>
-      </div>
+      <Routes>
+        {/* Route publik: TANPA sidebar, hanya untuk yang belum login */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+
+        {/* Semua route lain: DILINDUNGI + pakai layout dengan Sidebar */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock-opname"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <StockOpname />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/problems"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProblematicData />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <HistoryIndex />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history/cutting"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CuttingHistoryIndex />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history/cutting/balok"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CuttingHistoryBalok />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workable"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <WorkableIndex />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cutting/input-balok"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <BalokCutting />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <UserManagement />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cutting/edit/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <EditCutting />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cutting/index-cutting"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <IndexCutting />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cutting/input-cutting"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CuttingInput />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history/cutting/summary"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CuttingHistorySummary />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workable/bonding"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <WorkableBonding />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workable/bonding/detail"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <DetailWorkableBonding />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workable/bonding/reject"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <WorkableBondingReject />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/master"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <MasterDataIndex />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/master/foam"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <MasterFoam />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/master/spring"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <MasterSpring />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/master/cutting"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <MasterCutting />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/jde"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <JdeIndex />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/form-index"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <FormIndex />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cutting/replacements"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <DashboardReplacement />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cutting/replacements/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ReplacementDetailPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Redirect semua route tidak dikenal */}
+        <Route
+          path="*"
+          element={
+            isAuthenticated() ? (
+              <Navigate to="/" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+      </Routes>
     </Router>
   );
 }

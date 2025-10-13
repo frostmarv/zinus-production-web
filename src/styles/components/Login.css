@@ -1,0 +1,145 @@
+/* src/components/Login.css */
+.login-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f9f9f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-image {
+  flex: 1;
+  background-color: #003628;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.login-image img {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 0 20px 20px 0;
+}
+
+.login-form {
+  flex: 1;
+  background-color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 20px 0 0 20px;
+}
+
+.login-form h2 {
+  color: #003628;
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #003628;
+  box-shadow: 0 0 0 2px rgba(0, 54, 40, 0.1);
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.options label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #555;
+}
+
+.options input[type="checkbox"] {
+  accent-color: #003628;
+}
+
+.forgot-password {
+  color: #003628;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.login-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #003628;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #002a1f;
+}
+
+.login-button:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Responsive untuk mobile */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+  }
+
+  .login-image,
+  .login-form {
+    flex: none;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .login-image {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .login-form {
+    border-radius: 0 0 20px 20px;
+    padding: 30px 20px;
+  }
+}
