@@ -171,11 +171,11 @@
   gap: 1rem;
   width: 100%;
   padding: 0.875rem 1.25rem;
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: rgba(239, 68, 68, 0.2); /* Background merah transparan */
+  color: #ef4444; /* Text merah */
   font-size: 0.9375rem;
   font-weight: 600;
-  border: none;
+  border: 1px solid rgba(239, 68, 68, 0.3); /* Border merah */
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -184,20 +184,23 @@
 }
 
 .logout-button:hover {
-  background: rgba(239, 68, 68, 0.25);
-  color: #ffffff;
+  background: #ef4444; /* Background merah solid saat hover */
+  color: #ffffff; /* Text putih saat hover */
   transform: translateX(6px);
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4); /* Shadow merah lebih terang */
   padding-left: 1.35rem;
+  border-color: #ef4444; /* Border merah solid saat hover */
 }
 
 .logout-button svg {
   flex-shrink: 0;
-  transition: transform 0.25s ease;
+  color: #ef4444; /* Ikon merah saat normal */
+  transition: transform 0.25s ease, color 0.25s ease;
 }
 
 .logout-button:hover svg {
   transform: scale(1.15);
+  color: #ffffff; /* Ikon putih saat hover */
 }
 
 /* Footer copyright */

@@ -64,11 +64,11 @@ export const masterDataAPI = {
       return res; // { value, label, f_code, s_codes: [{s_code, description}] }
     }),
 
-  // 7. Get Remain Quantity (Real from Database) by Customer PO + SKU + S.CODE
+  // 7. Get Remain Quantity (Cutting) by Customer PO + SKU + S.CODE
   getRemainQuantity: (customerPo, sku, sCode) =>
     handleRequest(async () => {
       const res = await apiClient.get(
-        `/api/master-data/remain-quantity?customerPo=${customerPo}&sku=${sku}&sCode=${sCode}`,
+        `/api/master-data/remain-quantity-cutting?customerPo=${customerPo}&sku=${sku}&sCode=${sCode}`,
       );
       return res; // { quantityOrder, totalProduced, remainQuantity }
     }),

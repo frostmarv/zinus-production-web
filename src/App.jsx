@@ -16,7 +16,7 @@ import BalokCutting from "./pages/Cutting/BalokCutting";
 import HistoryIndex from "./pages/History/HistoryIndex";
 import CuttingHistoryIndex from "./pages/History/Cutting/CuttingHistoryIndex";
 import CuttingHistoryBalok from "./pages/History/Cutting/CuttingHistoryBalok";
-import UserManagement from "./pages/UserManagement";
+import UserManagement from "./pages/UserManagement/UserManagement";
 import EditCutting from "./pages/Cutting/EditCutting";
 import IndexCutting from "./pages/Cutting/IndexCutting";
 import CuttingInput from "./pages/Cutting/InputCutting";
@@ -32,7 +32,7 @@ import JdeIndex from "./pages/JDE/JdeIndex";
 import FormIndex from "./pages/Input/FormIndex";
 import DashboardReplacement from "./pages/Cutting/Replacements/Dashboard";
 import ReplacementDetailPage from "./pages/Cutting/Replacements/DetailPage";
-import { isAuthenticated } from "./api/authService";
+import { isAuthenticated, getUser } from "./api/authService";
 import "./styles/App.css";
 
 // HOC: Hanya untuk pengguna yang SUDAH login
@@ -40,6 +40,20 @@ const ProtectedRoute = ({ children }) => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
+  return children;
+};
+
+// HOC: Hanya untuk role tertentu (misal: PEMILIK)
+const RoleProtectedRoute = ({ children, allowedRoles = ["Pemilik"] }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const user = getUser();
+  if (!user || !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />; // redirect ke dashboard jika tidak punya akses
+  }
+
   return children;
 };
 
@@ -156,13 +170,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* ✅ Revisi: Tambahkan RoleProtectedRoute untuk UserManagement */}
         <Route
           path="/users"
           element={
             <ProtectedRoute>
-              <Layout>
-                <UserManagement />
-              </Layout>
+              <RoleProtectedRoute allowedRoles={["Pemilik"]}>
+                <Layout>
+                  <UserManagement />
+                </Layout>
+              </RoleProtectedRoute>
             </ProtectedRoute>
           }
         />
