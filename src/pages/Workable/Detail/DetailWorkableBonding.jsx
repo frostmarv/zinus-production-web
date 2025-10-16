@@ -1,7 +1,7 @@
 // src/pages/Workable/Detail/DetailWorkableBonding.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, AlertTriangle, Eye } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { getWorkableBondingDetail } from "../../../api/workable-bonding";
 import "../../../styles/Workable/Detail/DetailWorkableBonding.css";
 
@@ -136,7 +136,6 @@ const DetailWorkableBonding = () => {
           <table className="detail-table">
             <thead>
               <tr>
-                <th>CUSTOMER PO</th>
                 <th>WEEK</th>
                 <th>SHIP TO NAME</th>
                 <th>SKU</th>
@@ -156,14 +155,13 @@ const DetailWorkableBonding = () => {
             <tbody>
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan="15" className="no-data">
+                  <td colSpan="14" className="no-data">
                     Tidak ada data detail.
                   </td>
                 </tr>
               ) : (
-                data.map((row) => (
-                  <tr key={`${row.customerPO}-${row.sku}-${row.week}`}>
-                    <td>{row.customerPO || "-"}</td>
+                data.map((row, index) => (
+                  <tr key={`${row.sku}-${row.week}-${index}`}>
                     <td>{row.week || "-"}</td>
                     <td>{row.shipToName || "-"}</td>
                     <td className="sku-cell">{row.sku || "-"}</td>

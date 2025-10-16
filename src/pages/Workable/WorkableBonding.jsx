@@ -1,4 +1,4 @@
-// src/components/Workable/WorkableBonding.jsx
+// src/pages/Workable/WorkableBonding.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -61,6 +61,14 @@ const WorkableBonding = () => {
     };
   }, [autoRefreshActive]);
 
+  // 🔢 Hitung total dari kolom "workable"
+  const calculateWorkableTotal = () => {
+    return data.reduce((sum, row) => {
+      const workable = Number(row.workable) || 0;
+      return sum + workable;
+    }, 0);
+  };
+
   const getStatusClass = (status) => {
     const lower = (status || "").toLowerCase();
     if (lower === "completed") return "status-completed";
@@ -79,12 +87,10 @@ const WorkableBonding = () => {
     ).length;
   };
 
-  // Helper to safely get "Remain Produksi"
   const getRemain = (row) => row["Remain Produksi"] ?? 0;
 
   return (
     <div className="workable-container">
-      {/* Page Header */}
       <div className="page-header">
         <div className="header-content">
           <div className="header-icon">
@@ -112,8 +118,8 @@ const WorkableBonding = () => {
             <BarChart3 size={24} />
           </div>
           <div className="stat-content">
-            <h3>{data.length}</h3>
-            <p>Total Item</p>
+            <h3>{calculateWorkableTotal().toLocaleString()}</h3>
+            <p>Workable Total</p>
           </div>
         </div>
 
@@ -148,7 +154,6 @@ const WorkableBonding = () => {
         </div>
       </div>
 
-      {/* Tombol Lihat Detail Workable */}
       <div className="action-button-wrapper">
         <Link to="/workable/bonding/detail" className="btn-detail-header">
           <Eye size={16} />
@@ -156,7 +161,6 @@ const WorkableBonding = () => {
         </Link>
       </div>
 
-      {/* Tabel Data - Dengan Scroll Horizontal */}
       <div className="table-wrapper">
         <div className="table-scroll-container">
           <table className="workable-table">
