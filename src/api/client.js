@@ -5,21 +5,28 @@ if (!API_BASE_URL) {
   console.warn("⚠️ VITE_API_BASE_URL tidak ditemukan di environment variables");
 }
 
-const getToken = () => {
-  return localStorage.getItem("token");
+const getAccessToken = () => localStorage.getItem("access_token");
+const getRefreshToken = () => localStorage.getItem("refresh_token");
+
+const saveTokens = (access_token, refresh_token) => {
+  localStorage.setItem("access_token", access_token);
+  localStorage.setItem("refresh_token", refresh_token);
 };
 
-const getHeaders = () => {
+const clearTokens = () => {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  localStorage.removeItem("user");
+};
+
+const getHeaders = (token) => {
   const headers = {
     "Content-Type": "application/json",
-    Accept: "application/json", // 👈 Penting: minta JSON, bukan HTML
+    Accept: "application/json",
   };
-
-  const token = getToken();
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-
   return headers;
 };
 
@@ -33,108 +40,104 @@ function buildUrl(baseUrl, endpoint, params = {}) {
   return url.toString();
 }
 
-// Helper: parse respons teks ke JSON dengan aman
 async function parseJSON(response) {
   const text = await response.text();
+  console.log("📄 parseJSON raw text:", text); // 👈 TAMBAHKAN LOG
 
-  if (text === "") {
-    return null;
-  }
-
+  if (text === "") return null;
   try {
-    return JSON.parse(text);
+    const json = JSON.parse(text);
+    console.log("📄 parseJSON parsed JSON:", json); // 👈 TAMBAHKAN LOG
+    return json;
   } catch (e) {
-    console.error("Gagal mengurai JSON dari respons:", text);
-    throw new Error(
-      `Respons dari server bukan JSON valid. Status: ${response.status}.`,
-    );
+    console.error("Gagal mengurai JSON:", text);
+    throw new Error(`Respons bukan JSON valid. Status: ${response.status}`);
   }
 }
 
+async function authenticatedFetch(url, options, token = null) {
+  const finalToken = token ?? getAccessToken();
+  const response = await fetch(url, {
+    ...options,
+    headers: getHeaders(finalToken),
+  });
+  return response;
+}
+
+async function refreshToken() {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) throw new Error("No refresh token");
+
+  const refreshUrl = new URL("/api/auth/refresh", API_BASE_URL).toString();
+  const refreshResponse = await fetch(refreshUrl, {
+    method: "POST",
+    headers: getHeaders(refreshToken),
+  });
+
+  if (!refreshResponse.ok) {
+    clearTokens();
+    throw new Error("Refresh token invalid");
+  }
+
+  const data = await parseJSON(refreshResponse);
+  if (!data?.access_token || !data?.refresh_token) {
+    clearTokens();
+    throw new Error("Invalid refresh response");
+  }
+
+  saveTokens(data.access_token, data.refresh_token);
+  return data.access_token;
+}
+
+async function makeRequest(method, endpoint, data = null, params = {}) {
+  const url =
+    method === "GET"
+      ? buildUrl(API_BASE_URL, endpoint, params)
+      : new URL(endpoint, API_BASE_URL).toString();
+
+  // Coba request pertama kali
+  let response = await authenticatedFetch(url, {
+    method,
+    body: data ? JSON.stringify(data) : undefined,
+  });
+
+  // Jika 401, coba refresh token dan ulangi
+  if (response.status === 401) {
+    try {
+      const newAccessToken = await refreshToken();
+      response = await authenticatedFetch(
+        url,
+        {
+          method,
+          body: data ? JSON.stringify(data) : undefined,
+        },
+        newAccessToken,
+      );
+    } catch (refreshError) {
+      console.error("Auto-refresh gagal:", refreshError);
+      clearTokens();
+      window.location.href = "/login";
+      throw refreshError;
+    }
+  }
+
+  if (!response.ok) {
+    const errorData = await parseJSON(response).catch(() => ({}));
+    const message =
+      errorData?.message ||
+      errorData?.error ||
+      `${method} gagal: ${response.status} ${response.statusText}`;
+    throw new Error(message);
+  }
+
+  const result = await parseJSON(response); // ← INI YANG DIKEMBALIKAN
+  console.log("📤 makeRequest result:", result); // 👈 TAMBAHKAN LOG
+  return result;
+}
+
 export const apiClient = {
-  get: async (endpoint, params = {}) => {
-    const url = buildUrl(API_BASE_URL, endpoint, params);
-    console.log("🔍 GET:", url);
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: getHeaders(),
-    });
-
-    if (!response.ok) {
-      const errorData = await parseJSON(response).catch(() => ({}));
-      const message =
-        errorData?.message ||
-        errorData?.error ||
-        `GET gagal: ${response.status} ${response.statusText}`;
-      throw new Error(message);
-    }
-
-    return parseJSON(response);
-  },
-
-  post: async (endpoint, data) => {
-    const url = new URL(endpoint, API_BASE_URL).toString();
-    console.log("📤 POST:", url, data);
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const errorData = await parseJSON(response).catch(() => ({}));
-      const message =
-        errorData?.message ||
-        errorData?.error ||
-        `POST gagal: ${response.status} ${response.statusText}`;
-      throw new Error(message);
-    }
-
-    return parseJSON(response);
-  },
-
-  put: async (endpoint, data) => {
-    const url = new URL(endpoint, API_BASE_URL).toString();
-    console.log("🔄 PUT:", url, data);
-
-    const response = await fetch(url, {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const errorData = await parseJSON(response).catch(() => ({}));
-      const message =
-        errorData?.message ||
-        errorData?.error ||
-        `PUT gagal: ${response.status} ${response.statusText}`;
-      throw new Error(message);
-    }
-
-    return parseJSON(response);
-  },
-
-  delete: async (endpoint) => {
-    const url = new URL(endpoint, API_BASE_URL).toString();
-    console.log("🗑️ DELETE:", url);
-
-    const response = await fetch(url, {
-      method: "DELETE",
-      headers: getHeaders(),
-    });
-
-    if (!response.ok) {
-      const errorData = await parseJSON(response).catch(() => ({}));
-      const message =
-        errorData?.message ||
-        errorData?.error ||
-        `DELETE gagal: ${response.status} ${response.statusText}`;
-      throw new Error(message);
-    }
-
-    return parseJSON(response);
-  },
+  get: (endpoint, params = {}) => makeRequest("GET", endpoint, null, params),
+  post: (endpoint, data) => makeRequest("POST", endpoint, data),
+  put: (endpoint, data) => makeRequest("PUT", endpoint, data),
+  delete: (endpoint) => makeRequest("DELETE", endpoint),
 };
