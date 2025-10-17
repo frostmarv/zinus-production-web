@@ -10,13 +10,38 @@ const MasterSpring = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [formData, setFormData] = useState({
+    shipToName: "",
+    customerPO: "",
+    poNumber: "",
+    itemNumber: "",
+    sku: "",
+    category: "SPRING",
+    specLength: 0,
+    specWidth: 0,
+    specHeight: 0,
+    specUnit: "IN",
+    itemDescription: "",
+    orderQty: 0,
+    sample: 0,
+    week: "1",
+    iD: "",
+    lD: "",
+    sD: "",
+  });
   const navigate = useNavigate();
 
+  // Ambil data spring dari backend
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await masterPlanningAPI.getAll("spring");
+        // 🔴 Ganti ke endpoint yang benar
+        const response = await masterPlanningAPI.getAllSpring();
         const rawData = response.data || response;
         setData(rawData);
         setFilteredData(rawData);
@@ -31,7 +56,7 @@ const MasterSpring = () => {
     fetchData();
   }, []);
 
-  // Filter berdasarkan SKU, Week, dan Item Number (asumsi F.code = Item Number)
+  // Filter data berdasarkan pencarian
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredData(data);
@@ -42,15 +67,153 @@ const MasterSpring = () => {
     const result = data.filter((item) => {
       const matchesSKU = item.SKU?.toLowerCase().includes(term);
       const matchesWeek = item.Week?.toString().includes(term);
-      const matchesFCode = item["Item Number"]?.toLowerCase().includes(term); // Ganti jika nama kolom berbeda
-      return matchesSKU || matchesWeek || matchesFCode;
+      const matchesFCode = item["Item Number"]?.toLowerCase().includes(term);
+      const matchesCustomer = item["Ship to Name"]
+        ?.toLowerCase()
+        .includes(term);
+      return matchesSKU || matchesWeek || matchesFCode || matchesCustomer;
     });
 
     setFilteredData(result);
   }, [searchTerm, data]);
 
+  // Handle upload file
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadLoading(true);
+    setUploadError(null);
+
+    try {
+      // 🔴 Gunakan API upload file
+      await masterPlanningAPI.uploadFile(file);
+      alert("Upload file berhasil!");
+      // Refresh data
+      const response = await masterPlanningAPI.getAllSpring();
+      const rawData = response.data || response;
+      setData(rawData);
+      setFilteredData(rawData);
+    } catch (err) {
+      setUploadError("Gagal mengupload file. Silakan coba lagi.");
+      console.error(err);
+    } finally {
+      setUploadLoading(false);
+      // Reset input file
+      e.target.value = "";
+    }
+  };
+
+  // Handle open modal (create/edit)
+  const handleOpenModal = (item = null) => {
+    if (item) {
+      setEditingItem(item);
+      setFormData({
+        shipToName: item["Ship to Name"] || "",
+        customerPO: item["Cust. PO"] || "",
+        poNumber: item["PO No."] || "",
+        itemNumber: item["Item Number"] || "",
+        sku: item.SKU || "",
+        category: item.Category || "SPRING",
+        specLength: item.Spec ? parseFloat(item.Spec.split("*")[0]) || 0 : 0,
+        specWidth: item.Spec ? parseFloat(item.Spec.split("*")[1]) || 0 : 0,
+        specHeight: item.Spec
+          ? parseFloat(item.Spec.split("*")[2]?.replace("IN", "")) || 0
+          : 0,
+        specUnit: "IN",
+        itemDescription: item["Item Description"] || "",
+        orderQty: item["Order QTY"] || 0,
+        sample: item.Sample || 0,
+        week: item.Week?.toString() || "1",
+        iD: item["I/D"] || "",
+        lD: item["L/D"] || "",
+        sD: item["S/D"] || "",
+      });
+    } else {
+      setEditingItem(null);
+      setFormData({
+        shipToName: "",
+        customerPO: "",
+        poNumber: "",
+        itemNumber: "",
+        sku: "",
+        category: "SPRING",
+        specLength: 0,
+        specWidth: 0,
+        specHeight: 0,
+        specUnit: "IN",
+        itemDescription: "",
+        orderQty: 0,
+        sample: 0,
+        week: "1",
+        iD: "",
+        lD: "",
+        sD: "",
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  // Handle form input change
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle submit (create/update)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      if (editingItem) {
+        // 🔴 Update
+        await masterPlanningAPI.update(editingItem.id, formData);
+      } else {
+        // 🔴 Create
+        await masterPlanningAPI.create(formData);
+      }
+
+      alert(
+        editingItem
+          ? "Data berhasil diperbarui!"
+          : "Data berhasil ditambahkan!",
+      );
+      setIsModalOpen(false);
+
+      // Refresh data
+      const response = await masterPlanningAPI.getAllSpring();
+      const rawData = response.data || response;
+      setData(rawData);
+      setFilteredData(rawData);
+    } catch (err) {
+      alert("Gagal menyimpan data. Silakan coba lagi.");
+      console.error(err);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async (id) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+
+    try {
+      await masterPlanningAPI.delete(id);
+      alert("Data berhasil dihapus!");
+      // Refresh data
+      const response = await masterPlanningAPI.getAllSpring();
+      const rawData = response.data || response;
+      setData(rawData);
+      setFilteredData(rawData);
+    } catch (err) {
+      alert("Gagal menghapus data. Silakan coba lagi.");
+      console.error(err);
+    }
+  };
+
   const handleBack = () => {
-    navigate("/master"); // Sesuaikan route jika berbeda
+    navigate("/master");
   };
 
   if (loading) {
@@ -82,6 +245,34 @@ const MasterSpring = () => {
             className="master-spring__search-input"
           />
         </div>
+
+        <div className="master-spring__actions">
+          {/* Upload File */}
+          <div className="master-spring__upload">
+            <label htmlFor="file-upload" className="master-spring__upload-btn">
+              {uploadLoading ? "Mengupload..." : "Upload File"}
+            </label>
+            <input
+              id="file-upload"
+              type="file"
+              accept=".xlsx,.csv"
+              onChange={handleFileUpload}
+              disabled={uploadLoading}
+              style={{ display: "none" }}
+            />
+            {uploadError && (
+              <div className="master-spring__upload-error">{uploadError}</div>
+            )}
+          </div>
+
+          {/* Add New Button */}
+          <button
+            className="master-spring__add-btn"
+            onClick={() => handleOpenModal()}
+          >
+            + Tambah Data
+          </button>
+        </div>
       </div>
 
       <div className="master-spring__table-container">
@@ -103,12 +294,13 @@ const MasterSpring = () => {
               <th>Total Qty</th>
               <th>Week</th>
               <th>Category</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {filteredData.length > 0 ? (
               filteredData.map((item, index) => (
-                <tr key={index}>
+                <tr key={item.id || index}>
                   <td>{item["Ship to Name"]}</td>
                   <td>{item["Cust. PO"]}</td>
                   <td>{item["PO No."]}</td>
@@ -124,11 +316,25 @@ const MasterSpring = () => {
                   <td>{item["Total Qty"]}</td>
                   <td>{item.Week}</td>
                   <td>{item.Category}</td>
+                  <td>
+                    <button
+                      className="master-spring__edit-btn"
+                      onClick={() => handleOpenModal(item)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="master-spring__delete-btn"
+                      onClick={() => handleDelete(item.id || item.id)}
+                    >
+                      Hapus
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="15" className="master-spring__no-data">
+                <td colSpan="16" className="master-spring__no-data">
                   Tidak ada data ditemukan.
                 </td>
               </tr>
@@ -136,6 +342,190 @@ const MasterSpring = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Modal untuk Create/Edit */}
+      {isModalOpen && (
+        <div
+          className="master-spring__modal-overlay"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="master-spring__modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2>{editingItem ? "Edit Data" : "Tambah Data Baru"}</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="master-spring__form-row">
+                <label>Ship to Name:</label>
+                <input
+                  type="text"
+                  name="shipToName"
+                  value={formData.shipToName}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>Customer PO:</label>
+                <input
+                  type="text"
+                  name="customerPO"
+                  value={formData.customerPO}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>PO Number:</label>
+                <input
+                  type="text"
+                  name="poNumber"
+                  value={formData.poNumber}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>Item Number:</label>
+                <input
+                  type="text"
+                  name="itemNumber"
+                  value={formData.itemNumber}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>SKU:</label>
+                <input
+                  type="text"
+                  name="sku"
+                  value={formData.sku}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>Category:</label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="FOAM">FOAM</option>
+                  <option value="SPRING">SPRING</option>
+                </select>
+              </div>
+              <div className="master-spring__form-row">
+                <label>Spec Length:</label>
+                <input
+                  type="number"
+                  name="specLength"
+                  value={formData.specLength}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>Spec Width:</label>
+                <input
+                  type="number"
+                  name="specWidth"
+                  value={formData.specWidth}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>Spec Height:</label>
+                <input
+                  type="number"
+                  name="specHeight"
+                  value={formData.specHeight}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>Item Description:</label>
+                <input
+                  type="text"
+                  name="itemDescription"
+                  value={formData.itemDescription}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>Order Qty:</label>
+                <input
+                  type="number"
+                  name="orderQty"
+                  value={formData.orderQty}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>Sample:</label>
+                <input
+                  type="number"
+                  name="sample"
+                  value={formData.sample}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>Week:</label>
+                <input
+                  type="text"
+                  name="week"
+                  value={formData.week}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>I/D:</label>
+                <input
+                  type="date"
+                  name="iD"
+                  value={formData.iD}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>L/D:</label>
+                <input
+                  type="date"
+                  name="lD"
+                  value={formData.lD}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="master-spring__form-row">
+                <label>S/D:</label>
+                <input
+                  type="date"
+                  name="sD"
+                  value={formData.sD}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="master-spring__form-actions">
+                <button type="submit">
+                  {editingItem ? "Update" : "Simpan"}
+                </button>
+                <button type="button" onClick={() => setIsModalOpen(false)}>
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

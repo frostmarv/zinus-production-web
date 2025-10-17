@@ -1,9 +1,9 @@
-// src/components/Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/authService";
 import "../styles/components/Login.css";
-import logo from "@assets/login.png"; // ✅ Import gambar
+import bedImage from "@assets/login.png"; // 🛏️ Gambar kasur
+import logoZinus from "@assets/logo_hijau.jpeg"; // 🌿 Logo Zinus
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +16,6 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       await login(email, password);
       navigate("/", { replace: true });
@@ -28,52 +27,63 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      {/* Gambar sebelah kiri */}
-      <div className="login-image">
-        <img src={logo} alt="Login Illustration" />{" "}
-        {/* ✅ Gunakan variabel `logo` */}
+    <div className="login-page">
+      {/* Kiri: Gambar kasur */}
+      <div className="login-left">
+        <div className="image-wrapper">
+          <img src={bedImage} alt="Zinus Bed" />
+        </div>
       </div>
 
-      {/* Form Login sebelah kanan */}
-      <div className="login-form">
-        <h2>Sign In</h2>
-        {error && <div className="error-message">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+      {/* Kanan: Form Login */}
+      <div className="login-right">
+        <div className="login-card">
+          <div className="logo-top">
+            <img src={logoZinus} alt="Zinus Logo" />
           </div>
 
-          <div className="input-group">
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          <h1>Welcome to Zinus Production</h1>
+          <h2>Login</h2>
 
-          <div className="options">
-            <label>
-              <input type="checkbox" /> Remember me
-            </label>
-            <a href="#" className="forgot-password">
-              Forgot password?
-            </a>
-          </div>
+          {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" disabled={loading} className="login-button">
-            {loading ? "Loading..." : "LOGIN"}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="input-group">
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="options">
+              <label>
+                <input type="checkbox" /> Remember Me
+              </label>
+              <a href="#" className="forgot-password">
+                Forgot Password?
+              </a>
+            </div>
+
+            <button type="submit" className="btn-login" disabled={loading}>
+              {loading ? "Loading..." : "Login"}
+            </button>
+          </form>
+
+          <footer>© 2025 Nurmalik Wijaya. All Rights Reserved.</footer>
+        </div>
       </div>
     </div>
   );
