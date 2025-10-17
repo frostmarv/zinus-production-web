@@ -7,8 +7,8 @@ import { apiClient } from "../api/client";
  */
 export const getAllUsers = async () => {
   try {
-    const response = await apiClient.get("/api/users");
-    return response;
+    const data = await apiClient.get("/api/users");
+    return data; // ✅ Kembalikan data langsung
   } catch (error) {
     console.error("Gagal mengambil daftar user:", error);
     throw error;
@@ -22,8 +22,8 @@ export const getAllUsers = async () => {
  */
 export const getUserById = async (id) => {
   try {
-    const response = await apiClient.get(`/api/users/${id}`);
-    return response;
+    const data = await apiClient.get(`/api/users/${id}`);
+    return data; // ✅ Kembalikan data langsung
   } catch (error) {
     console.error("Gagal mengambil detail user:", error);
     throw error;
@@ -37,8 +37,8 @@ export const getUserById = async (id) => {
  */
 export const createUser = async (userData) => {
   try {
-    const response = await apiClient.post("/api/users", userData);
-    return response;
+    const data = await apiClient.post("/api/users", userData);
+    return data; // ✅ Kembalikan data langsung
   } catch (error) {
     console.error("Gagal membuat user:", error);
     throw error;
@@ -53,8 +53,8 @@ export const createUser = async (userData) => {
  */
 export const updateUser = async (id, userData) => {
   try {
-    const response = await apiClient.put(`/api/users/${id}`, userData);
-    return response;
+    const data = await apiClient.put(`/api/users/${id}`, userData);
+    return data; // ✅ Kembalikan data langsung
   } catch (error) {
     console.error("Gagal mengupdate user:", error);
     throw error;
@@ -69,13 +69,10 @@ export const updateUser = async (id, userData) => {
  */
 export const resetUserPassword = async (userId, newPassword) => {
   try {
-    const response = await apiClient.put(
-      `/api/users/${userId}/reset-password`,
-      {
-        newPassword,
-      },
-    );
-    return response;
+    const data = await apiClient.put(`/api/users/${userId}/reset-password`, {
+      newPassword,
+    });
+    return data; // ✅ Kembalikan data langsung
   } catch (error) {
     console.error("Gagal reset password:", error);
     throw error;
@@ -89,8 +86,8 @@ export const resetUserPassword = async (userId, newPassword) => {
  */
 export const deleteUser = async (id) => {
   try {
-    const response = await apiClient.delete(`/api/users/${id}`);
-    return response;
+    const data = await apiClient.delete(`/api/users/${id}`);
+    return data; // ✅ Kembalikan data langsung
   } catch (error) {
     console.error("Gagal menghapus user:", error);
     throw error;
@@ -103,8 +100,8 @@ export const deleteUser = async (id) => {
  */
 export const getProfile = async () => {
   try {
-    const response = await apiClient.get("/api/users/profile");
-    return response;
+    const data = await apiClient.get("/api/users/profile");
+    return data; // ✅ Kembalikan data langsung
   } catch (error) {
     console.error("Gagal mengambil profile:", error);
     throw error;
@@ -118,8 +115,8 @@ export const getProfile = async () => {
  */
 export const updateProfile = async (profileData) => {
   try {
-    const response = await apiClient.put("/api/users/profile", profileData);
-    return response;
+    const data = await apiClient.put("/api/users/profile", profileData);
+    return data; // ✅ Kembalikan data langsung
   } catch (error) {
     console.error("Gagal mengupdate profile:", error);
     throw error;

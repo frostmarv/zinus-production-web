@@ -13,10 +13,17 @@ import {
   BarChart3,
   Clock,
   Calendar,
+  User as UserIcon,
 } from "lucide-react";
 import "../styles/Dashboard.css";
+import { getProfile } from "../api/userService"; // ✅ Import getProfile
 
 const Dashboard = () => {
+  // ✅ State untuk user yang sedang login
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [errorUser, setErrorUser] = useState(null);
+
   // ✅ Data dummy untuk progress produksi semua departemen
   const [productionData, setProductionData] = useState({
     summary: {
@@ -130,7 +137,24 @@ const Dashboard = () => {
     ],
   });
 
-  // ✅ Auto-refresh setiap 30 detik
+  // ✅ Fetch user profile saat komponen mount
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const userData = await getProfile(); // userData = { id, nama, ... }
+        setCurrentUser(userData);
+      } catch (err) {
+        console.error("Gagal memuat profil pengguna:", err);
+        setErrorUser("Gagal memuat data pengguna.");
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  // ✅ Auto-refresh lastUpdate setiap 30 detik
   useEffect(() => {
     const interval = setInterval(() => {
       setProductionData((prev) => ({
@@ -166,12 +190,29 @@ const Dashboard = () => {
       {/* Header */}
       <div className="dashboard-header">
         <div className="header-content">
-          <div className="header-icon">
-            <BarChart3 size={32} />
+          {/* 👤 Sapaan User */}
+          <div className="user-greeting">
+            {loadingUser ? (
+              <h2>Loading user...</h2>
+            ) : errorUser ? (
+              <h2 className="error-text">{errorUser}</h2>
+            ) : currentUser ? (
+              <h2>
+                Hi, <strong>{currentUser.nama}</strong>! 👋
+              </h2>
+            ) : (
+              <h2>Hi! 👋</h2>
+            )}
           </div>
-          <div className="header-text">
-            <h1>📈 Production Monitoring Dashboard</h1>
-            <p>Real-time progress tracking across all production departments</p>
+
+          <div className="header-title">
+            <BarChart3 size={32} />
+            <div>
+              <h1>📈 Production Monitoring Dashboard</h1>
+              <p>
+                Real-time progress tracking across all production departments
+              </p>
+            </div>
           </div>
         </div>
         <div className="header-meta">
