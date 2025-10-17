@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { masterPlanningAPI } from "../../../api/masterPlanning";
 import { useNavigate } from "react-router-dom";
+import { getUser } from "../../../api/authService"; // ✅ Tambahkan import
 import "../../../styles/MasterData/Foam/MasterFoam.css";
 
 const MasterFoam = () => {
@@ -35,12 +36,15 @@ const MasterFoam = () => {
   });
   const navigate = useNavigate();
 
+  // ✅ Cek hak akses
+  const user = getUser();
+  const canManage = user?.role === "Pemilik" || user?.department === "PPIC";
+
   // Ambil data foam dari backend
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // 🔴 Ganti ke endpoint yang benar
         const response = await masterPlanningAPI.getAllFoam();
         const rawData = response.data || response;
         setData(rawData);
@@ -86,10 +90,8 @@ const MasterFoam = () => {
     setUploadError(null);
 
     try {
-      // 🔴 Gunakan API upload file
       await masterPlanningAPI.uploadFile(file);
       alert("Upload file berhasil!");
-      // Refresh data
       const response = await masterPlanningAPI.getAllFoam();
       const rawData = response.data || response;
       setData(rawData);
@@ -99,7 +101,6 @@ const MasterFoam = () => {
       console.error(err);
     } finally {
       setUploadLoading(false);
-      // Reset input file
       e.target.value = "";
     }
   };
@@ -169,10 +170,8 @@ const MasterFoam = () => {
 
     try {
       if (editingItem) {
-        // 🔴 Update
         await masterPlanningAPI.update(editingItem.id, formData);
       } else {
-        // 🔴 Create
         await masterPlanningAPI.create(formData);
       }
 
@@ -183,7 +182,6 @@ const MasterFoam = () => {
       );
       setIsModalOpen(false);
 
-      // Refresh data
       const response = await masterPlanningAPI.getAllFoam();
       const rawData = response.data || response;
       setData(rawData);
@@ -201,7 +199,6 @@ const MasterFoam = () => {
     try {
       await masterPlanningAPI.delete(id);
       alert("Data berhasil dihapus!");
-      // Refresh data
       const response = await masterPlanningAPI.getAllFoam();
       const rawData = response.data || response;
       setData(rawData);
@@ -246,33 +243,34 @@ const MasterFoam = () => {
           />
         </div>
 
-        <div className="master-foam__actions">
-          {/* Upload File */}
-          <div className="master-foam__upload">
-            <label htmlFor="file-upload" className="master-foam__upload-btn">
-              {uploadLoading ? "Mengupload..." : "Upload File"}
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".xlsx,.csv"
-              onChange={handleFileUpload}
-              disabled={uploadLoading}
-              style={{ display: "none" }}
-            />
-            {uploadError && (
-              <div className="master-foam__upload-error">{uploadError}</div>
-            )}
-          </div>
+        {/* ✅ Tampilkan aksi hanya jika berhak */}
+        {canManage && (
+          <div className="master-foam__actions">
+            <div className="master-foam__upload">
+              <label htmlFor="file-upload" className="master-foam__upload-btn">
+                {uploadLoading ? "Mengupload..." : "Upload File"}
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept=".xlsx,.csv"
+                onChange={handleFileUpload}
+                disabled={uploadLoading}
+                style={{ display: "none" }}
+              />
+              {uploadError && (
+                <div className="master-foam__upload-error">{uploadError}</div>
+              )}
+            </div>
 
-          {/* Add New Button */}
-          <button
-            className="master-foam__add-btn"
-            onClick={() => handleOpenModal()}
-          >
-            + Tambah Data
-          </button>
-        </div>
+            <button
+              className="master-foam__add-btn"
+              onClick={() => handleOpenModal()}
+            >
+              + Tambah Data
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="master-foam__table-container">
@@ -294,7 +292,8 @@ const MasterFoam = () => {
               <th>Total Qty</th>
               <th>Week</th>
               <th>Category</th>
-              <th>Aksi</th>
+              {/* ✅ Kolom Aksi hanya muncul jika berhak */}
+              {canManage && <th>Aksi</th>}
             </tr>
           </thead>
           <tbody>
@@ -316,25 +315,31 @@ const MasterFoam = () => {
                   <td>{item["Total Qty"]}</td>
                   <td>{item.Week}</td>
                   <td>{item.Category}</td>
-                  <td>
-                    <button
-                      className="master-foam__edit-btn"
-                      onClick={() => handleOpenModal(item)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="master-foam__delete-btn"
-                      onClick={() => handleDelete(item.id || item.id)}
-                    >
-                      Hapus
-                    </button>
-                  </td>
+                  {/* ✅ Tombol aksi hanya muncul jika berhak */}
+                  {canManage && (
+                    <td>
+                      <button
+                        className="master-foam__edit-btn"
+                        onClick={() => handleOpenModal(item)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="master-foam__delete-btn"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="16" className="master-foam__no-data">
+                <td
+                  colSpan={canManage ? 16 : 15}
+                  className="master-foam__no-data"
+                >
                   Tidak ada data ditemukan.
                 </td>
               </tr>
@@ -343,7 +348,7 @@ const MasterFoam = () => {
         </table>
       </div>
 
-      {/* Modal untuk Create/Edit */}
+      {/* Modal Create/Edit */}
       {isModalOpen && (
         <div
           className="master-foam__modal-overlay"

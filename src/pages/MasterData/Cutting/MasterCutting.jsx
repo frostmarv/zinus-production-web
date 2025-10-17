@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { masterCuttingAPI } from "../../../api/masterCutting";
 import { useNavigate } from "react-router-dom";
+import { getUser } from "../../../api/authService"; // ✅ Tambahkan import
 import "../../../styles/MasterData/Cutting/MasterCutting.css";
 
 const MasterCutting = () => {
@@ -23,6 +24,13 @@ const MasterCutting = () => {
     category_layers: "",
   });
   const navigate = useNavigate();
+
+  // ✅ Cek hak akses khusus Cutting
+  const user = getUser();
+  const canManage =
+    user?.role === "Pemilik" ||
+    user?.department === "PPIC" ||
+    (user?.department === "Cutting" && user?.role === "Admin JDE");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,7 +81,6 @@ const MasterCutting = () => {
     try {
       await masterCuttingAPI.uploadFile(file);
       alert("Upload file berhasil!");
-      // Refresh data
       const response = await masterCuttingAPI.getAll();
       const rawData = response.data || response;
       setData(rawData);
@@ -83,7 +90,6 @@ const MasterCutting = () => {
       console.error(err);
     } finally {
       setUploadLoading(false);
-      // Reset input file
       e.target.value = "";
     }
   };
@@ -129,10 +135,8 @@ const MasterCutting = () => {
 
     try {
       if (editingItem) {
-        // Update
         await masterCuttingAPI.update(editingItem.id, formData);
       } else {
-        // Create
         await masterCuttingAPI.create(formData);
       }
 
@@ -143,7 +147,6 @@ const MasterCutting = () => {
       );
       setIsModalOpen(false);
 
-      // Refresh data
       const response = await masterCuttingAPI.getAll();
       const rawData = response.data || response;
       setData(rawData);
@@ -161,7 +164,6 @@ const MasterCutting = () => {
     try {
       await masterCuttingAPI.delete(id);
       alert("Data berhasil dihapus!");
-      // Refresh data
       const response = await masterCuttingAPI.getAll();
       const rawData = response.data || response;
       setData(rawData);
@@ -208,33 +210,39 @@ const MasterCutting = () => {
           />
         </div>
 
-        <div className="master-cutting__actions">
-          {/* Upload File */}
-          <div className="master-cutting__upload">
-            <label htmlFor="file-upload" className="master-cutting__upload-btn">
-              {uploadLoading ? "Mengupload..." : "Upload File"}
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".xlsx,.csv"
-              onChange={handleFileUpload}
-              disabled={uploadLoading}
-              style={{ display: "none" }}
-            />
-            {uploadError && (
-              <div className="master-cutting__upload-error">{uploadError}</div>
-            )}
-          </div>
+        {/* ✅ Tampilkan aksi hanya jika berhak */}
+        {canManage && (
+          <div className="master-cutting__actions">
+            <div className="master-cutting__upload">
+              <label
+                htmlFor="file-upload"
+                className="master-cutting__upload-btn"
+              >
+                {uploadLoading ? "Mengupload..." : "Upload File"}
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept=".xlsx,.csv"
+                onChange={handleFileUpload}
+                disabled={uploadLoading}
+                style={{ display: "none" }}
+              />
+              {uploadError && (
+                <div className="master-cutting__upload-error">
+                  {uploadError}
+                </div>
+              )}
+            </div>
 
-          {/* Add New Button */}
-          <button
-            className="master-cutting__add-btn"
-            onClick={() => handleOpenModal()}
-          >
-            + Tambah Data
-          </button>
-        </div>
+            <button
+              className="master-cutting__add-btn"
+              onClick={() => handleOpenModal()}
+            >
+              + Tambah Data
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="master-cutting__table-container">
@@ -249,7 +257,8 @@ const MasterCutting = () => {
               <th>Layer Index</th>
               <th>Category</th>
               <th>Created At</th>
-              <th>Aksi</th>
+              {/* ✅ Kolom Aksi hanya muncul jika berhak */}
+              {canManage && <th>Aksi</th>}
             </tr>
           </thead>
           <tbody>
@@ -264,25 +273,31 @@ const MasterCutting = () => {
                   <td>{item.layer_index}</td>
                   <td>{item.category_layers}</td>
                   <td>{new Date(item.created_at).toLocaleString("id-ID")}</td>
-                  <td>
-                    <button
-                      className="master-cutting__edit-btn"
-                      onClick={() => handleOpenModal(item)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="master-cutting__delete-btn"
-                      onClick={() => handleDelete(item.id)}
-                    >
-                      Hapus
-                    </button>
-                  </td>
+                  {/* ✅ Tombol aksi hanya muncul jika berhak */}
+                  {canManage && (
+                    <td>
+                      <button
+                        className="master-cutting__edit-btn"
+                        onClick={() => handleOpenModal(item)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="master-cutting__delete-btn"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="master-cutting__no-data">
+                <td
+                  colSpan={canManage ? 9 : 8}
+                  className="master-cutting__no-data"
+                >
                   Tidak ada data ditemukan.
                 </td>
               </tr>
@@ -291,7 +306,7 @@ const MasterCutting = () => {
         </table>
       </div>
 
-      {/* Modal untuk Create/Edit */}
+      {/* Modal Create/Edit */}
       {isModalOpen && (
         <div
           className="master-cutting__modal-overlay"
@@ -347,7 +362,7 @@ const MasterCutting = () => {
                 <input
                   type="number"
                   name="layer_index"
-                  value={formData.layer_index}
+                  value={formData.layer_index || ""}
                   onChange={handleInputChange}
                 />
               </div>

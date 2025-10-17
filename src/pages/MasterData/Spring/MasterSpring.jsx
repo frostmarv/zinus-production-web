@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { masterPlanningAPI } from "../../../api/masterPlanning";
 import { useNavigate } from "react-router-dom";
+import { getUser } from "../../../api/authService"; // ✅ Tambahkan ini
 import "../../../styles/MasterData/Spring/MasterSpring.css";
 
 const MasterSpring = () => {
@@ -35,12 +36,15 @@ const MasterSpring = () => {
   });
   const navigate = useNavigate();
 
+  // ✅ Cek hak akses
+  const user = getUser();
+  const canManage = user?.role === "Pemilik" || user?.department === "PPIC";
+
   // Ambil data spring dari backend
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // 🔴 Ganti ke endpoint yang benar
         const response = await masterPlanningAPI.getAllSpring();
         const rawData = response.data || response;
         setData(rawData);
@@ -86,10 +90,8 @@ const MasterSpring = () => {
     setUploadError(null);
 
     try {
-      // 🔴 Gunakan API upload file
       await masterPlanningAPI.uploadFile(file);
       alert("Upload file berhasil!");
-      // Refresh data
       const response = await masterPlanningAPI.getAllSpring();
       const rawData = response.data || response;
       setData(rawData);
@@ -99,7 +101,6 @@ const MasterSpring = () => {
       console.error(err);
     } finally {
       setUploadLoading(false);
-      // Reset input file
       e.target.value = "";
     }
   };
@@ -169,10 +170,8 @@ const MasterSpring = () => {
 
     try {
       if (editingItem) {
-        // 🔴 Update
         await masterPlanningAPI.update(editingItem.id, formData);
       } else {
-        // 🔴 Create
         await masterPlanningAPI.create(formData);
       }
 
@@ -183,7 +182,6 @@ const MasterSpring = () => {
       );
       setIsModalOpen(false);
 
-      // Refresh data
       const response = await masterPlanningAPI.getAllSpring();
       const rawData = response.data || response;
       setData(rawData);
@@ -201,7 +199,6 @@ const MasterSpring = () => {
     try {
       await masterPlanningAPI.delete(id);
       alert("Data berhasil dihapus!");
-      // Refresh data
       const response = await masterPlanningAPI.getAllSpring();
       const rawData = response.data || response;
       setData(rawData);
@@ -246,33 +243,37 @@ const MasterSpring = () => {
           />
         </div>
 
-        <div className="master-spring__actions">
-          {/* Upload File */}
-          <div className="master-spring__upload">
-            <label htmlFor="file-upload" className="master-spring__upload-btn">
-              {uploadLoading ? "Mengupload..." : "Upload File"}
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".xlsx,.csv"
-              onChange={handleFileUpload}
-              disabled={uploadLoading}
-              style={{ display: "none" }}
-            />
-            {uploadError && (
-              <div className="master-spring__upload-error">{uploadError}</div>
-            )}
-          </div>
+        {/* ✅ Tampilkan aksi hanya jika berhak */}
+        {canManage && (
+          <div className="master-spring__actions">
+            <div className="master-spring__upload">
+              <label
+                htmlFor="file-upload"
+                className="master-spring__upload-btn"
+              >
+                {uploadLoading ? "Mengupload..." : "Upload File"}
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept=".xlsx,.csv"
+                onChange={handleFileUpload}
+                disabled={uploadLoading}
+                style={{ display: "none" }}
+              />
+              {uploadError && (
+                <div className="master-spring__upload-error">{uploadError}</div>
+              )}
+            </div>
 
-          {/* Add New Button */}
-          <button
-            className="master-spring__add-btn"
-            onClick={() => handleOpenModal()}
-          >
-            + Tambah Data
-          </button>
-        </div>
+            <button
+              className="master-spring__add-btn"
+              onClick={() => handleOpenModal()}
+            >
+              + Tambah Data
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="master-spring__table-container">
@@ -294,7 +295,8 @@ const MasterSpring = () => {
               <th>Total Qty</th>
               <th>Week</th>
               <th>Category</th>
-              <th>Aksi</th>
+              {/* ✅ Kolom Aksi hanya muncul jika berhak */}
+              {canManage && <th>Aksi</th>}
             </tr>
           </thead>
           <tbody>
@@ -316,25 +318,31 @@ const MasterSpring = () => {
                   <td>{item["Total Qty"]}</td>
                   <td>{item.Week}</td>
                   <td>{item.Category}</td>
-                  <td>
-                    <button
-                      className="master-spring__edit-btn"
-                      onClick={() => handleOpenModal(item)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="master-spring__delete-btn"
-                      onClick={() => handleDelete(item.id || item.id)}
-                    >
-                      Hapus
-                    </button>
-                  </td>
+                  {/* ✅ Tombol aksi hanya muncul jika berhak */}
+                  {canManage && (
+                    <td>
+                      <button
+                        className="master-spring__edit-btn"
+                        onClick={() => handleOpenModal(item)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="master-spring__delete-btn"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="16" className="master-spring__no-data">
+                <td
+                  colSpan={canManage ? 16 : 15}
+                  className="master-spring__no-data"
+                >
                   Tidak ada data ditemukan.
                 </td>
               </tr>
@@ -343,7 +351,7 @@ const MasterSpring = () => {
         </table>
       </div>
 
-      {/* Modal untuk Create/Edit */}
+      {/* Modal hanya bisa dibuka jika canManage, tapi tetap aman karena di-handle di tombol */}
       {isModalOpen && (
         <div
           className="master-spring__modal-overlay"
