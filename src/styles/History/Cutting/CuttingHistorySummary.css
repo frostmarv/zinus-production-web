@@ -552,7 +552,7 @@
   box-shadow: var(--summary-shadow-md);
 }
 
-/* Popup Modal */
+/* ✅ Popup Modal — FIXED & STABLE */
 .cutting-history-summary-root .modal-overlay {
   position: fixed;
   top: 0;
@@ -565,10 +565,8 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  opacity: 0;
-  animation: fadeIn var(--summary-transition-normal);
-  animation-fill-mode: forwards;
   padding: var(--summary-space-sm);
+  /* ✅ Hapus opacity: 0 dan animasi fadeIn */
 }
 
 .cutting-history-summary-root .modal-content {
@@ -582,10 +580,15 @@
   box-shadow: var(--summary-shadow-xl);
   border: 1px solid var(--summary-border);
   position: relative;
-  transform: scale(0.9) translateY(20px);
-  animation: modalSlideIn var(--summary-transition-normal) ease-out;
-  animation-fill-mode: forwards;
+  /* ✅ Gunakan transisi halus tanpa animasi kompleks */
+  opacity: 1;
+  transform: translateY(0);
+  scale: 1;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s;
 }
+
+/* Optional: Tambahkan efek masuk halus dengan class (jika ingin) */
+/* Tidak diperlukan karena React langsung render */
 
 .cutting-history-summary-root .modal-header {
   display: flex;
@@ -701,6 +704,7 @@
   margin-top: var(--summary-space-sm);
   overflow-x: auto;
   max-width: 100%;
+  box-shadow: var(--summary-shadow-sm);
 }
 
 .cutting-history-summary-root .modal-table {
@@ -708,10 +712,14 @@
   border-collapse: separate;
   border-spacing: 0;
   font-size: 0.875rem;
+  min-width: 1000px;
 }
 
 .cutting-history-summary-root .modal-table thead {
   background: var(--summary-bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .cutting-history-summary-root .modal-table th {
@@ -724,6 +732,7 @@
   font-size: 0.75rem;
   white-space: nowrap;
   border-bottom: 2px solid var(--summary-border);
+  background: var(--summary-bg-secondary);
 }
 
 .cutting-history-summary-root .modal-table td {
@@ -733,6 +742,7 @@
   border-bottom: 1px solid var(--summary-border);
   white-space: normal;
   word-wrap: break-word;
+  vertical-align: top;
 }
 
 .cutting-history-summary-root .modal-table tbody tr:last-child td {
@@ -745,6 +755,7 @@
 
 .cutting-history-summary-root .action-buttons {
   display: flex;
+  flex-direction: column;
   gap: var(--summary-space-xs);
   flex-wrap: wrap;
 }
@@ -763,6 +774,8 @@
   transition: var(--summary-transition-fast);
   box-shadow: var(--summary-shadow-sm);
   letter-spacing: 0.02em;
+  width: 100%;
+  justify-content: center;
 }
 
 .cutting-history-summary-root .btn-update-hole {
@@ -852,7 +865,7 @@
   box-shadow: var(--summary-shadow-md);
 }
 
-/* Animations */
+/* Animations (keep for other elements) */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -877,12 +890,6 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes modalSlideIn {
-  to {
-    transform: scale(1) translateY(0);
   }
 }
 
@@ -958,6 +965,14 @@
     padding: var(--summary-space-xs);
     font-size: 0.75rem;
   }
+
+  .cutting-history-summary-root .modal-table {
+    min-width: 800px;
+  }
+
+  .cutting-history-summary-root .action-buttons {
+    flex-direction: row;
+  }
 }
 
 @media (max-width: 480px) {
@@ -967,6 +982,14 @@
 
   .cutting-history-summary-root .modal-content {
     padding: var(--summary-space-sm);
+  }
+
+  .cutting-history-summary-root .modal-table {
+    min-width: 600px;
+  }
+
+  .cutting-history-summary-root .action-buttons {
+    flex-direction: column;
   }
 }
 

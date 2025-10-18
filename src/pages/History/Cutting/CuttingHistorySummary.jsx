@@ -163,7 +163,8 @@ const CuttingHistorySummary = () => {
   // Modal handlers
   const openModal = (item) => {
     setSelectedItem(item);
-    setIsModalOpen(true);
+    // Force reflow to ensure clean render
+    setTimeout(() => setIsModalOpen(true), 10);
     setIsEditMode(false);
     setOpError(null);
     document.body.style.overflow = "hidden";
@@ -172,24 +173,25 @@ const CuttingHistorySummary = () => {
   const closeModal = () => {
     if (
       isEditMode &&
-      window.confirm(
+      !window.confirm(
         "Anda memiliki perubahan yang belum disimpan. Tutup modal?",
       )
     ) {
-      // Confirmed
-    } else if (isEditMode) {
       return; // Don't close if user cancels
     }
 
     setIsModalOpen(false);
-    setSelectedItem(null);
-    setIsEditMode(false);
-    setDraftHeader({});
-    setDraftEntries([]);
-    setOpError(null);
-    setUpdatingHole(null);
-    setUpdatingFoaming(null);
-    document.body.style.overflow = "auto";
+    // Delay cleanup to allow transition
+    setTimeout(() => {
+      setSelectedItem(null);
+      setIsEditMode(false);
+      setDraftHeader({});
+      setDraftEntries([]);
+      setOpError(null);
+      setUpdatingHole(null);
+      setUpdatingFoaming(null);
+      document.body.style.overflow = "auto";
+    }, 300); // Match with CSS transition duration
   };
 
   const handleEdit = () => {
@@ -301,9 +303,11 @@ const CuttingHistorySummary = () => {
       // Refresh data and close modal
       await fetchData();
       setIsModalOpen(false);
-      setSelectedItem(null);
-      setIsEditMode(false);
-      document.body.style.overflow = "auto";
+      setTimeout(() => {
+        setSelectedItem(null);
+        setIsEditMode(false);
+        document.body.style.overflow = "auto";
+      }, 300);
 
       alert("✅ Data berhasil diupdate!");
     } catch (err) {
@@ -332,9 +336,11 @@ const CuttingHistorySummary = () => {
       // Refresh data and close modal
       await fetchData();
       setIsModalOpen(false);
-      setSelectedItem(null);
-      setIsEditMode(false);
-      document.body.style.overflow = "auto";
+      setTimeout(() => {
+        setSelectedItem(null);
+        setIsEditMode(false);
+        document.body.style.overflow = "auto";
+      }, 300);
 
       alert("✅ Data berhasil dihapus!");
     } catch (err) {
