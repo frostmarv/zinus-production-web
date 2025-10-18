@@ -1,0 +1,196 @@
+/* WorkableLive.css */
+
+.workable-live-container {
+  background-color: #e9fbf0;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top Bar - hanya tanggal dan waktu */
+.top-bar {
+  background-color: #329f96;
+  color: white;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.top-bar .date {
+  font-weight: bold;
+}
+
+.top-bar .time {
+  font-weight: bold;
+}
+
+/* Main Content - wrapper untuk konten utama saja */
+.main-content {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* Konten Utama */
+.content-main {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Slide Header (untuk judul tabel) */
+.slide-header {
+  background-color: #329f96;
+  color: white;
+  padding: 8px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Table Container */
+.table-container {
+  background-color: white;
+  border: 2px solid #329f96;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  overflow: hidden;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table-container th {
+  background-color: #329f96;
+  color: white;
+  padding: 8px;
+  text-align: left;
+  font-weight: bold;
+  border-right: 1px solid white;
+}
+
+.table-container th:last-child {
+  border-right: none;
+}
+
+.table-container td {
+  padding: 8px;
+  border-right: 1px solid #329f96;
+  border-bottom: 1px solid #329f96;
+}
+
+.table-container td:last-child {
+  border-right: none;
+}
+
+.table-container tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.table-container .status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+}
+
+.status-badge.completed {
+  background-color: #28a745;
+}
+
+.status-badge.running {
+  background-color: #ffc107;
+  color: black;
+}
+
+.status-badge.not-started {
+  background-color: #6c757d;
+}
+
+/* Slide Indicators */
+.slide-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.slide-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #6c757d;
+  cursor: pointer;
+}
+
+.slide-indicator.active {
+  background-color: #329f96;
+  transform: scale(1.5);
+}
+
+/* Footer - logo Hyundai didekatkan ke Zinus */
+.footer {
+  background-color: #329f96;
+  color: white;
+  padding: 16px;
+  display: flex;
+  justify-content: center; /* Semua elemen di tengah */
+  align-items: center;
+  gap: 24px; /* Jarak antar grup */
+}
+
+/* Grup Zinus + Hyundai */
+.footer-group {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Jarak antar logo dan teks */
+}
+
+.footer .zinus-footer-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer .zinus-footer-center img {
+  height: 40px;
+}
+
+.footer .zinus-footer-center span {
+  font-size: 22px; /* Lebih besar lagi */
+  font-weight: bold;
+}
+
+.footer .hyundai-footer {
+  height: 40px;
+}
+
+/* Loading / Error */
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #e9fbf0;
+  color: #329f96;
+  font-size: 24px;
+}
+
+.error {
+  color: red;
+}
