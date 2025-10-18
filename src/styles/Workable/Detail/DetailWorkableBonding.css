@@ -1,76 +1,85 @@
 /* src/styles/Workable/Detail/DetailWorkableBonding.css */
 
 .detail-container {
+  background-color: #e9fbf0; /* Background sesuai WorkableBonding */
+  font-family: Arial, sans-serif;
   padding: 24px;
-  max-width: 1800px;
+  max-width: 100%;
   margin: 0 auto;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #1e293b;
-  background: #f9fafb;
   min-height: 100vh;
 }
 
-/* === Detail Header === */
-.detail-header {
+/* Top Header with Real-time Clock */
+.top-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-  gap: 16px;
+  background-color: #329f96;
+  color: white;
+  padding: 12px 24px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  margin-bottom: 20px;
 }
 
-.detail-header h1 {
-  font-size: 28px;
-  font-weight: 700;
+.header-content h1 {
+  font-size: 24px;
+  font-weight: bold;
   margin: 0;
-  color: #1e293b;
+  color: white;
 }
 
-.back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-weight: 600;
-  color: #4f46e5;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-  text-decoration: none;
-}
-
-.back-button:hover {
-  background: #f1f5ff;
-  border-color: #c7d2fe;
-  transform: translateY(-1px);
-}
-
-.header-actions {
+.header-time {
   display: flex;
-  gap: 12px;
+  gap: 16px;
+  font-weight: bold;
+  font-size: 14px;
 }
 
+.header-time .date,
+.header-time .time {
+  white-space: nowrap;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-back,
 .btn-view-ng {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
   text-decoration: none;
-  font-weight: 600;
-  border-radius: 10px;
-  transition: all 0.25s ease;
-  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.3);
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+  color: white;
+}
+
+.btn-back {
+  background-color: #329f96;
+}
+
+.btn-back:hover {
+  background-color: #2a8c82;
+}
+
+.btn-view-ng {
+  background-color: #dc2626; /* Merah untuk Data NG */
 }
 
 .btn-view-ng:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(220, 38, 38, 0.4);
+  background-color: #b91c1c;
 }
 
 /* === Loading & Error States === */
@@ -88,54 +97,35 @@
 
 /* === Table Wrapper === */
 .detail-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-  background: white;
-  border: 1px solid #e2e8f0;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table-scroll-container {
-  min-width: 100%;
-  overflow-x: auto;
+  background-color: white;
+  border: 2px solid #329f96;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .detail-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1400px; /* Ensure horizontal scroll */
+  font-size: 14px;
 }
 
 .detail-table th {
-  background: #f8fafc;
-  padding: 16px 12px;
+  background-color: #329f96;
+  color: white;
+  padding: 12px 16px;
   text-align: left;
-  font-weight: 600;
-  color: #475569;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid #e2e8f0;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  font-weight: bold;
+  /* TIDAK ADA BORDER */
 }
 
 .detail-table td {
-  padding: 16px 12px;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 14px;
-  color: #1e293b;
-  vertical-align: top;
+  padding: 12px 16px;
+  /* TIDAK ADA BORDER */
 }
 
-.detail-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.detail-table tbody tr:hover {
+/* Ganti garis dengan warna latar belakang untuk baris genap */
+.detail-table tbody tr:nth-child(even) {
   background-color: #f8fafc;
 }
 
@@ -187,61 +177,62 @@
 
 /* Status Badges */
 .status-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: bold;
+  color: white;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 
 .status-completed {
-  background: #dcfce7;
-  color: #166534;
+  background-color: #28a745;
 }
 
 .status-running {
-  background: #fff7ed;
-  color: #c2410c;
+  background-color: #ffc107;
+  color: black;
 }
 
 .status-not-started {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background-color: #6c757d;
 }
 
 .status-n-a {
-  background: #f3f4f6;
-  color: #6b7280;
+  background-color: #6c757d;
 }
 
 /* No Data */
 .no-data {
   text-align: center;
-  padding: 40px;
+  padding: 24px;
   color: #64748b;
   font-style: italic;
 }
 
-/* === Responsive === */
+/* Responsive */
 @media (max-width: 768px) {
   .detail-container {
     padding: 16px;
   }
 
-  .detail-header {
+  .top-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
 
-  .header-actions {
-    align-self: flex-end;
-  }
-
-  .back-button,
-  .btn-view-ng {
-    width: 100%;
+  .header-time {
     justify-content: center;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .detail-table th,
+  .detail-table td {
+    padding: 8px 12px;
+    font-size: 12px;
   }
 }

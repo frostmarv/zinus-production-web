@@ -1,328 +1,248 @@
 /* src/styles/Workable/WorkableBonding.css */
 
 .workable-container {
+  background-color: #e9fbf0; /* Background sesuai Workable Live */
+  font-family: Arial, sans-serif;
   padding: 24px;
-  max-width: 1800px;
+  max-width: 100%;
   margin: 0 auto;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #1e293b;
-  background: #f9fafb;
   min-height: 100vh;
 }
 
-/* === Page Header === */
-.page-header {
+/* Top Header with Real-time Clock */
+.top-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.header-content {
-  display: flex;
   align-items: center;
-  gap: 16px;
+  background-color: #329f96;
+  color: white;
+  padding: 12px 24px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  margin-bottom: 20px;
 }
 
-.header-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+.header-content h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: white; /* Tidak lagi gradasi, pakai warna solid putih */
+}
+
+.header-time {
   display: flex;
+  gap: 16px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.header-time .date,
+.header-time .time {
+  white-space: nowrap;
+}
+
+/* Stats Grid - Horizontal Card Style */
+.stats-grid {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background-color: white; /* Latar putih seperti gambar */
+  color: #329f96; /* Warna teks teal */
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: white;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  gap: 8px;
+  min-width: 120px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Efek melayang halus */
+  border: 1px solid #e2e8f0; /* Border tipis untuk definisi */
 }
 
-.header-text h1 {
-  font-size: 28px;
-  font-weight: 700;
+.stat-icon {
+  color: #329f96; /* Ikon warna teal */
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+
+.stat-content h3 {
+  font-size: 20px;
+  font-weight: bold;
   margin: 0;
-  color: #1e293b;
+  color: #1e293b; /* Warna hitam pekat untuk angka */
 }
 
-.header-subtitle {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-size: 15px;
-  font-weight: 400;
+.stat-content p {
+  font-size: 12px;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b; /* Warna abu-abu untuk label */
 }
 
-.header-actions .btn-back {
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-back,
+.btn-detail-workable {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-weight: 600;
-  color: #4f46e5;
+  background-color: #329f96;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
   text-decoration: none;
-}
-
-.header-actions .btn-back:hover {
-  background: #f1f5ff;
-  border-color: #c7d2fe;
-  transform: translateY(-1px);
-}
-
-/* === Stats Grid === */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 28px;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: 1px solid #f1f5f9;
-}
-
-.stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-}
-
-.stat-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0f9ff;
-  color: #0ea5e9;
-}
-
-.stat-card:nth-child(2) .stat-icon {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.stat-card:nth-child(3) .stat-icon {
-  background: #fff7ed;
-  color: #ea580c;
-}
-
-.stat-card:nth-child(4) .stat-icon {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.stat-content h3 {
-  font-size: 26px;
-  font-weight: 700;
-  margin: 0;
-  color: #1e293b;
-}
-
-.stat-content p {
-  margin: 4px 0 0;
-  color: #64748b;
   font-size: 14px;
-  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
-/* === Action Button === */
-.action-button-wrapper {
-  text-align: right;
-  margin-bottom: 24px;
+.btn-back:hover,
+.btn-detail-workable:hover {
+  background-color: #2a8c82;
 }
 
-.btn-detail-header {
+/* Badge Detail Workable — Sesuai Gambar */
+.btn-detail-workable {
+  background-color: #2563eb; /* Biru solid seperti gambar */
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  color: white;
   text-decoration: none;
-  font-weight: 600;
-  border-radius: 12px;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+  color: white;
 }
 
-.btn-detail-header:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+.btn-detail-workable:hover {
+  background-color: #1d4ed8;
 }
 
-/* === Table Wrapper (Horizontal Scroll) === */
+/* Table Wrapper */
 .table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-  background: white;
-  border: 1px solid #e2e8f0;
-  -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
-}
-
-.table-scroll-container {
-  min-width: 100%;
-  overflow-x: auto;
+  background-color: white;
+  border: 2px solid #329f96;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .workable-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1100px; /* Ensures horizontal scroll on small screens */
+  font-size: 14px;
 }
 
 .workable-table th {
-  background: #f8fafc;
-  padding: 16px 18px;
+  background-color: #329f96;
+  color: white;
+  padding: 12px 16px;
   text-align: left;
-  font-weight: 600;
-  color: #475569;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid #e2e8f0;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  font-weight: bold;
+  /* TIDAK ADA BORDER */
 }
 
 .workable-table td {
-  padding: 16px 18px;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 14px;
-  color: #1e293b;
-  vertical-align: top;
+  padding: 12px 16px;
+  /* TIDAK ADA BORDER */
 }
 
-.workable-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.workable-table tbody tr:hover {
+/* Ganti garis dengan warna latar belakang untuk baris genap */
+.workable-table tbody tr:nth-child(even) {
   background-color: #f8fafc;
 }
 
-/* Cell Styling */
-.sku-cell span {
-  font-family: 'Consolas', monospace;
-  font-size: 13px;
-  background: #f1f5f9;
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: #334155;
-}
-
-.qty-cell,
-.workable-cell,
-.bonding-cell,
-.remain-cell {
-  font-weight: 600;
-  text-align: right;
-}
-
-.remain-cell.negative {
-  color: #ef4444;
-}
-
-.remarks-cell {
-  max-width: 200px;
-  word-wrap: break-word;
-  line-height: 1.4;
-}
-
-/* Status Badges */
+/* Status Badge */
 .status-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: bold;
+  color: white;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 
 .status-completed {
-  background: #dcfce7;
-  color: #166534;
+  background-color: #28a745;
 }
 
 .status-running {
-  background: #fff7ed;
-  color: #c2410c;
+  background-color: #ffc107;
+  color: black;
 }
 
 .status-not-started {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background-color: #6c757d;
 }
 
 .status-unknown {
-  background: #f3f4f6;
-  color: #6b7280;
+  background-color: #6c757d;
 }
 
-/* No Data / Loading States */
+/* Remain Cell Negative */
+.remain-cell.negative {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+/* No Data / Loading */
 .no-data {
   text-align: center;
-  padding: 60px 20px;
+  padding: 24px;
   color: #64748b;
+  font-style: italic;
 }
 
-.no-data svg {
-  margin-bottom: 16px;
-  color: #cbd5e1;
-}
-
-.loading-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #e2e8f0;
-  border-top: 3px solid #4f46e5;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* === Responsive === */
+/* Responsive */
 @media (max-width: 768px) {
   .workable-container {
     padding: 16px;
   }
 
-  .page-header {
+  .top-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-time {
+    justify-content: center;
+  }
+
+  .stats-grid {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .header-actions {
-    align-self: flex-end;
+  .stat-card {
+    min-width: auto;
+    width: 100%;
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .action-buttons {
+    flex-direction: column;
   }
 
-  .action-button-wrapper {
-    text-align: left;
+  .workable-table th,
+  .workable-table td {
+    padding: 8px 12px;
+    font-size: 12px;
   }
 }

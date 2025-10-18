@@ -1,27 +1,32 @@
-/* Login.css — Desain elegan Zinus Production */
+/* Login.css — Desain elegan Zinus Production (Scoped) */
 
-/* === Variabel warna utama === */
-:root {
+/* === Define CSS Variables in Scoped Root === */
+.login-root {
   --green-dark: #003628;
   --bg-light: #eaf7f1;
   --text-dark: #003628;
   --border-color: #003628;
 }
 
-body {
+/* === Base Styles (Scoped) === */
+.login-root {
   margin: 0;
   padding: 0;
   font-family: "Poppins", sans-serif;
   background-color: var(--bg-light);
+  height: 100vh;
+  display: flex;
 }
 
-.login-page {
+/* === Page Layout === */
+.login-root .login-page {
   display: flex;
   height: 100vh;
+  width: 100%;
 }
 
 /* === KIRI (Gambar Kasur) === */
-.login-left {
+.login-root .login-left {
   flex: 1;
   background-color: var(--green-dark);
   display: flex;
@@ -31,7 +36,7 @@ body {
   border-bottom-right-radius: 30px;
 }
 
-.image-wrapper img {
+.login-root .image-wrapper img {
   width: 90%;
   max-width: 600px;
   border-radius: 20px;
@@ -39,7 +44,7 @@ body {
 }
 
 /* === KANAN (Form Login) === */
-.login-right {
+.login-root .login-right {
   flex: 1;
   display: flex;
   align-items: center;
@@ -51,26 +56,26 @@ body {
   padding: 2rem;
 }
 
-.login-card {
+.login-root .login-card {
   width: 100%;
   max-width: 400px;
   text-align: center;
   color: var(--text-dark);
 }
 
-.logo-top img {
+.login-root .logo-top img {
   width: 80px;
   margin-bottom: 1rem;
 }
 
-h1 {
+.login-root h1 {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.3rem;
   color: var(--text-dark);
 }
 
-h2 {
+.login-root h2 {
   font-size: 1.3rem;
   margin-bottom: 1.5rem;
   font-weight: 700;
@@ -78,18 +83,18 @@ h2 {
 }
 
 /* === Error Message === */
-.error-message {
+.login-root .error-message {
   color: red;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
 
 /* === Input Group === */
-.input-group {
+.login-root .input-group {
   margin-bottom: 1rem;
 }
 
-.input-group input {
+.login-root .input-group input {
   width: 100%;
   padding: 0.8rem;
   border: 2px solid var(--border-color);
@@ -97,15 +102,16 @@ h2 {
   outline: none;
   font-size: 0.95rem;
   transition: 0.2s;
+  background-color: white;
 }
 
-.input-group input:focus {
+.login-root .input-group input:focus {
   border-color: #006b4b;
   box-shadow: 0 0 4px rgba(0, 54, 40, 0.3);
 }
 
 /* === Opsi bawah input === */
-.options {
+.login-root .options {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -113,17 +119,17 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
-.options a {
+.login-root .options a {
   color: var(--text-dark);
   text-decoration: none;
 }
 
-.options a:hover {
+.login-root .options a:hover {
   text-decoration: underline;
 }
 
 /* === Tombol Login === */
-.btn-login {
+.login-root .btn-login {
   width: 100%;
   padding: 0.8rem;
   border-radius: 8px;
@@ -136,13 +142,13 @@ h2 {
   transition: 0.3s;
 }
 
-.btn-login:hover {
+.login-root .btn-login:hover {
   background-color: var(--green-dark);
   color: white;
 }
 
 /* === Footer === */
-footer {
+.login-root footer {
   margin-top: 2rem;
   font-size: 0.8rem;
   color: var(--text-dark);
@@ -150,21 +156,21 @@ footer {
 
 /* === Responsif === */
 @media (max-width: 900px) {
-  .login-page {
+  .login-root .login-page {
     flex-direction: column;
   }
 
-  .login-left {
+  .login-root .login-left {
     border-radius: 0;
     height: 40vh;
   }
 
-  .login-right {
+  .login-root .login-right {
     border-radius: 0;
     height: 60vh;
   }
 
-  .login-card {
+  .login-root .login-card {
     max-width: 90%;
   }
 }

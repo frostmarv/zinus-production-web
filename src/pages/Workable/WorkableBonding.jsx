@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
-  Package,
   BarChart3,
   CheckCircle,
   Clock,
@@ -19,6 +18,15 @@ const WorkableBonding = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [autoRefreshActive, setAutoRefreshActive] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Real-time clock
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,153 +99,140 @@ const WorkableBonding = () => {
 
   return (
     <div className="workable-container">
-      <div className="page-header">
+      {/* Top Header with Real-time Clock */}
+      <div className="top-header">
         <div className="header-content">
-          <div className="header-icon">
-            <Package size={32} />
-          </div>
-          <div className="header-text">
-            <h1 className="header-title">Workable Bonding</h1>
-            <p className="header-subtitle">
-              Daftar data workable bonding yang siap untuk diproses
-            </p>
-          </div>
+          <h1 className="header-title">Workable Bonding</h1>
         </div>
-        <div className="header-actions">
-          <button onClick={handleBack} className="btn-back">
-            <ArrowLeft size={16} />
-            Kembali
-          </button>
+        <div className="header-time">
+          <span className="date">
+            {currentTime.toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            })}
+          </span>
+          <span className="time">
+            {currentTime.toLocaleTimeString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              timeZone: "Asia/Jakarta",
+            })}{" "}
+            WIB
+          </span>
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Horizontal, dengan ikon */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon">
-            <BarChart3 size={24} />
-          </div>
+          <BarChart3 size={20} className="stat-icon" />
           <div className="stat-content">
             <h3>{calculateWorkableTotal().toLocaleString()}</h3>
-            <p>Workable Total</p>
+            <p>WORKABLE TOTAL</p>
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">
-            <CheckCircle size={24} />
-          </div>
+          <CheckCircle size={20} className="stat-icon" />
           <div className="stat-content">
             <h3>{countByStatus("Completed")}</h3>
-            <p>Completed</p>
+            <p>COMPLETED</p>
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">
-            <Clock size={24} />
-          </div>
+          <Clock size={20} className="stat-icon" />
           <div className="stat-content">
             <h3>{countByStatus("Running")}</h3>
-            <p>Running</p>
+            <p>RUNNING</p>
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">
-            <AlertCircle size={24} />
-          </div>
+          <AlertCircle size={20} className="stat-icon" />
           <div className="stat-content">
             <h3>{countByStatus("Not Started") + countByStatus("N/A")}</h3>
-            <p>Belum Dimulai</p>
+            <p>NOT STARTED</p>
           </div>
         </div>
       </div>
 
-      <div className="action-button-wrapper">
-        <Link to="/workable/bonding/detail" className="btn-detail-header">
-          <Eye size={16} />
-          Lihat Detail Workable
+      {/* Action Buttons */}
+      <div className="action-buttons">
+        <button onClick={handleBack} className="btn-back">
+          <ArrowLeft size={16} /> KEMBALI
+        </button>
+        <Link to="/workable/bonding/detail" className="btn-detail-workable">
+          <Eye size={16} /> DETAIL WORKABLE
         </Link>
       </div>
 
+      {/* Table */}
       <div className="table-wrapper">
-        <div className="table-scroll-container">
-          <table className="workable-table">
-            <thead>
+        <table className="workable-table">
+          <thead>
+            <tr>
+              <th>WEEK</th>
+              <th>SHIP TO NAME</th>
+              <th>SKU</th>
+              <th>QTY ORDER</th>
+              <th>WORKABLE</th>
+              <th>BONDING</th>
+              <th>REMAIN PRODUKSI</th>
+              <th>REMARKS</th>
+              <th>STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
               <tr>
-                <th>WEEK</th>
-                <th>SHIP TO NAME</th>
-                <th>SKU</th>
-                <th>QUANTITY ORDER</th>
-                <th>WORKABLE</th>
-                <th>BONDING</th>
-                <th>REMAIN</th>
-                <th>REMARKS</th>
-                <th>STATUS</th>
+                <td colSpan="9" className="no-data">
+                  Memuat data...
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="9" className="no-data">
-                    <div className="loading-spinner"></div>
-                    <p>Memuat data...</p>
+            ) : error ? (
+              <tr>
+                <td colSpan="9" className="no-data">
+                  Gagal memuat: {error}
+                </td>
+              </tr>
+            ) : data.length === 0 ? (
+              <tr>
+                <td colSpan="9" className="no-data">
+                  Tidak ada data
+                </td>
+              </tr>
+            ) : (
+              data.map((row) => (
+                <tr key={`${row.sku}-${row.week}-${row.shipToName}`}>
+                  <td>{row.week || "-"}</td>
+                  <td>{row.shipToName || "-"}</td>
+                  <td>{row.sku || "-"}</td>
+                  <td>{row.quantityOrder?.toLocaleString() || 0}</td>
+                  <td>{row.workable?.toLocaleString() || 0}</td>
+                  <td>{row.bonding?.toLocaleString() || 0}</td>
+                  <td
+                    className={`remain-cell ${
+                      getRemain(row) < 0 ? "negative" : ""
+                    }`}
+                  >
+                    {getRemain(row).toLocaleString()}
                   </td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan="9" className="no-data">
-                    <AlertCircle size={24} />
-                    <p>Gagal memuat: {error}</p>
-                    <p>Sistem akan mencoba lagi secara otomatis...</p>
-                  </td>
-                </tr>
-              ) : data.length === 0 ? (
-                <tr>
-                  <td colSpan="9" className="no-data">
-                    <Package size={48} />
-                    <p>Tidak ada data workable bonding</p>
-                  </td>
-                </tr>
-              ) : (
-                data.map((row) => (
-                  <tr key={`${row.sku}-${row.week}-${row.shipToName}`}>
-                    <td>{row.week || "-"}</td>
-                    <td>{row.shipToName || "-"}</td>
-                    <td className="sku-cell">
-                      <span>{row.sku || "-"}</span>
-                    </td>
-                    <td className="qty-cell">
-                      {row.quantityOrder?.toLocaleString() || 0}
-                    </td>
-                    <td className="workable-cell">
-                      {row.workable?.toLocaleString() || 0}
-                    </td>
-                    <td className="bonding-cell">
-                      {row.bonding?.toLocaleString() || 0}
-                    </td>
-                    <td
-                      className={`remain-cell ${
-                        getRemain(row) < 0 ? "negative" : ""
-                      }`}
+                  <td>{row.remarks || "-"}</td>
+                  <td>
+                    <span
+                      className={`status-badge ${getStatusClass(row.status)}`}
                     >
-                      {getRemain(row).toLocaleString()}
-                    </td>
-                    <td className="remarks-cell">{row.remarks || "-"}</td>
-                    <td>
-                      <span
-                        className={`status-badge ${getStatusClass(row.status)}`}
-                      >
-                        {row.status || "N/A"}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                      {row.status || "N/A"}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

@@ -200,7 +200,8 @@ const CuttingHistoryBalok = () => {
   }, [selectedData, deleteConfirm, isDeleting, closeModal, closeDeleteConfirm]);
 
   return (
-    <>
+    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
+    <div className="history-cutting-root">
       {/* Header */}
       <div className="history-header">
         <div className="header-content">
@@ -749,7 +750,7 @@ const CuttingHistoryBalok = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

@@ -186,7 +186,8 @@ const Dashboard = () => {
   };
 
   return (
-    <>
+    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
+    <div className="dashboard-root">
       {/* Header */}
       <div className="dashboard-header">
         <div className="header-content">
@@ -424,7 +425,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

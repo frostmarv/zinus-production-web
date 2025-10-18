@@ -1,20 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-:root {
+/* ===== Define CSS Variables in Scoped Root ===== */
+.master-data-index-root {
   --color-foam: #3b82f6;
   --color-spring: #10b981;
   --color-cutting: #8b5cf6;
 }
 
-/* Global box-sizing */
-*,
-*::before,
-*::after {
+/* Global box-sizing (Scoped) */
+.master-data-index-root *,
+.master-data-index-root *::before,
+.master-data-index-root *::after {
   box-sizing: border-box;
 }
 
 /* Container utama: sidebar + content */
-.app-container {
+.master-data-index-root {
   display: flex;
   width: 100%;
   height: 100vh;
@@ -23,7 +24,7 @@
 }
 
 /* Konten utama (MasterDataIndex) */
-.master-data-index-container {
+.master-data-index-root .master-data-index-container {
   flex: 1;
   min-height: 100vh;
   overflow-y: auto;
@@ -35,7 +36,7 @@
 }
 
 /* Background dekoratif */
-.master-data-index-container::before {
+.master-data-index-root .master-data-index-container::before {
   content: '';
   position: absolute;
   top: 0;
@@ -48,7 +49,7 @@
 }
 
 /* Header */
-.master-data-header {
+.master-data-index-root .master-data-header {
   text-align: center;
   margin-bottom: 56px;
   padding: 48px 32px 24px 32px;
@@ -56,7 +57,7 @@
   z-index: 1;
 }
 
-.master-data-header .header-icon {
+.master-data-index-root .master-data-header .header-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -80,7 +81,7 @@
   }
 }
 
-.master-data-header .header-icon::before {
+.master-data-index-root .master-data-header .header-icon::before {
   content: '';
   position: absolute;
   inset: -2px;
@@ -91,7 +92,7 @@
   filter: blur(12px);
 }
 
-.master-data-header h1 {
+.master-data-index-root .master-data-header h1 {
   color: #0f172a;
   margin: 0 0 16px 0;
   font-size: 2.25rem;
@@ -100,7 +101,7 @@
   line-height: 1.2;
 }
 
-.master-data-header p {
+.master-data-index-root .master-data-header p {
   color: #475569;
   margin: 0;
   font-size: 1.125rem;
@@ -111,7 +112,7 @@
 }
 
 /* Grid menu */
-.menu-grid {
+.master-data-index-root .menu-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(260px, 1fr));
   gap: 24px;
@@ -121,7 +122,7 @@
 }
 
 /* Kartu menu */
-.menu-card {
+.master-data-index-root .menu-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 20px;
@@ -138,7 +139,7 @@
   min-width: 0; /* 👈 Penting untuk mencegah overflow */
 }
 
-.menu-card::after {
+.master-data-index-root .menu-card::after {
   content: '';
   position: absolute;
   top: 0;
@@ -151,7 +152,7 @@
   pointer-events: none;
 }
 
-.menu-card::before {
+.master-data-index-root .menu-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -164,26 +165,26 @@
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.menu-card:hover {
+.master-data-index-root .menu-card:hover {
   transform: translateY(-6px) scale(1.015);
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1), 0 6px 12px rgba(0, 0, 0, 0.06);
   border-color: rgba(148, 163, 184, 0.4);
 }
 
-.menu-card:hover::after {
+.master-data-index-root .menu-card:hover::after {
   opacity: 1;
 }
 
-.menu-card:hover::before {
+.master-data-index-root .menu-card:hover::before {
   transform: scaleY(1);
   transform-origin: top;
 }
 
-.menu-card:active {
+.master-data-index-root .menu-card:active {
   transform: translateY(-3px) scale(1.01);
 }
 
-.icon-container {
+.master-data-index-root .icon-container {
   width: 64px;
   height: 64px;
   border-radius: 16px;
@@ -198,7 +199,7 @@
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.icon-container::before {
+.master-data-index-root .icon-container::before {
   content: '';
   position: absolute;
   inset: -2px;
@@ -210,20 +211,20 @@
   transition: opacity 0.35s ease;
 }
 
-.menu-card:hover .icon-container {
+.master-data-index-root .menu-card:hover .icon-container {
   transform: scale(1.08);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
 }
 
-.menu-card:hover .icon-container::before {
+.master-data-index-root .menu-card:hover .icon-container::before {
   opacity: 0.35;
 }
 
-.menu-content {
+.master-data-index-root .menu-content {
   flex: 1;
 }
 
-.menu-content h3 {
+.master-data-index-root .menu-content h3 {
   margin: 0 0 6px 0;
   color: #0f172a;
   font-size: 1.1875rem;
@@ -231,14 +232,14 @@
   line-height: 1.3;
 }
 
-.menu-content p {
+.master-data-index-root .menu-content p {
   margin: 0;
   color: #64748b;
   font-size: 0.9375rem;
   line-height: 1.55;
 }
 
-.arrow-icon {
+.master-data-index-root .arrow-icon {
   color: #cbd5e1;
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -246,7 +247,7 @@
   transform: translateX(-6px);
 }
 
-.menu-card:hover .arrow-icon {
+.master-data-index-root .menu-card:hover .arrow-icon {
   opacity: 1;
   transform: translateX(0);
   color: var(--card-accent-color, #3b82f6);
@@ -254,124 +255,124 @@
 
 /* RESPONSIF — KARTU MENGEcil, BUKAN LAYOUT BERUBAH */
 @media (max-width: 1200px) {
-  .menu-grid {
+  .master-data-index-root .menu-grid {
     gap: 20px;
     padding: 0 24px 40px 24px;
   }
 
-  .menu-card {
+  .master-data-index-root .menu-card {
     padding: 24px;
     gap: 18px;
   }
 
-  .icon-container {
+  .master-data-index-root .icon-container {
     width: 60px;
     height: 60px;
   }
 }
 
 @media (max-width: 1024px) {
-  .master-data-header {
+  .master-data-index-root .master-data-header {
     padding: 40px 24px 20px 24px;
   }
 
-  .master-data-header h1 {
+  .master-data-index-root .master-data-header h1 {
     font-size: 2rem;
   }
 
-  .menu-grid {
+  .master-data-index-root .menu-grid {
     gap: 18px;
     padding: 0 20px 36px 20px;
   }
 
-  .menu-card {
+  .master-data-index-root .menu-card {
     padding: 22px;
     gap: 16px;
   }
 
-  .icon-container {
+  .master-data-index-root .icon-container {
     width: 56px;
     height: 56px;
   }
 
-  .menu-content h3 {
+  .master-data-index-root .menu-content h3 {
     font-size: 1.125rem;
   }
 }
 
 @media (max-width: 768px) {
-  .master-data-header {
+  .master-data-index-root .master-data-header {
     padding: 32px 20px 20px 20px;
   }
 
-  .master-data-header .header-icon {
+  .master-data-index-root .master-data-header .header-icon {
     width: 68px;
     height: 68px;
     margin-bottom: 20px;
   }
 
-  .master-data-header h1 {
+  .master-data-index-root .master-data-header h1 {
     font-size: 1.875rem;
   }
 
-  .menu-grid {
+  .master-data-index-root .menu-grid {
     gap: 16px;
     padding: 0 16px 32px 16px;
   }
 
-  .menu-card {
+  .master-data-index-root .menu-card {
     padding: 20px;
     gap: 14px;
   }
 
-  .icon-container {
+  .master-data-index-root .icon-container {
     width: 52px;
     height: 52px;
   }
 
-  .menu-content h3 {
+  .master-data-index-root .menu-content h3 {
     font-size: 1.0625rem;
   }
 
-  .menu-content p {
+  .master-data-index-root .menu-content p {
     font-size: 0.875rem;
   }
 
-  .arrow-icon {
+  .master-data-index-root .arrow-icon {
     opacity: 1;
     transform: translateX(0);
   }
 }
 
 @media (max-width: 480px) {
-  .master-data-header {
+  .master-data-index-root .master-data-header {
     padding: 24px 12px 16px 12px;
   }
 
-  .master-data-header h1 {
+  .master-data-index-root .master-data-header h1 {
     font-size: 1.625rem;
   }
 
-  .menu-grid {
+  .master-data-index-root .menu-grid {
     gap: 12px;
     padding: 0 12px 24px 12px;
   }
 
-  .menu-card {
+  .master-data-index-root .menu-card {
     padding: 18px;
     gap: 12px;
   }
 
-  .icon-container {
+  .master-data-index-root .icon-container {
     width: 48px;
     height: 48px;
   }
 
-  .menu-content h3 {
+  .master-data-index-root .menu-content h3 {
     font-size: 1rem;
   }
 
-  .menu-content p {
+  .master-data-index-root .menu-content p {
     font-size: 0.8125rem;
   }
 }

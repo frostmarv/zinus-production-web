@@ -37,40 +37,42 @@ const MasterDataIndex = () => {
   ];
 
   return (
-    // ✅ HANYA kembalikan konten utama, TANPA .app-container
-    <div className="master-data-index-container">
-      <div className="master-data-header">
-        <div className="header-icon">
-          <Database size={36} />
+    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
+    <div className="master-data-index-root">
+      <div className="master-data-index-container">
+        <div className="master-data-header">
+          <div className="header-icon">
+            <Database size={36} />
+          </div>
+          <h1>Master Data Management</h1>
+          <p>
+            Sistem terpusat untuk mengelola data inti produksi secara efisien
+            dan akurat.
+          </p>
         </div>
-        <h1>Master Data Management</h1>
-        <p>
-          Sistem terpusat untuk mengelola data inti produksi secara efisien dan
-          akurat.
-        </p>
-      </div>
 
-      <div className="menu-grid">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <div
-              key={item.id}
-              className="menu-card"
-              onClick={() => navigate(item.path)}
-              style={{ "--card-accent-color": item.color }}
-            >
-              <div className="icon-container">
-                <Icon size={28} />
+        <div className="menu-grid">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.id}
+                className="menu-card"
+                onClick={() => navigate(item.path)}
+                style={{ "--card-accent-color": item.color }}
+              >
+                <div className="icon-container">
+                  <Icon size={28} />
+                </div>
+                <div className="menu-content">
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                </div>
+                <ChevronRight size={20} className="arrow-icon" />
               </div>
-              <div className="menu-content">
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </div>
-              <ChevronRight size={20} className="arrow-icon" />
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -48,7 +48,8 @@ const CuttingHistoryIndex = () => {
   };
 
   return (
-    <>
+    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
+    <div className="cutting-history-index-root">
       {/* Header */}
       <div className="cutting-history-index-header">
         <div className="header-content">
@@ -127,7 +128,7 @@ const CuttingHistoryIndex = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -1,5 +1,7 @@
-/* CSS Variables for consistent theming */
-:root {
+/* CSS Variables for InputCutting.css (Scoped) */
+
+/* ===== Define CSS Variables in Scoped Root ===== */
+.input-cutting-root {
   --cutting-primary-color: #374151;
   --cutting-primary-hover: #1f2937;
   --cutting-primary-light: #f3f4f6;
@@ -41,15 +43,21 @@
   --cutting-transition-slow: all 0.3s ease-in-out;
 }
 
-/* Main Container */
-.cutting-container {
-  min-height: 100vh;
-  background: var(--cutting-bg-secondary);
-  padding: var(--cutting-spacing-lg);
+/* ===== Base Font (Scoped) ===== */
+.input-cutting-root *,
+.input-cutting-root *::before,
+.input-cutting-root *::after {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.cutting-card {
+/* Main Container */
+.input-cutting-root .cutting-container {
+  min-height: 100vh;
+  background: var(--cutting-bg-secondary);
+  padding: var(--cutting-spacing-lg);
+}
+
+.input-cutting-root .cutting-card {
   max-width: 1200px;
   margin: 0 auto;
   background: var(--cutting-bg-primary);
@@ -59,7 +67,7 @@
   position: relative;
 }
 
-.cutting-card::before {
+.input-cutting-root .cutting-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -69,18 +77,18 @@
   background: var(--cutting-primary-color);
 }
 
-.cutting-form-wrapper {
+.input-cutting-root .cutting-form-wrapper {
   padding: var(--cutting-spacing-2xl);
 }
 
 /* Header Styles */
-.cutting-header {
+.input-cutting-root .cutting-header {
   text-align: center;
   margin-bottom: var(--cutting-spacing-2xl);
   position: relative;
 }
 
-.cutting-title {
+.input-cutting-root .cutting-title {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -92,7 +100,7 @@
   letter-spacing: -0.025em;
 }
 
-.cutting-title-icon {
+.input-cutting-root .cutting-title-icon {
   padding: var(--cutting-spacing-md);
   background: var(--cutting-primary-color);
   border-radius: var(--cutting-radius-lg);
@@ -102,11 +110,11 @@
   transition: var(--cutting-transition-base);
 }
 
-.cutting-title:hover .cutting-title-icon {
+.input-cutting-root .cutting-title:hover .cutting-title-icon {
   transform: rotate(0deg) scale(1.05);
 }
 
-.cutting-subtitle {
+.input-cutting-root .cutting-subtitle {
   font-size: 1.125rem;
   color: var(--cutting-text-secondary);
   font-weight: 400;
@@ -116,7 +124,7 @@
 }
 
 /* Error Banner */
-.cutting-error-banner {
+.input-cutting-root .cutting-error-banner {
   background: var(--cutting-error-light);
   color: var(--cutting-error-color);
   padding: var(--cutting-spacing-md);
@@ -139,11 +147,11 @@
 }
 
 /* Form Styles */
-.cutting-form {
+.input-cutting-root .cutting-form {
   space-y: var(--cutting-spacing-xl);
 }
 
-.cutting-section {
+.input-cutting-root .cutting-section {
   background: var(--cutting-bg-secondary);
   border-radius: var(--cutting-radius-lg);
   padding: var(--cutting-spacing-xl);
@@ -153,7 +161,7 @@
   overflow: hidden;
 }
 
-.cutting-section::before {
+.input-cutting-root .cutting-section::before {
   content: '';
   position: absolute;
   top: 0;
@@ -163,17 +171,17 @@
   background: var(--cutting-primary-color);
 }
 
-.cutting-section:hover {
+.input-cutting-root .cutting-section:hover {
   border-color: var(--cutting-border-hover);
   transform: translateY(-2px);
   box-shadow: var(--cutting-shadow-md);
 }
 
-.cutting-section-header {
+.input-cutting-root .cutting-section-header {
   margin-bottom: var(--cutting-spacing-lg);
 }
 
-.cutting-section-title {
+.input-cutting-root .cutting-section-title {
   display: flex;
   align-items: center;
   gap: var(--cutting-spacing-sm);
@@ -183,19 +191,19 @@
   margin: 0;
 }
 
-.cutting-section-title svg {
+.input-cutting-root .cutting-section-title svg {
   color: var(--cutting-primary-color);
 }
 
 /* Grid Layouts */
-.cutting-header-grid {
+.input-cutting-root .cutting-header-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--cutting-spacing-lg);
   margin-top: var(--cutting-spacing-lg);
 }
 
-.cutting-grid {
+.input-cutting-root .cutting-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--cutting-spacing-lg);
@@ -203,11 +211,11 @@
 }
 
 /* Field Groups */
-.cutting-field-group {
+.input-cutting-root .cutting-field-group {
   position: relative;
 }
 
-.cutting-label {
+.input-cutting-root .cutting-label {
   display: flex;
   align-items: center;
   gap: var(--cutting-spacing-xs);
@@ -218,20 +226,20 @@
   letter-spacing: 0.025em;
 }
 
-.cutting-label-icon {
+.input-cutting-root .cutting-label-icon {
   display: flex;
   align-items: center;
   color: var(--cutting-primary-color);
 }
 
-.cutting-label-icon svg {
+.input-cutting-root .cutting-label-icon svg {
   width: 16px;
   height: 16px;
 }
 
 /* Input Styles */
-.cutting-input,
-.cutting-select {
+.input-cutting-root .cutting-input,
+.input-cutting-root .cutting-select {
   width: 100%;
   padding: var(--cutting-spacing-sm) var(--cutting-spacing-md);
   border: 2px solid var(--cutting-border-color);
@@ -244,45 +252,45 @@
   position: relative;
 }
 
-.cutting-input:focus,
-.cutting-select:focus {
+.input-cutting-root .cutting-input:focus,
+.input-cutting-root .cutting-select:focus {
   border-color: var(--cutting-primary-color);
   box-shadow: 0 0 0 3px var(--cutting-primary-light);
   background: var(--cutting-bg-primary);
 }
 
-.cutting-input:hover:not(:disabled),
-.cutting-select:hover:not(:disabled) {
+.input-cutting-root .cutting-input:hover:not(:disabled),
+.input-cutting-root .cutting-select:hover:not(:disabled) {
   border-color: var(--cutting-border-hover);
 }
 
-.cutting-input:disabled,
-.cutting-select:disabled {
+.input-cutting-root .cutting-input:disabled,
+.input-cutting-root .cutting-select:disabled {
   background: var(--cutting-bg-tertiary);
   color: var(--cutting-text-muted);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.cutting-input-readonly {
+.input-cutting-root .cutting-input-readonly {
   background: var(--cutting-bg-tertiary);
   color: var(--cutting-text-secondary);
   cursor: default;
 }
 
 /* Make readonly inputs bold when they have values (not empty) */
-.cutting-input-readonly:not([value=""]):not(:placeholder-shown) {
+.input-cutting-root .cutting-input-readonly:not([value=""]):not(:placeholder-shown) {
   font-weight: 700;
   color: var(--cutting-text-primary);
 }
 
 /* Alternative approach - add this class via JavaScript when value is filled */
-.cutting-input-readonly.has-value {
+.input-cutting-root .cutting-input-readonly.has-value {
   font-weight: 700;
   color: var(--cutting-text-primary);
 }
 
-.cutting-select {
+.input-cutting-root .cutting-select {
   cursor: pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -295,18 +303,18 @@
 }
 
 /* Quantity Produksi Input - Remove Scrollbar */
-.cutting-input[type="number"] {
+.input-cutting-root .cutting-input[type="number"] {
   -moz-appearance: textfield;
 }
 
-.cutting-input[type="number"]::-webkit-outer-spin-button,
-.cutting-input[type="number"]::-webkit-inner-spin-button {
+.input-cutting-root .cutting-input[type="number"]::-webkit-outer-spin-button,
+.input-cutting-root .cutting-input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
 /* Form Entry Styles */
-.cutting-form-entry {
+.input-cutting-root .cutting-form-entry {
   background: var(--cutting-bg-primary);
   border-radius: var(--cutting-radius-lg);
   padding: var(--cutting-spacing-xl);
@@ -316,19 +324,19 @@
   transition: var(--cutting-transition-base);
 }
 
-.cutting-form-entry:hover {
+.input-cutting-root .cutting-form-entry:hover {
   border-color: var(--cutting-border-hover);
   box-shadow: var(--cutting-shadow-sm);
 }
 
-.cutting-form-entry-header {
+.input-cutting-root .cutting-form-entry-header {
   display: flex;
   justify-content: flex-end;
   margin-bottom: var(--cutting-spacing-md);
 }
 
 /* Button Styles */
-.cutting-remove-btn {
+.input-cutting-root .cutting-remove-btn {
   padding: var(--cutting-spacing-xs);
   background: var(--cutting-error-light);
   color: var(--cutting-error-color);
@@ -341,24 +349,24 @@
   justify-content: center;
 }
 
-.cutting-remove-btn:hover:not(:disabled) {
+.input-cutting-root .cutting-remove-btn:hover:not(:disabled) {
   background: var(--cutting-error-color);
   color: white;
   transform: scale(1.1);
 }
 
-.cutting-remove-btn:disabled {
+.input-cutting-root .cutting-remove-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.cutting-add-entry-container {
+.input-cutting-root .cutting-add-entry-container {
   display: flex;
   justify-content: center;
   margin-top: var(--cutting-spacing-lg);
 }
 
-.cutting-add-btn {
+.input-cutting-root .cutting-add-btn {
   display: flex;
   align-items: center;
   gap: var(--cutting-spacing-xs);
@@ -375,23 +383,23 @@
   letter-spacing: 0.025em;
 }
 
-.cutting-add-btn:hover:not(:disabled) {
+.input-cutting-root .cutting-add-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--cutting-shadow-lg);
   background: #047857;
 }
 
-.cutting-add-btn:active {
+.input-cutting-root .cutting-add-btn:active {
   transform: translateY(0);
 }
 
-.cutting-add-btn:disabled {
+.input-cutting-root .cutting-add-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-.cutting-submit-container {
+.input-cutting-root .cutting-submit-container {
   display: flex;
   justify-content: center;
   padding-top: var(--cutting-spacing-xl);
@@ -399,7 +407,7 @@
   margin-top: var(--cutting-spacing-xl);
 }
 
-.cutting-submit-btn {
+.input-cutting-root .cutting-submit-btn {
   padding: var(--cutting-spacing-md) var(--cutting-spacing-2xl);
   background: var(--cutting-primary-color);
   color: white;
@@ -416,7 +424,7 @@
   overflow: hidden;
 }
 
-.cutting-submit-btn::before {
+.input-cutting-root .cutting-submit-btn::before {
   content: '';
   position: absolute;
   top: 0;
@@ -427,21 +435,21 @@
   transition: left 0.5s;
 }
 
-.cutting-submit-btn:hover:not(:disabled)::before {
+.input-cutting-root .cutting-submit-btn:hover:not(:disabled)::before {
   left: 100%;
 }
 
-.cutting-submit-btn:hover:not(:disabled) {
+.input-cutting-root .cutting-submit-btn:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow: var(--cutting-shadow-xl);
   background: var(--cutting-primary-hover);
 }
 
-.cutting-submit-btn:active {
+.input-cutting-root .cutting-submit-btn:active {
   transform: translateY(-1px);
 }
 
-.cutting-submit-btn:disabled {
+.input-cutting-root .cutting-submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -450,65 +458,65 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .cutting-container {
+  .input-cutting-root .cutting-container {
     padding: var(--cutting-spacing-md);
   }
 
-  .cutting-form-wrapper {
+  .input-cutting-root .cutting-form-wrapper {
     padding: var(--cutting-spacing-lg);
   }
 
-  .cutting-title {
+  .input-cutting-root .cutting-title {
     font-size: 2rem;
     flex-direction: column;
     gap: var(--cutting-spacing-sm);
   }
 
-  .cutting-header-grid,
-  .cutting-grid {
+  .input-cutting-root .cutting-header-grid,
+  .input-cutting-root .cutting-grid {
     grid-template-columns: 1fr;
     gap: var(--cutting-spacing-md);
   }
 
-  .cutting-section {
+  .input-cutting-root .cutting-section {
     padding: var(--cutting-spacing-lg);
   }
 
-  .cutting-form-entry {
+  .input-cutting-root .cutting-form-entry {
     padding: var(--cutting-spacing-lg);
   }
 }
 
 @media (max-width: 480px) {
-  .cutting-container {
+  .input-cutting-root .cutting-container {
     padding: var(--cutting-spacing-sm);
   }
 
-  .cutting-form-wrapper {
+  .input-cutting-root .cutting-form-wrapper {
     padding: var(--cutting-spacing-md);
   }
 
-  .cutting-title {
+  .input-cutting-root .cutting-title {
     font-size: 1.75rem;
   }
 
-  .cutting-section {
+  .input-cutting-root .cutting-section {
     padding: var(--cutting-spacing-md);
   }
 
-  .cutting-form-entry {
+  .input-cutting-root .cutting-form-entry {
     padding: var(--cutting-spacing-md);
   }
 
-  .cutting-submit-btn {
+  .input-cutting-root .cutting-submit-btn {
     min-width: auto;
     width: 100%;
   }
 }
 
 /* Loading States */
-.cutting-input:disabled[placeholder*="Auto-fill"],
-.cutting-input-readonly[placeholder*="Auto-fill"] {
+.input-cutting-root .cutting-input:disabled[placeholder*="Auto-fill"],
+.input-cutting-root .cutting-input-readonly[placeholder*="Auto-fill"] {
   background: linear-gradient(90deg, var(--cutting-bg-tertiary), var(--cutting-bg-secondary), var(--cutting-bg-tertiary));
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
@@ -524,28 +532,30 @@
 }
 
 /* Custom Scrollbar */
-.cutting-container::-webkit-scrollbar {
+.input-cutting-root .cutting-container::-webkit-scrollbar {
   width: 8px;
 }
 
-.cutting-container::-webkit-scrollbar-track {
+.input-cutting-root .cutting-container::-webkit-scrollbar-track {
   background: var(--cutting-bg-tertiary);
   border-radius: var(--cutting-radius-sm);
 }
 
-.cutting-container::-webkit-scrollbar-thumb {
+.input-cutting-root .cutting-container::-webkit-scrollbar-thumb {
   background: var(--cutting-border-color);
   border-radius: var(--cutting-radius-sm);
   transition: var(--cutting-transition-base);
 }
 
-.cutting-container::-webkit-scrollbar-thumb:hover {
+.input-cutting-root .cutting-container::-webkit-scrollbar-thumb:hover {
   background: var(--cutting-border-hover);
 }
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  .input-cutting-root *,
+  .input-cutting-root *::before,
+  .input-cutting-root *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -553,18 +563,18 @@
 }
 
 /* Focus visible for keyboard navigation */
-.cutting-input:focus-visible,
-.cutting-select:focus-visible,
-.cutting-add-btn:focus-visible,
-.cutting-submit-btn:focus-visible,
-.cutting-remove-btn:focus-visible {
+.input-cutting-root .cutting-input:focus-visible,
+.input-cutting-root .cutting-select:focus-visible,
+.input-cutting-root .cutting-add-btn:focus-visible,
+.input-cutting-root .cutting-submit-btn:focus-visible,
+.input-cutting-root .cutting-remove-btn:focus-visible {
   outline: 2px solid var(--cutting-primary-color);
   outline-offset: 2px;
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  :root {
+  .input-cutting-root {
     --cutting-border-color: #000000;
     --cutting-text-primary: #000000;
     --cutting-bg-primary: #ffffff;
@@ -573,18 +583,18 @@
 
 /* Print styles */
 @media print {
-  .cutting-container {
+  .input-cutting-root .cutting-container {
     background: white;
     box-shadow: none;
   }
 
-  .cutting-add-btn,
-  .cutting-submit-btn,
-  .cutting-remove-btn {
+  .input-cutting-root .cutting-add-btn,
+  .input-cutting-root .cutting-submit-btn,
+  .input-cutting-root .cutting-remove-btn {
     display: none;
   }
 
-  .cutting-section {
+  .input-cutting-root .cutting-section {
     break-inside: avoid;
     box-shadow: none;
     border: 1px solid #000;

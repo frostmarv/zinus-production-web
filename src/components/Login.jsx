@@ -27,62 +27,65 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page">
-      {/* Kiri: Gambar kasur */}
-      <div className="login-left">
-        <div className="image-wrapper">
-          <img src={bedImage} alt="Zinus Bed" />
-        </div>
-      </div>
-
-      {/* Kanan: Form Login */}
-      <div className="login-right">
-        <div className="login-card">
-          <div className="logo-top">
-            <img src={logoZinus} alt="Zinus Logo" />
+    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
+    <div className="login-root">
+      <div className="login-page">
+        {/* Kiri: Gambar kasur */}
+        <div className="login-left">
+          <div className="image-wrapper">
+            <img src={bedImage} alt="Zinus Bed" />
           </div>
+        </div>
 
-          <h1>Welcome to Zinus Production</h1>
-          <h2>Login</h2>
-
-          {error && <div className="error-message">{error}</div>}
-
-          <form onSubmit={handleSubmit}>
-            <div className="input-group">
-              <input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+        {/* Kanan: Form Login */}
+        <div className="login-right">
+          <div className="login-card">
+            <div className="logo-top">
+              <img src={logoZinus} alt="Zinus Logo" />
             </div>
 
-            <div className="input-group">
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+            <h1>Welcome to Zinus Production</h1>
+            <h2>Login</h2>
 
-            <div className="options">
-              <label>
-                <input type="checkbox" /> Remember Me
-              </label>
-              <a href="#" className="forgot-password">
-                Forgot Password?
-              </a>
-            </div>
+            {error && <div className="error-message">{error}</div>}
 
-            <button type="submit" className="btn-login" disabled={loading}>
-              {loading ? "Loading..." : "Login"}
-            </button>
-          </form>
+            <form onSubmit={handleSubmit}>
+              <div className="input-group">
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
 
-          <footer>© 2025 Nurmalik Wijaya. All Rights Reserved.</footer>
+              <div className="input-group">
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="options">
+                <label>
+                  <input type="checkbox" /> Remember Me
+                </label>
+                <a href="#" className="forgot-password">
+                  Forgot Password?
+                </a>
+              </div>
+
+              <button type="submit" className="btn-login" disabled={loading}>
+                {loading ? "Loading..." : "Login"}
+              </button>
+            </form>
+
+            <footer>© 2025 Nurmalik Wijaya. All Rights Reserved.</footer>
+          </div>
         </div>
       </div>
     </div>

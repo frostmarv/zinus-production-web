@@ -32,7 +32,8 @@ const WorkableIndex = () => {
   ];
 
   return (
-    <>
+    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
+    <div className="workable-index-root">
       {/* Header */}
       <div className="workable-header">
         <div className="header-content">
@@ -65,7 +66,7 @@ const WorkableIndex = () => {
           </Link>
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

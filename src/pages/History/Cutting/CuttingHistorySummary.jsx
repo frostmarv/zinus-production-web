@@ -344,7 +344,8 @@ const CuttingHistorySummary = () => {
   }, [isModalOpen]);
 
   return (
-    <>
+    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
+    <div className="cutting-history-summary-root">
       {/* Header */}
       <div className="cutting-history-summary-header">
         <h1>
@@ -882,7 +883,7 @@ const CuttingHistorySummary = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

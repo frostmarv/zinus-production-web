@@ -481,438 +481,445 @@ const InputCutting = () => {
   const timeOptions = getTimeOptions(headerData.shift);
 
   return (
-    <div className="cutting-container">
-      <div className="cutting-card">
-        <div className="cutting-form-wrapper">
-          <div className="cutting-header">
-            <h1 className="cutting-title">
-              <div className="cutting-title-icon">
-                <Package className="w-7 h-7" />
-              </div>
-              Input Data Cutting
-            </h1>
-            <p className="cutting-subtitle">
-              Masukkan data produksi cutting dengan lengkap dan akurat
-            </p>
-          </div>
-
-          {error && <div className="cutting-error-banner">❌ {error}</div>}
-
-          <form onSubmit={handleSubmit} className="cutting-form">
-            {/* Header Section */}
-            <div className="cutting-section">
-              <div className="cutting-section-header">
-                <h2 className="cutting-section-title">
-                  <Calendar className="w-5 h-5" /> Header Information
-                </h2>
-              </div>
-              <div className="cutting-header-grid">
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <div className="cutting-label-icon">
-                      <Calendar />
-                    </div>
-                    Timestamp
-                  </label>
-                  <input
-                    type="datetime-local"
-                    name="timestamp"
-                    value={headerData.timestamp}
-                    onChange={handleHeaderChange}
-                    className="cutting-input"
-                    required
-                    disabled={isSubmitting}
-                  />
+    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
+    <div className="input-cutting-root">
+      <div className="cutting-container">
+        <div className="cutting-card">
+          <div className="cutting-form-wrapper">
+            <div className="cutting-header">
+              <h1 className="cutting-title">
+                <div className="cutting-title-icon">
+                  <Package className="w-7 h-7" />
                 </div>
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <div className="cutting-label-icon">
-                      <Users />
-                    </div>
-                    Shift
-                  </label>
-                  <select
-                    name="shift"
-                    value={headerData.shift}
-                    onChange={handleHeaderChange}
-                    className="cutting-select"
-                    disabled={isSubmitting}
-                  >
-                    <option value="1">Shift 1</option>
-                    <option value="2">Shift 2</option>
-                  </select>
-                </div>
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <div className="cutting-label-icon">
-                      <Users />
-                    </div>
-                    Group
-                  </label>
-                  <select
-                    name="group"
-                    value={headerData.group}
-                    onChange={handleHeaderChange}
-                    className="cutting-select"
-                    disabled={isSubmitting}
-                  >
-                    <option value="A">Group A</option>
-                    <option value="B">Group B</option>
-                  </select>
-                </div>
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <div className="cutting-label-icon">
-                      <Calendar />
-                    </div>
-                    Time
-                  </label>
-                  <select
-                    name="time"
-                    value={headerData.time}
-                    onChange={handleHeaderChange}
-                    className="cutting-select"
-                    disabled={isSubmitting}
-                  >
-                    {timeOptions.map((time, index) => (
-                      <option
-                        key={`time-${headerData.shift}-${time}`}
-                        value={time}
-                      >
-                        {time}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <div className="cutting-label-icon">
-                      <Package />
-                    </div>
-                    Machine
-                  </label>
-                  <select
-                    name="machine"
-                    value={headerData.machine}
-                    onChange={handleHeaderChange}
-                    className="cutting-select"
-                    required
-                    disabled={isSubmitting}
-                  >
-                    <option value="">Pilih Machine</option>
-                    <option value="Multi Cutting 1">Multi Cutting 1</option>
-                    <option value="Multi Cutting 2">Multi Cutting 2</option>
-                    <option value="Rountable 1">Rountable 1</option>
-                    <option value="Rountable 2">Rountable 2</option>
-                    <option value="Rountable 3">Rountable 3</option>
-                    <option value="Rountable 4">Rountable 4</option>
-                    <option value="Vertikal 1">Vertikal 1</option>
-                    <option value="Vertikal 2">Vertikal 2</option>
-                    <option value="Vertikal 3">Vertikal 3</option>
-                  </select>
-                </div>
-                <div className="cutting-field-group">
-                  <label className="cutting-label">
-                    <div className="cutting-label-icon">
-                      <Users />
-                    </div>
-                    Nama Operator
-                  </label>
-                  <input
-                    type="text"
-                    name="operator"
-                    value={headerData.operator}
-                    onChange={handleHeaderChange}
-                    className="cutting-input"
-                    placeholder="Masukkan nama operator"
-                    required
-                    disabled={isSubmitting}
-                  />
-                </div>
-              </div>
+                Input Data Cutting
+              </h1>
+              <p className="cutting-subtitle">
+                Masukkan data produksi cutting dengan lengkap dan akurat
+              </p>
             </div>
 
-            {/* Form Entries */}
-            <div className="cutting-section">
-              <div className="cutting-section-header">
-                <h2 className="cutting-section-title">
-                  <FileText className="w-5 h-5" /> Form Information
-                </h2>
-              </div>
+            {error && <div className="cutting-error-banner">❌ {error}</div>}
 
-              {formEntries.map((entry, idx) => (
-                <div key={entry.id} className="cutting-form-entry">
-                  <div className="cutting-form-entry-header">
-                    {formEntries.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeFormEntry(entry.id)}
-                        className="cutting-remove-btn"
-                        disabled={isSubmitting}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+            <form onSubmit={handleSubmit} className="cutting-form">
+              {/* Header Section */}
+              <div className="cutting-section">
+                <div className="cutting-section-header">
+                  <h2 className="cutting-section-title">
+                    <Calendar className="w-5 h-5" /> Header Information
+                  </h2>
+                </div>
+                <div className="cutting-header-grid">
+                  <div className="cutting-field-group">
+                    <label className="cutting-label">
+                      <div className="cutting-label-icon">
+                        <Calendar />
+                      </div>
+                      Timestamp
+                    </label>
+                    <input
+                      type="datetime-local"
+                      name="timestamp"
+                      value={headerData.timestamp}
+                      onChange={handleHeaderChange}
+                      className="cutting-input"
+                      required
+                      disabled={isSubmitting}
+                    />
                   </div>
-                  <div className="cutting-grid">
-                    {/* Customer */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <Users />
-                        </div>
-                        Customer
-                      </label>
-                      <select
-                        value={entry.customerId}
-                        onChange={(e) =>
-                          handleFormEntryChange(
-                            entry.id,
-                            "customerId",
-                            e.target.value,
-                          )
-                        }
-                        className="cutting-select"
-                        required
-                        disabled={isSubmitting || loadingCustomers}
-                      >
-                        <option value="">Pilih Customer</option>
-                        {(entry.customers || []).map((customer, idx) => (
-                          <option
-                            key={`customer-${entry.id}-${customer.value || idx}`}
-                            value={customer.value}
-                          >
-                            {customer.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* PO Number */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <Hash />
-                        </div>
-                        PO Number
-                      </label>
-                      <select
-                        value={entry.poNumber}
-                        onChange={(e) =>
-                          handleFormEntryChange(
-                            entry.id,
-                            "poNumber",
-                            e.target.value,
-                          )
-                        }
-                        className="cutting-select"
-                        required
-                        disabled={!entry.customerId || isSubmitting}
-                      >
-                        <option value="">Pilih PO Number</option>
-                        {(entry.poNumbers || []).map((po, idx) => (
-                          <option
-                            key={`po-${entry.id}-${po.value || idx}`}
-                            value={po.value}
-                          >
-                            {po.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* SKU */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <Package />
-                        </div>
-                        SKU
-                      </label>
-                      <select
-                        value={entry.sku}
-                        onChange={(e) =>
-                          handleFormEntryChange(entry.id, "sku", e.target.value)
-                        }
-                        className="cutting-select"
-                        required
-                        disabled={!entry.poNumber || isSubmitting}
-                      >
-                        <option value="">Pilih SKU</option>
-                        {(entry.skus || []).map((sku, idx) => (
-                          <option
-                            key={`sku-${entry.id}-${sku.value || idx}`}
-                            value={sku.value}
-                          >
-                            {sku.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* S.CODE */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <Hash />
-                        </div>
-                        S.CODE
-                      </label>
-                      <select
-                        value={entry.sCode}
-                        onChange={(e) =>
-                          handleFormEntryChange(
-                            entry.id,
-                            "sCode",
-                            e.target.value,
-                          )
-                        }
-                        className="cutting-select"
-                        required={(entry.sCodes || []).length > 0}
-                        disabled={
-                          !entry.sku ||
-                          (entry.sCodes || []).length === 0 ||
-                          isSubmitting
-                        }
-                      >
-                        <option value="">
-                          {(entry.sCodes || []).length === 0
-                            ? "Tidak ada S.CODE"
-                            : "Pilih S.CODE"}
+                  <div className="cutting-field-group">
+                    <label className="cutting-label">
+                      <div className="cutting-label-icon">
+                        <Users />
+                      </div>
+                      Shift
+                    </label>
+                    <select
+                      name="shift"
+                      value={headerData.shift}
+                      onChange={handleHeaderChange}
+                      className="cutting-select"
+                      disabled={isSubmitting}
+                    >
+                      <option value="1">Shift 1</option>
+                      <option value="2">Shift 2</option>
+                    </select>
+                  </div>
+                  <div className="cutting-field-group">
+                    <label className="cutting-label">
+                      <div className="cutting-label-icon">
+                        <Users />
+                      </div>
+                      Group
+                    </label>
+                    <select
+                      name="group"
+                      value={headerData.group}
+                      onChange={handleHeaderChange}
+                      className="cutting-select"
+                      disabled={isSubmitting}
+                    >
+                      <option value="A">Group A</option>
+                      <option value="B">Group B</option>
+                    </select>
+                  </div>
+                  <div className="cutting-field-group">
+                    <label className="cutting-label">
+                      <div className="cutting-label-icon">
+                        <Calendar />
+                      </div>
+                      Time
+                    </label>
+                    <select
+                      name="time"
+                      value={headerData.time}
+                      onChange={handleHeaderChange}
+                      className="cutting-select"
+                      disabled={isSubmitting}
+                    >
+                      {timeOptions.map((time, index) => (
+                        <option
+                          key={`time-${headerData.shift}-${time}`}
+                          value={time}
+                        >
+                          {time}
                         </option>
-                        {(entry.sCodes || []).map((sCode, idx) => (
-                          <option
-                            key={`scode-${entry.id}-${sCode.value || idx}`}
-                            value={sCode.value}
-                          >
-                            {sCode.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Description */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <FileText />
-                        </div>
-                        Description
-                      </label>
-                      <input
-                        type="text"
-                        value={entry.description}
-                        readOnly
-                        className="cutting-input cutting-input-readonly"
-                        placeholder="Auto-fill ketika S.CODE dipilih"
-                        disabled
-                      />
-                    </div>
-
-                    {/* Quantity Order */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <BarChart3 />
-                        </div>
-                        Quantity Order (Planned Qty)
-                      </label>
-                      <input
-                        type="number"
-                        value={entry.quantityOrder}
-                        readOnly
-                        className="cutting-input cutting-input-readonly"
-                        placeholder="Auto-fill ketika SKU dipilih"
-                        disabled
-                      />
-                    </div>
-
-                    {/* Quantity Produksi */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <BarChart3 />
-                        </div>
-                        Quantity Produksi
-                      </label>
-                      <input
-                        type="number"
-                        value={entry.quantityProduksi}
-                        onChange={(e) =>
-                          handleFormEntryChange(
-                            entry.id,
-                            "quantityProduksi",
-                            e.target.value,
-                          )
-                        }
-                        className="cutting-input"
-                        min="0"
-                        step="1"
-                        required
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    {/* Remain Quantity */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <BarChart3 />
-                        </div>
-                        Remain Quantity
-                      </label>
-                      <input
-                        type="number"
-                        value={entry.remainQuantity}
-                        readOnly
-                        className="cutting-input cutting-input-readonly"
-                        disabled
-                      />
-                    </div>
-
-                    {/* Week */}
-                    <div className="cutting-field-group">
-                      <label className="cutting-label">
-                        <div className="cutting-label-icon">
-                          <Calendar />
-                        </div>
-                        Week
-                      </label>
-                      <input
-                        type="text"
-                        value={entry.week}
-                        readOnly
-                        className="cutting-input cutting-input-readonly"
-                        placeholder="Auto-fill ketika SKU dipilih"
-                        disabled
-                      />
-                    </div>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="cutting-field-group">
+                    <label className="cutting-label">
+                      <div className="cutting-label-icon">
+                        <Package />
+                      </div>
+                      Machine
+                    </label>
+                    <select
+                      name="machine"
+                      value={headerData.machine}
+                      onChange={handleHeaderChange}
+                      className="cutting-select"
+                      required
+                      disabled={isSubmitting}
+                    >
+                      <option value="">Pilih Machine</option>
+                      <option value="Multi Cutting 1">Multi Cutting 1</option>
+                      <option value="Multi Cutting 2">Multi Cutting 2</option>
+                      <option value="Rountable 1">Rountable 1</option>
+                      <option value="Rountable 2">Rountable 2</option>
+                      <option value="Rountable 3">Rountable 3</option>
+                      <option value="Rountable 4">Rountable 4</option>
+                      <option value="Vertikal 1">Vertikal 1</option>
+                      <option value="Vertikal 2">Vertikal 2</option>
+                      <option value="Vertikal 3">Vertikal 3</option>
+                    </select>
+                  </div>
+                  <div className="cutting-field-group">
+                    <label className="cutting-label">
+                      <div className="cutting-label-icon">
+                        <Users />
+                      </div>
+                      Nama Operator
+                    </label>
+                    <input
+                      type="text"
+                      name="operator"
+                      value={headerData.operator}
+                      onChange={handleHeaderChange}
+                      className="cutting-input"
+                      placeholder="Masukkan nama operator"
+                      required
+                      disabled={isSubmitting}
+                    />
                   </div>
                 </div>
-              ))}
+              </div>
 
-              <div className="cutting-add-entry-container">
+              {/* Form Entries */}
+              <div className="cutting-section">
+                <div className="cutting-section-header">
+                  <h2 className="cutting-section-title">
+                    <FileText className="w-5 h-5" /> Form Information
+                  </h2>
+                </div>
+
+                {formEntries.map((entry, idx) => (
+                  <div key={entry.id} className="cutting-form-entry">
+                    <div className="cutting-form-entry-header">
+                      {formEntries.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeFormEntry(entry.id)}
+                          className="cutting-remove-btn"
+                          disabled={isSubmitting}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="cutting-grid">
+                      {/* Customer */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <Users />
+                          </div>
+                          Customer
+                        </label>
+                        <select
+                          value={entry.customerId}
+                          onChange={(e) =>
+                            handleFormEntryChange(
+                              entry.id,
+                              "customerId",
+                              e.target.value,
+                            )
+                          }
+                          className="cutting-select"
+                          required
+                          disabled={isSubmitting || loadingCustomers}
+                        >
+                          <option value="">Pilih Customer</option>
+                          {(entry.customers || []).map((customer, idx) => (
+                            <option
+                              key={`customer-${entry.id}-${customer.value || idx}`}
+                              value={customer.value}
+                            >
+                              {customer.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* PO Number */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <Hash />
+                          </div>
+                          PO Number
+                        </label>
+                        <select
+                          value={entry.poNumber}
+                          onChange={(e) =>
+                            handleFormEntryChange(
+                              entry.id,
+                              "poNumber",
+                              e.target.value,
+                            )
+                          }
+                          className="cutting-select"
+                          required
+                          disabled={!entry.customerId || isSubmitting}
+                        >
+                          <option value="">Pilih PO Number</option>
+                          {(entry.poNumbers || []).map((po, idx) => (
+                            <option
+                              key={`po-${entry.id}-${po.value || idx}`}
+                              value={po.value}
+                            >
+                              {po.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* SKU */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <Package />
+                          </div>
+                          SKU
+                        </label>
+                        <select
+                          value={entry.sku}
+                          onChange={(e) =>
+                            handleFormEntryChange(
+                              entry.id,
+                              "sku",
+                              e.target.value,
+                            )
+                          }
+                          className="cutting-select"
+                          required
+                          disabled={!entry.poNumber || isSubmitting}
+                        >
+                          <option value="">Pilih SKU</option>
+                          {(entry.skus || []).map((sku, idx) => (
+                            <option
+                              key={`sku-${entry.id}-${sku.value || idx}`}
+                              value={sku.value}
+                            >
+                              {sku.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* S.CODE */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <Hash />
+                          </div>
+                          S.CODE
+                        </label>
+                        <select
+                          value={entry.sCode}
+                          onChange={(e) =>
+                            handleFormEntryChange(
+                              entry.id,
+                              "sCode",
+                              e.target.value,
+                            )
+                          }
+                          className="cutting-select"
+                          required={(entry.sCodes || []).length > 0}
+                          disabled={
+                            !entry.sku ||
+                            (entry.sCodes || []).length === 0 ||
+                            isSubmitting
+                          }
+                        >
+                          <option value="">
+                            {(entry.sCodes || []).length === 0
+                              ? "Tidak ada S.CODE"
+                              : "Pilih S.CODE"}
+                          </option>
+                          {(entry.sCodes || []).map((sCode, idx) => (
+                            <option
+                              key={`scode-${entry.id}-${sCode.value || idx}`}
+                              value={sCode.value}
+                            >
+                              {sCode.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Description */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <FileText />
+                          </div>
+                          Description
+                        </label>
+                        <input
+                          type="text"
+                          value={entry.description}
+                          readOnly
+                          className="cutting-input cutting-input-readonly"
+                          placeholder="Auto-fill ketika S.CODE dipilih"
+                          disabled
+                        />
+                      </div>
+
+                      {/* Quantity Order */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <BarChart3 />
+                          </div>
+                          Quantity Order (Planned Qty)
+                        </label>
+                        <input
+                          type="number"
+                          value={entry.quantityOrder}
+                          readOnly
+                          className="cutting-input cutting-input-readonly"
+                          placeholder="Auto-fill ketika SKU dipilih"
+                          disabled
+                        />
+                      </div>
+
+                      {/* Quantity Produksi */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <BarChart3 />
+                          </div>
+                          Quantity Produksi
+                        </label>
+                        <input
+                          type="number"
+                          value={entry.quantityProduksi}
+                          onChange={(e) =>
+                            handleFormEntryChange(
+                              entry.id,
+                              "quantityProduksi",
+                              e.target.value,
+                            )
+                          }
+                          className="cutting-input"
+                          min="0"
+                          step="1"
+                          required
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      {/* Remain Quantity */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <BarChart3 />
+                          </div>
+                          Remain Quantity
+                        </label>
+                        <input
+                          type="number"
+                          value={entry.remainQuantity}
+                          readOnly
+                          className="cutting-input cutting-input-readonly"
+                          disabled
+                        />
+                      </div>
+
+                      {/* Week */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <Calendar />
+                          </div>
+                          Week
+                        </label>
+                        <input
+                          type="text"
+                          value={entry.week}
+                          readOnly
+                          className="cutting-input cutting-input-readonly"
+                          placeholder="Auto-fill ketika SKU dipilih"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="cutting-add-entry-container">
+                  <button
+                    type="button"
+                    onClick={addFormEntry}
+                    className="cutting-add-btn"
+                    disabled={isSubmitting}
+                  >
+                    <Plus className="w-4 h-4" /> Add Entry
+                  </button>
+                </div>
+              </div>
+
+              <div className="cutting-submit-container">
                 <button
-                  type="button"
-                  onClick={addFormEntry}
-                  className="cutting-add-btn"
+                  type="submit"
+                  className="cutting-submit-btn"
                   disabled={isSubmitting}
                 >
-                  <Plus className="w-4 h-4" /> Add Entry
+                  {isSubmitting ? "Submitting..." : "Submit All Data"}
                 </button>
               </div>
-            </div>
-
-            <div className="cutting-submit-container">
-              <button
-                type="submit"
-                className="cutting-submit-btn"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit All Data"}
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>

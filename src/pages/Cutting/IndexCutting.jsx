@@ -11,7 +11,8 @@ const IndexCutting = () => {
   };
 
   return (
-    <>
+    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
+    <div className="index-cutting-root">
       {/* Header */}
       <div className="cutting-header">
         <div className="header-content">
@@ -54,7 +55,7 @@ const IndexCutting = () => {
           <div className="card-arrow">→</div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
