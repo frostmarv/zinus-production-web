@@ -14,14 +14,17 @@ import { cuttingProductionAPI } from "../../api/cutting";
 import "../../styles/Cutting/InputCutting.css";
 
 const InputCutting = () => {
+  // ❌ Hapus timestamp dari headerData — tidak dikontrol pengguna
   const [headerData, setHeaderData] = useState({
-    timestamp: new Date().toISOString().slice(0, 16),
     shift: "1",
     group: "A",
     time: "08:00",
     machine: "",
     operator: "",
   });
+
+  // ✅ Tambahkan state untuk menampilkan waktu real-time di UI
+  const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
 
   const [formEntries, setFormEntries] = useState([
     {
@@ -36,7 +39,8 @@ const InputCutting = () => {
       week: "",
       remainQuantity: 0,
       plannedQtyCache: 0,
-      // Cache untuk dropdown
+      isHole: false,
+      foamingDate: "",
       customers: [],
       poNumbers: [],
       skus: [],
@@ -49,6 +53,14 @@ const InputCutting = () => {
   const [loadingCustomers, setLoadingCustomers] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+  // Auto-update waktu setiap detik
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTimestamp(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Load customers data
   useEffect(() => {
@@ -92,7 +104,7 @@ const InputCutting = () => {
     return times;
   };
 
-  // Handle header changes
+  // Handle header changes (tanpa timestamp)
   const handleHeaderChange = (e) => {
     const { name, value } = e.target;
     setHeaderData((prev) => ({
@@ -266,11 +278,26 @@ const InputCutting = () => {
     [],
   );
 
-  // Handle form entry changes with cascading logic
+  // Handle form entry changes
   const handleFormEntryChange = async (id, field, value) => {
     setFormEntries((prev) =>
       prev.map((entry) => {
         if (entry.id !== id) return entry;
+
+        if (field === "isHole") {
+          return { ...entry, isHole: value };
+        }
+
+        if (field === "foamingDateEnabled") {
+          return {
+            ...entry,
+            foamingDate: value ? new Date().toISOString().slice(0, 16) : "",
+          };
+        }
+
+        if (field === "foamingDate") {
+          return { ...entry, foamingDate: value };
+        }
 
         let updated = { ...entry, [field]: value };
 
@@ -287,6 +314,8 @@ const InputCutting = () => {
           updated.skus = [];
           updated.sCodes = [];
           updated.sCodesData = [];
+          updated.isHole = false;
+          updated.foamingDate = "";
 
           if (value) {
             loadPoNumbers(id, value);
@@ -302,6 +331,8 @@ const InputCutting = () => {
           updated.skus = [];
           updated.sCodes = [];
           updated.sCodesData = [];
+          updated.isHole = false;
+          updated.foamingDate = "";
 
           if (value) {
             loadSkus(id, value);
@@ -315,6 +346,8 @@ const InputCutting = () => {
           updated.remainQuantity = 0;
           updated.sCodes = [];
           updated.sCodesData = [];
+          updated.isHole = false;
+          updated.foamingDate = "";
 
           if (value && updated.poNumber) {
             loadQtyPlans(id, updated.poNumber, value);
@@ -325,6 +358,8 @@ const InputCutting = () => {
             (item) => item.s_code === value,
           );
           updated.description = selectedSCode?.description || "";
+          updated.isHole = false;
+          updated.foamingDate = "";
 
           if (value && updated.poNumber && updated.sku) {
             loadRemainQuantity(id, updated.poNumber, updated.sku, value);
@@ -357,6 +392,8 @@ const InputCutting = () => {
         week: "",
         remainQuantity: 0,
         plannedQtyCache: 0,
+        isHole: false,
+        foamingDate: "",
         customers: customers,
         poNumbers: [],
         skus: [],
@@ -372,14 +409,17 @@ const InputCutting = () => {
     }
   };
 
-  // Submit handler — ✅ TANPA customerPO
+  // Submit handler — gunakan waktu SAAT SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
+    // ✅ Ambil waktu TERKINI saat submit
+    const actualSubmitTime = new Date();
+
     const submitData = {
-      timestamp: new Date(headerData.timestamp).toISOString(),
+      timestamp: actualSubmitTime.toISOString(),
       shift: headerData.shift,
       group: headerData.group,
       time: headerData.time,
@@ -399,7 +439,6 @@ const InputCutting = () => {
         }) => {
           const customerName =
             customers.find((c) => c.value == entry.customerId)?.label || "";
-          // ✅ HANYA KIRIM FIELD YANG DIIZINKAN OLEH DTO
           return {
             customer: customerName,
             poNumber: entry.poNumber,
@@ -409,6 +448,10 @@ const InputCutting = () => {
             quantityOrder: Number(entry.quantityOrder) || 0,
             quantityProduksi: Number(entry.quantityProduksi) || 0,
             week: entry.week,
+            isHole: entry.isHole,
+            foamingDate: entry.foamingDate
+              ? new Date(entry.foamingDate).toISOString()
+              : null,
           };
         },
       ),
@@ -422,9 +465,8 @@ const InputCutting = () => {
 
       alert("✅ Data berhasil disimpan ke database!");
 
-      // Reset form setelah berhasil submit
+      // Reset form
       setHeaderData({
-        timestamp: new Date().toISOString().slice(0, 16),
         shift: "1",
         group: "A",
         time: "08:00",
@@ -444,6 +486,8 @@ const InputCutting = () => {
           week: "",
           remainQuantity: 0,
           plannedQtyCache: 0,
+          isHole: false,
+          foamingDate: "",
           customers: customers,
           poNumbers: [],
           skus: [],
@@ -480,8 +524,20 @@ const InputCutting = () => {
 
   const timeOptions = getTimeOptions(headerData.shift);
 
+  // Format timestamp untuk tampilan (contoh: "Minggu, 19 Okt 2025, 14:30:45")
+  const formatTimestamp = (date) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() mulai dari 0
+    const year = date.getFullYear();
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
+  };
+
   return (
-    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
     <div className="input-cutting-root">
       <div className="cutting-container">
         <div className="cutting-card">
@@ -509,6 +565,7 @@ const InputCutting = () => {
                   </h2>
                 </div>
                 <div className="cutting-header-grid">
+                  {/* ✅ TIMESTAMP: Hanya tampilan, tidak bisa diubah */}
                   <div className="cutting-field-group">
                     <label className="cutting-label">
                       <div className="cutting-label-icon">
@@ -516,16 +573,11 @@ const InputCutting = () => {
                       </div>
                       Timestamp
                     </label>
-                    <input
-                      type="datetime-local"
-                      name="timestamp"
-                      value={headerData.timestamp}
-                      onChange={handleHeaderChange}
-                      className="cutting-input"
-                      required
-                      disabled={isSubmitting}
-                    />
+                    <div className="cutting-timestamp-display">
+                      {formatTimestamp(currentTimestamp)}
+                    </div>
                   </div>
+
                   <div className="cutting-field-group">
                     <label className="cutting-label">
                       <div className="cutting-label-icon">
@@ -642,7 +694,7 @@ const InputCutting = () => {
                   </h2>
                 </div>
 
-                {formEntries.map((entry, idx) => (
+                {formEntries.map((entry) => (
                   <div key={entry.id} className="cutting-form-entry">
                     <div className="cutting-form-entry-header">
                       {formEntries.length > 1 && (
@@ -892,6 +944,73 @@ const InputCutting = () => {
                           placeholder="Auto-fill ketika SKU dipilih"
                           disabled
                         />
+                      </div>
+
+                      {/* Hole */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <Package />
+                          </div>
+                          Hole
+                        </label>
+                        <label className="cutting-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={entry.isHole}
+                            onChange={(e) =>
+                              handleFormEntryChange(
+                                entry.id,
+                                "isHole",
+                                e.target.checked,
+                              )
+                            }
+                            disabled={isSubmitting}
+                            className="cutting-checkbox"
+                          />
+                          <span>Item ini di Hole</span>
+                        </label>
+                      </div>
+
+                      {/* Foaming Date */}
+                      <div className="cutting-field-group">
+                        <label className="cutting-label">
+                          <div className="cutting-label-icon">
+                            <Calendar />
+                          </div>
+                          Foaming Date
+                        </label>
+                        <label className="cutting-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={!!entry.foamingDate}
+                            onChange={(e) =>
+                              handleFormEntryChange(
+                                entry.id,
+                                "foamingDateEnabled",
+                                e.target.checked,
+                              )
+                            }
+                            disabled={isSubmitting}
+                            className="cutting-checkbox"
+                          />
+                          <span>Item ini dalam Foaming Date</span>
+                        </label>
+                        {entry.foamingDate && (
+                          <input
+                            type="datetime-local"
+                            value={entry.foamingDate}
+                            onChange={(e) =>
+                              handleFormEntryChange(
+                                entry.id,
+                                "foamingDate",
+                                e.target.value,
+                              )
+                            }
+                            className="cutting-input"
+                            disabled={isSubmitting}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>

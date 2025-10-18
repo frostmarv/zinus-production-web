@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/authService";
 import "../styles/components/Login.css";
-import bedImage from "@assets/login.png"; // 🛏️ Gambar kasur
+import bedImage1 from "@assets/login.png"; // 🛏️ Gambar kasur 1
+import bedImage2 from "@assets/login2.png"; // 🛏️ Gambar kasur 2
 import logoZinus from "@assets/logo_hijau.jpeg"; // 🌿 Logo Zinus
 
 const Login = () => {
@@ -27,13 +28,13 @@ const Login = () => {
   };
 
   return (
-    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
     <div className="login-root">
       <div className="login-page">
-        {/* Kiri: Gambar kasur */}
+        {/* Kiri: Slider Gambar */}
         <div className="login-left">
-          <div className="image-wrapper">
-            <img src={bedImage} alt="Zinus Bed" />
+          <div className="image-slider">
+            <img src={bedImage1} alt="Zinus Bed 1" className="slide" />
+            <img src={bedImage2} alt="Zinus Bed 2" className="slide" />
           </div>
         </div>
 

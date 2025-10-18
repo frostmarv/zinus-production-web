@@ -1,4 +1,3 @@
-// src/pages/History/Cutting/CuttingHistorySummary.jsx
 import React, { useState, useEffect } from "react";
 import {
   Calendar,
@@ -17,8 +16,16 @@ import {
   Edit3,
   Trash2,
   Save,
+  Target,
+  CalendarCheck,
+  Plus,
+  Check,
+  XCircle,
 } from "lucide-react";
-import { cuttingProductionAPI } from "../../../api/cutting";
+import {
+  cuttingProductionAPI,
+  cuttingProductionEntryAPI,
+} from "../../../api/cutting";
 import "../../../styles/History/Cutting/CuttingHistorySummary.css";
 
 const CuttingHistorySummary = () => {
@@ -45,6 +52,10 @@ const CuttingHistorySummary = () => {
   const [draftEntries, setDraftEntries] = useState([]);
   const [opLoading, setOpLoading] = useState({ save: false, delete: false });
   const [opError, setOpError] = useState(null);
+
+  // State untuk update hole/foaming
+  const [updatingHole, setUpdatingHole] = useState(null);
+  const [updatingFoaming, setUpdatingFoaming] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -176,6 +187,8 @@ const CuttingHistorySummary = () => {
     setDraftHeader({});
     setDraftEntries([]);
     setOpError(null);
+    setUpdatingHole(null);
+    setUpdatingFoaming(null);
     document.body.style.overflow = "auto";
   };
 
@@ -332,6 +345,53 @@ const CuttingHistorySummary = () => {
     }
   };
 
+  // Handler untuk update hole
+  const handleUpdateHole = async (entryId, currentHole) => {
+    const qty = prompt("Masukkan jumlah quantity yang di-hole:", "0");
+    if (qty === null) return;
+
+    const quantityHole = parseInt(qty);
+    if (isNaN(quantityHole) || quantityHole <= 0) {
+      alert("Jumlah quantity harus angka positif.");
+      return;
+    }
+
+    setUpdatingHole(entryId);
+    try {
+      await cuttingProductionEntryAPI.updateHoleQuantity(entryId, quantityHole);
+      await fetchData(); // Refresh data
+      alert("✅ Quantity hole berhasil diperbarui!");
+    } catch (err) {
+      console.error("❌ Gagal update hole:", err);
+      alert(`Gagal update hole: ${err.message}`);
+    } finally {
+      setUpdatingHole(null);
+    }
+  };
+
+  // Handler untuk approve foaming
+  const handleApproveFoaming = async (entryId) => {
+    if (
+      !window.confirm(
+        "Apakah Anda yakin ingin menandai foaming date sebagai selesai?",
+      )
+    ) {
+      return;
+    }
+
+    setUpdatingFoaming(entryId);
+    try {
+      await cuttingProductionEntryAPI.markFoamingDateCompleted(entryId);
+      await fetchData(); // Refresh data
+      alert("✅ Foaming date berhasil ditandai sebagai selesai!");
+    } catch (err) {
+      console.error("❌ Gagal approve foaming:", err);
+      alert(`Gagal approve foaming: ${err.message}`);
+    } finally {
+      setUpdatingFoaming(null);
+    }
+  };
+
   // Esc key to close modal
   useEffect(() => {
     const handleEsc = (e) => {
@@ -344,7 +404,6 @@ const CuttingHistorySummary = () => {
   }, [isModalOpen]);
 
   return (
-    // ✅ WRAP SELURUH KONTEN DALAM SCOPE
     <div className="cutting-history-summary-root">
       {/* Header */}
       <div className="cutting-history-summary-header">
@@ -776,13 +835,19 @@ const CuttingHistorySummary = () => {
                         <th>No</th>
                         <th>Customer</th>
                         <th>PO Number</th>
-                        <th>Customer PO</th>
                         <th>SKU</th>
                         <th>S.CODE</th>
                         <th>Description</th>
                         <th>Qty Order</th>
                         <th>Qty Produksi</th>
                         <th>Remain</th>
+                        {/* ✅ Tambah kolom baru */}
+                        <th>Is Hole</th>
+                        <th>Qty Hole</th>
+                        <th>Qty Hole Remain</th>
+                        <th>Foaming Date</th>
+                        <th>Foaming Completed</th>
+                        <th>Aksi</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -792,7 +857,6 @@ const CuttingHistorySummary = () => {
                             <td>{index + 1}</td>
                             <td>{entry.customer || "-"}</td>
                             <td>{entry.poNumber || "-"}</td>
-                            <td>{entry.customerPO || "-"}</td>
                             <td>{entry.sku || "-"}</td>
                             <td>{entry.sCode || "-"}</td>
                             <td>{entry.description || "-"}</td>
@@ -815,6 +879,74 @@ const CuttingHistorySummary = () => {
                             </td>
                             <td className="qty-remain">
                               {entry.remainQuantity || 0}
+                            </td>
+                            {/* ✅ Kolom baru */}
+                            <td>
+                              {entry.isHole ? (
+                                <span className="badge badge-hint">Hole</span>
+                              ) : (
+                                <span className="badge badge-default">-</span>
+                              )}
+                            </td>
+                            <td>{entry.quantityHole || 0}</td>
+                            <td>{entry.quantityHoleRemain || 0}</td>
+                            <td>{entry.foamingDate || "-"}</td>
+                            <td>
+                              {entry.foamingDateCompleted ? (
+                                <span className="badge badge-success">
+                                  Selesai
+                                </span>
+                              ) : (
+                                <span className="badge badge-warning">
+                                  Belum
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              <div className="action-buttons">
+                                {entry.isHole && (
+                                  <button
+                                    className="btn-update-hole"
+                                    onClick={() =>
+                                      handleUpdateHole(
+                                        entry.id,
+                                        entry.quantityHole,
+                                      )
+                                    }
+                                    disabled={updatingHole === entry.id}
+                                  >
+                                    {updatingHole === entry.id ? (
+                                      <RefreshCw size={14} className="spin" />
+                                    ) : (
+                                      <Plus size={14} />
+                                    )}
+                                    Update Hole
+                                  </button>
+                                )}
+                                {entry.foamingDate &&
+                                  !entry.foamingDateCompleted && (
+                                    <button
+                                      className="btn-approve-foaming"
+                                      onClick={() =>
+                                        handleApproveFoaming(entry.id)
+                                      }
+                                      disabled={updatingFoaming === entry.id}
+                                    >
+                                      {updatingFoaming === entry.id ? (
+                                        <RefreshCw size={14} className="spin" />
+                                      ) : (
+                                        <Check size={14} />
+                                      )}
+                                      Approve
+                                    </button>
+                                  )}
+                                {entry.foamingDate &&
+                                  entry.foamingDateCompleted && (
+                                    <span className="badge badge-success">
+                                      Approved
+                                    </span>
+                                  )}
+                              </div>
                             </td>
                           </tr>
                         ),

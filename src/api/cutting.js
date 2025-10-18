@@ -94,3 +94,33 @@ export const cuttingProductionAPI = {
     return await apiClient.delete(`/api/cutting/production/${id}`);
   },
 };
+
+/**
+ * API untuk update data Cutting Production secara spesifik
+ * Base URL: /api/cutting/production/entry
+ * Digunakan untuk update hole & foaming status
+ */
+export const cuttingProductionEntryAPI = {
+  /**
+   * PATCH  /api/cutting/production/entry/:id/hole
+   * Update quantity hole secara partial
+   */
+  updateHoleQuantity: async (entryId, quantityHole) => {
+    return await apiClient.patch(
+      `/api/cutting/production/entry/${entryId}/hole`,
+      {
+        quantityHole,
+      },
+    );
+  },
+
+  /**
+   * PATCH  /api/cutting/production/entry/:id/foaming-completed
+   * Tandai foaming date sebagai selesai (manual approved)
+   */
+  markFoamingDateCompleted: async (entryId) => {
+    return await apiClient.patch(
+      `/api/cutting/production/entry/${entryId}/foaming-completed`,
+    );
+  },
+};
