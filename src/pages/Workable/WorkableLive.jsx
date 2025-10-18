@@ -29,7 +29,7 @@ const WorkableLive = () => {
   const isInitialLoad = useRef(true);
 
   // =========================
-  // 📊 Table Column Definitions (sesuai gambar)
+  // 📊 Table Column Definitions
   // =========================
   const bondingColumns = [
     { key: "week", label: "WEEK" },
@@ -115,8 +115,7 @@ const WorkableLive = () => {
       if (!isWebSocketConnected) {
         fetchData();
       }
-    }, 5000); // 5 detik
-
+    }, 5000);
     return () => clearInterval(interval);
   }, [fetchData, isWebSocketConnected]);
 
@@ -126,19 +125,16 @@ const WorkableLive = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000); // Update setiap detik
-
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
   // =========================
-  // 🧭 All Slides Definition (hanya Bonding & Detail)
+  // 🧭 All Slides Definition
   // =========================
   const allSlides = useMemo(() => {
     if (!data) return [];
-
-    const { bonding } = data; // Hanya ambil bonding
-
+    const { bonding } = data;
     return [
       {
         title: "Workable Bonding",
@@ -173,11 +169,9 @@ const WorkableLive = () => {
   if (loading) {
     return <div className="loading">Memuat Data Live...</div>;
   }
-
   if (error) {
     return <div className="error">Error: {error}</div>;
   }
-
   if (!data || allSlides.length === 0) {
     return <div className="loading">Tidak Ada Data</div>;
   }
@@ -192,12 +186,11 @@ const WorkableLive = () => {
     if (status === "Completed") className += " completed";
     else if (status === "Running") className += " running";
     else if (status === "Not Started") className += " not-started";
-
     return <span className={className}>{status}</span>;
   }
 
   // =========================
-  // 📋 Table Component (diperbarui untuk header slide)
+  // 📋 Table Component
   // =========================
   function DataTable({
     title,
@@ -207,7 +200,6 @@ const WorkableLive = () => {
   }) {
     return (
       <div className="table-container">
-        {/* Header Slide */}
         <div className="slide-header">{title}</div>
         <table>
           <thead>
@@ -244,41 +236,18 @@ const WorkableLive = () => {
   }
 
   // =========================
-  // 🖥️ Render Layout (sesuai gambar)
+  // 🖥️ Render Layout — TANPA TOPBAR, JAM DI FOOTER
   // =========================
   return (
     <div className="workable-live-container">
-      {/* Top Bar - hanya untuk tanggal dan waktu */}
-      <div className="top-bar">
-        <div className="date">
-          {currentTime.toLocaleDateString("id-ID", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          })}
-        </div>
-        <div className="time">
-          {currentTime.toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            timeZone: "Asia/Jakarta",
-          })}{" "}
-          WIB
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="main-content">
-        {/* Konten Utama (Tabel) */}
         <div className="content-main">
           <DataTable
             title={currentSlide.title}
             rows={currentSlide.rows}
             columns={currentSlide.columns}
           />
-
-          {/* Slide Indicators */}
           <div className="slide-indicators">
             {allSlides.map((_, idx) => (
               <div
@@ -291,13 +260,40 @@ const WorkableLive = () => {
         </div>
       </div>
 
-      {/* Footer Bar */}
+      {/* Footer Bar — DIPERBARUI: Tanggal & Jam di Kiri */}
       <div className="footer">
-        <div className="zinus-footer-center">
-          <img src={zinusLogo} alt="Zinus Logo" />
-          <span>Zinus Dream Indonesia</span>
+        {/* Kiri: Tanggal & Jam */}
+        <div className="footer-timestamp">
+          <div className="date">
+            {currentTime.toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            })}
+          </div>
+          <div className="time">
+            {currentTime.toLocaleTimeString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              timeZone: "Asia/Jakarta",
+            })}{" "}
+            WIB
+          </div>
         </div>
-        <img src={hyundaiLogo} alt="Hyundai Logo" className="hyundai-footer" />
+
+        {/* Tengah: Zinus */}
+        <div className="footer-group">
+          <div className="zinus-footer-center">
+            <img src={zinusLogo} alt="Zinus Logo" />
+            <span>Zinus Dream Indonesia</span>
+          </div>
+          <img
+            src={hyundaiLogo}
+            alt="Hyundai Logo"
+            className="hyundai-footer"
+          />
+        </div>
       </div>
     </div>
   );
