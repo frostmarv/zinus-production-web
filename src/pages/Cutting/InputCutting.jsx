@@ -12,9 +12,9 @@ import {
 import { masterDataAPI } from "../../api/masterData";
 import { cuttingProductionAPI } from "../../api/cutting";
 import "../../styles/Cutting/InputCutting.css";
+import { formatAsJakarta } from "../../utils/timezone";
 
 const InputCutting = () => {
-  // ❌ Hapus timestamp dari headerData — tidak dikontrol pengguna
   const [headerData, setHeaderData] = useState({
     shift: "1",
     group: "A",
@@ -23,7 +23,6 @@ const InputCutting = () => {
     operator: "",
   });
 
-  // ✅ Tambahkan state untuk menampilkan waktu real-time di UI
   const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
 
   const [formEntries, setFormEntries] = useState([
@@ -62,7 +61,7 @@ const InputCutting = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Load customers data
+  // Load customers
   useEffect(() => {
     const loadCustomers = async () => {
       try {
@@ -86,7 +85,6 @@ const InputCutting = () => {
     loadCustomers();
   }, []);
 
-  // Generate time options
   const getTimeOptions = (shift) => {
     const times = [];
     if (shift === "1") {
@@ -104,7 +102,6 @@ const InputCutting = () => {
     return times;
   };
 
-  // Handle header changes (tanpa timestamp)
   const handleHeaderChange = (e) => {
     const { name, value } = e.target;
     setHeaderData((prev) => ({
@@ -114,7 +111,6 @@ const InputCutting = () => {
     }));
   };
 
-  // Memoized API calls
   const loadPoNumbers = useCallback(async (entryId, customerId) => {
     try {
       const response = await masterDataAPI.getPoNumbers(customerId);
@@ -278,7 +274,6 @@ const InputCutting = () => {
     [],
   );
 
-  // Handle form entry changes
   const handleFormEntryChange = async (id, field, value) => {
     setFormEntries((prev) =>
       prev.map((entry) => {
@@ -291,7 +286,7 @@ const InputCutting = () => {
         if (field === "foamingDateEnabled") {
           return {
             ...entry,
-            foamingDate: value ? new Date().toISOString().slice(0, 16) : "",
+            foamingDate: value ? new Date().toISOString() : "",
           };
         }
 
@@ -373,7 +368,6 @@ const InputCutting = () => {
     );
   };
 
-  // Add/remove entries
   const addFormEntry = () => {
     const newId = formEntries.length
       ? Math.max(...formEntries.map((e) => e.id)) + 1
@@ -409,17 +403,15 @@ const InputCutting = () => {
     }
   };
 
-  // Submit handler — gunakan waktu SAAT SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
-    // ✅ Ambil waktu TERKINI saat submit
-    const actualSubmitTime = new Date();
+    const actualSubmitTime = new Date().toISOString();
 
     const submitData = {
-      timestamp: actualSubmitTime.toISOString(),
+      timestamp: actualSubmitTime,
       shift: headerData.shift,
       group: headerData.group,
       time: headerData.time,
@@ -449,9 +441,7 @@ const InputCutting = () => {
             quantityProduksi: Number(entry.quantityProduksi) || 0,
             week: entry.week,
             isHole: entry.isHole,
-            foamingDate: entry.foamingDate
-              ? new Date(entry.foamingDate).toISOString()
-              : null,
+            foamingDate: entry.foamingDate || null,
           };
         },
       ),
@@ -459,13 +449,10 @@ const InputCutting = () => {
 
     try {
       console.log("Submitting ", submitData);
-
       const response = await cuttingProductionAPI.save(submitData);
       console.log("Response dari server:", response);
-
       alert("✅ Data berhasil disimpan ke database!");
 
-      // Reset form
       setHeaderData({
         shift: "1",
         group: "A",
@@ -497,7 +484,6 @@ const InputCutting = () => {
       ]);
     } catch (err) {
       console.error("Error submitting ", err);
-
       let msg = "Terjadi kesalahan saat menyimpan data";
       if (err.response?.data) {
         const errorData = err.response.data;
@@ -514,7 +500,6 @@ const InputCutting = () => {
       } else if (err.message) {
         msg = err.message;
       }
-
       setError(msg);
       alert(`❌ Gagal menyimpan: ${msg}`);
     } finally {
@@ -523,19 +508,7 @@ const InputCutting = () => {
   };
 
   const timeOptions = getTimeOptions(headerData.shift);
-
-  // Format timestamp untuk tampilan (contoh: "Minggu, 19 Okt 2025, 14:30:45")
-  const formatTimestamp = (date) => {
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() mulai dari 0
-    const year = date.getFullYear();
-
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
-
-    return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
-  };
+  const displayTimestamp = formatAsJakarta(currentTimestamp.toISOString());
 
   return (
     <div className="input-cutting-root">
@@ -565,7 +538,6 @@ const InputCutting = () => {
                   </h2>
                 </div>
                 <div className="cutting-header-grid">
-                  {/* ✅ TIMESTAMP: Hanya tampilan, tidak bisa diubah */}
                   <div className="cutting-field-group">
                     <label className="cutting-label">
                       <div className="cutting-label-icon">
@@ -574,7 +546,7 @@ const InputCutting = () => {
                       Timestamp
                     </label>
                     <div className="cutting-timestamp-display">
-                      {formatTimestamp(currentTimestamp)}
+                      {displayTimestamp}
                     </div>
                   </div>
 
@@ -628,7 +600,7 @@ const InputCutting = () => {
                       className="cutting-select"
                       disabled={isSubmitting}
                     >
-                      {timeOptions.map((time, index) => (
+                      {timeOptions.map((time) => (
                         <option
                           key={`time-${headerData.shift}-${time}`}
                           value={time}
@@ -972,7 +944,7 @@ const InputCutting = () => {
                         </label>
                       </div>
 
-                      {/* Foaming Date */}
+                      {/* Foaming Date — SEKARANG DI SAMPING HOLE */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -999,7 +971,9 @@ const InputCutting = () => {
                         {entry.foamingDate && (
                           <input
                             type="datetime-local"
-                            value={entry.foamingDate}
+                            value={new Date(entry.foamingDate)
+                              .toISOString()
+                              .slice(0, 16)}
                             onChange={(e) =>
                               handleFormEntryChange(
                                 entry.id,

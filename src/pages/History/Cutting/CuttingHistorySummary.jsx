@@ -16,11 +16,8 @@ import {
   Edit3,
   Trash2,
   Save,
-  Target,
-  CalendarCheck,
   Plus,
   Check,
-  XCircle,
 } from "lucide-react";
 import {
   cuttingProductionAPI,
@@ -29,6 +26,29 @@ import {
 import "../../../styles/History/Cutting/CuttingHistorySummary.css";
 
 const CuttingHistorySummary = () => {
+  // === Helper Functions for foamingDate ===
+  const parseCustomDateTime = (str) => {
+    if (!str) return null;
+    const regex = /^(\d{2})\/(\d{2})\/(\d{4}),\s*(\d{2}):(\d{2})$/;
+    const match = str.match(regex);
+    if (!match) return null;
+    const [, day, month, year, hour, minute] = match;
+    return new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
+  };
+
+  const formatCustomDateTime = (date) => {
+    if (!date) return "-";
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "-";
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${day}/${month}/${year}, ${hours}:${minutes}`;
+  };
+
+  // === State ===
   const [summaryData, setSummaryData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -57,6 +77,7 @@ const CuttingHistorySummary = () => {
   const [updatingHole, setUpdatingHole] = useState(null);
   const [updatingFoaming, setUpdatingFoaming] = useState(null);
 
+  // === Fetch Data ===
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -104,6 +125,7 @@ const CuttingHistorySummary = () => {
     fetchData();
   }, [filters]);
 
+  // === Filter Handlers ===
   const handleFilterChange = (field, value) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
     setCurrentPage(1);
@@ -114,6 +136,7 @@ const CuttingHistorySummary = () => {
     setCurrentPage(1);
   };
 
+  // === Date Formatting ===
   const formatTimestamp = (dateString) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("id-ID", {
@@ -134,6 +157,7 @@ const CuttingHistorySummary = () => {
     });
   };
 
+  // === Quantity Helpers ===
   const getTotalQuantity = (entries) => {
     return (
       entries?.reduce(
@@ -152,6 +176,7 @@ const CuttingHistorySummary = () => {
     );
   };
 
+  // === Pagination ===
   const paginationData = {
     currentItems: summaryData.slice(
       (currentPage - 1) * itemsPerPage,
@@ -160,10 +185,9 @@ const CuttingHistorySummary = () => {
     totalPages: Math.ceil(summaryData.length / itemsPerPage),
   };
 
-  // Modal handlers
+  // === Modal Handlers ===
   const openModal = (item) => {
     setSelectedItem(item);
-    // Force reflow to ensure clean render
     setTimeout(() => setIsModalOpen(true), 10);
     setIsEditMode(false);
     setOpError(null);
@@ -177,11 +201,10 @@ const CuttingHistorySummary = () => {
         "Anda memiliki perubahan yang belum disimpan. Tutup modal?",
       )
     ) {
-      return; // Don't close if user cancels
+      return;
     }
 
     setIsModalOpen(false);
-    // Delay cleanup to allow transition
     setTimeout(() => {
       setSelectedItem(null);
       setIsEditMode(false);
@@ -191,7 +214,7 @@ const CuttingHistorySummary = () => {
       setUpdatingHole(null);
       setUpdatingFoaming(null);
       document.body.style.overflow = "auto";
-    }, 300); // Match with CSS transition duration
+    }, 300);
   };
 
   const handleEdit = () => {
@@ -203,7 +226,6 @@ const CuttingHistorySummary = () => {
       machine: selectedItem.machine || "",
       operator: selectedItem.operator || "",
     });
-    // Initialize with computed remainQuantity
     setDraftEntries(
       selectedItem.entries?.map((e) => {
         const qtyOrder = parseInt(e.quantityOrder) || 0;
@@ -248,14 +270,12 @@ const CuttingHistorySummary = () => {
     setOpLoading((prev) => ({ ...prev, save: true }));
     setOpError(null);
 
-    // Validation
     if (!draftHeader.shift || !draftHeader.group || !draftHeader.time) {
       setOpError("Shift, Group, dan Time harus diisi");
       setOpLoading((prev) => ({ ...prev, save: false }));
       return;
     }
 
-    // Validate quantities
     for (let i = 0; i < draftEntries.length; i++) {
       const entry = draftEntries[i];
       const qty = parseInt(entry.quantityProduksi) || 0;
@@ -276,7 +296,6 @@ const CuttingHistorySummary = () => {
       }
     }
 
-    // Recompute all remainQuantity before saving
     const normalizedEntries = draftEntries.map((entry) => ({
       ...entry,
       quantityProduksi: parseInt(entry.quantityProduksi) || 0,
@@ -299,8 +318,6 @@ const CuttingHistorySummary = () => {
       };
 
       await cuttingProductionAPI.update(selectedItem.id, payload);
-
-      // Refresh data and close modal
       await fetchData();
       setIsModalOpen(false);
       setTimeout(() => {
@@ -308,7 +325,6 @@ const CuttingHistorySummary = () => {
         setIsEditMode(false);
         document.body.style.overflow = "auto";
       }, 300);
-
       alert("✅ Data berhasil diupdate!");
     } catch (err) {
       console.error("❌ Gagal update data:", err);
@@ -332,8 +348,6 @@ const CuttingHistorySummary = () => {
 
     try {
       await cuttingProductionAPI.delete(selectedItem.id);
-
-      // Refresh data and close modal
       await fetchData();
       setIsModalOpen(false);
       setTimeout(() => {
@@ -341,7 +355,6 @@ const CuttingHistorySummary = () => {
         setIsEditMode(false);
         document.body.style.overflow = "auto";
       }, 300);
-
       alert("✅ Data berhasil dihapus!");
     } catch (err) {
       console.error("❌ Gagal hapus data:", err);
@@ -351,7 +364,6 @@ const CuttingHistorySummary = () => {
     }
   };
 
-  // Handler untuk update hole
   const handleUpdateHole = async (entryId, currentHole) => {
     const qty = prompt("Masukkan jumlah quantity yang di-hole:", "0");
     if (qty === null) return;
@@ -365,7 +377,7 @@ const CuttingHistorySummary = () => {
     setUpdatingHole(entryId);
     try {
       await cuttingProductionEntryAPI.updateHoleQuantity(entryId, quantityHole);
-      await fetchData(); // Refresh data
+      await fetchData();
       alert("✅ Quantity hole berhasil diperbarui!");
     } catch (err) {
       console.error("❌ Gagal update hole:", err);
@@ -375,7 +387,6 @@ const CuttingHistorySummary = () => {
     }
   };
 
-  // Handler untuk approve foaming
   const handleApproveFoaming = async (entryId) => {
     if (
       !window.confirm(
@@ -388,7 +399,7 @@ const CuttingHistorySummary = () => {
     setUpdatingFoaming(entryId);
     try {
       await cuttingProductionEntryAPI.markFoamingDateCompleted(entryId);
-      await fetchData(); // Refresh data
+      await fetchData();
       alert("✅ Foaming date berhasil ditandai sebagai selesai!");
     } catch (err) {
       console.error("❌ Gagal approve foaming:", err);
@@ -516,7 +527,7 @@ const CuttingHistorySummary = () => {
         </div>
       </div>
 
-      {/* Loading State */}
+      {/* Loading & Error */}
       {loading && (
         <div className="loading-container">
           <div className="loading-spinner"></div>
@@ -524,7 +535,6 @@ const CuttingHistorySummary = () => {
         </div>
       )}
 
-      {/* Error State */}
       {error && !loading && (
         <div className="error-container">
           <AlertTriangle size={20} />
@@ -722,7 +732,6 @@ const CuttingHistorySummary = () => {
             </div>
 
             <div className="modal-body">
-              {/* Error Message */}
               {opError && (
                 <div className="modal-error">
                   <AlertTriangle size={16} />
@@ -730,7 +739,6 @@ const CuttingHistorySummary = () => {
                 </div>
               )}
 
-              {/* Header Info */}
               <div className="modal-info-grid">
                 <div className="modal-info-item">
                   <strong>Tanggal:</strong>
@@ -825,7 +833,6 @@ const CuttingHistorySummary = () => {
                 </div>
               </div>
 
-              {/* Entries Table */}
               <div className="modal-section">
                 <h3>
                   Detail Entries (
@@ -847,7 +854,6 @@ const CuttingHistorySummary = () => {
                         <th>Qty Order</th>
                         <th>Qty Produksi</th>
                         <th>Remain</th>
-                        {/* ✅ Tambah kolom baru */}
                         <th>Is Hole</th>
                         <th>Qty Hole</th>
                         <th>Qty Hole Remain</th>
@@ -886,7 +892,6 @@ const CuttingHistorySummary = () => {
                             <td className="qty-remain">
                               {entry.remainQuantity || 0}
                             </td>
-                            {/* ✅ Kolom baru */}
                             <td>
                               {entry.isHole ? (
                                 <span className="badge badge-hint">Hole</span>
@@ -896,7 +901,14 @@ const CuttingHistorySummary = () => {
                             </td>
                             <td>{entry.quantityHole || 0}</td>
                             <td>{entry.quantityHoleRemain || 0}</td>
-                            <td>{entry.foamingDate || "-"}</td>
+                            {/* ✅ Foaming Date with custom format */}
+                            <td>
+                              {entry.foamingDate
+                                ? formatCustomDateTime(
+                                    parseCustomDateTime(entry.foamingDate),
+                                  )
+                                : "-"}
+                            </td>
                             <td>
                               {entry.foamingDateCompleted ? (
                                 <span className="badge badge-success">

@@ -138,6 +138,7 @@ async function makeRequest(method, endpoint, data = null, params = {}) {
 export const apiClient = {
   get: (endpoint, params = {}) => makeRequest("GET", endpoint, null, params),
   post: (endpoint, data) => makeRequest("POST", endpoint, data),
+  patch: (endpoint, data) => makeRequest("PATCH", endpoint, data),
   put: (endpoint, data) => makeRequest("PUT", endpoint, data),
   delete: (endpoint) => makeRequest("DELETE", endpoint),
 };
