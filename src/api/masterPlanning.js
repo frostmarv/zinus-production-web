@@ -55,14 +55,11 @@ export const masterPlanningAPI = {
       const formData = new FormData();
       formData.append("file", file);
 
+      // ❌ JANGAN set Content-Type manual → biarkan browser atur otomatis
       const response = await apiClient.post(
         "/api/production-planning/upload-file",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
+        formData
+        // Tidak ada headers di sini!
       );
       return response;
     } catch (error) {
@@ -80,7 +77,7 @@ export const masterPlanningAPI = {
     try {
       const response = await apiClient.post(
         "/api/production-planning/upload",
-        data,
+        data
       );
       return response;
     } catch (error) {
@@ -99,13 +96,13 @@ export const masterPlanningAPI = {
     try {
       const response = await apiClient.put(
         `/api/production-planning/${id}`,
-        data,
+        data
       );
       return response;
     } catch (error) {
       console.error(
         `Gagal memperbarui data production planning dengan ID ${id}:`,
-        error,
+        error
       );
       throw error;
     }
@@ -123,7 +120,7 @@ export const masterPlanningAPI = {
     } catch (error) {
       console.error(
         `Gagal menghapus data production planning dengan ID ${id}:`,
-        error,
+        error
       );
       throw error;
     }
@@ -141,7 +138,7 @@ export const masterPlanningAPI = {
     } catch (error) {
       console.error(
         `Gagal mengambil data production planning dengan ID ${id}:`,
-        error,
+        error
       );
       throw error;
     }

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { masterPlanningAPI } from "../../../api/masterPlanning";
 import { useNavigate } from "react-router-dom";
-import { getUser } from "../../../api/authService"; // ✅ Tambahkan import
+import { getUser } from "../../../api/authService";
 import "../../../styles/MasterData/Foam/MasterFoam.css";
 
 const MasterFoam = () => {
@@ -36,11 +36,9 @@ const MasterFoam = () => {
   });
   const navigate = useNavigate();
 
-  // ✅ Cek hak akses
   const user = getUser();
   const canManage = user?.role === "Pemilik" || user?.department === "PPIC";
 
-  // Ambil data foam dari backend
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,7 +58,6 @@ const MasterFoam = () => {
     fetchData();
   }, []);
 
-  // Filter data berdasarkan pencarian
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredData(data);
@@ -72,16 +69,13 @@ const MasterFoam = () => {
       const matchesSKU = item.SKU?.toLowerCase().includes(term);
       const matchesWeek = item.Week?.toString().includes(term);
       const matchesFCode = item["Item Number"]?.toLowerCase().includes(term);
-      const matchesCustomer = item["Ship to Name"]
-        ?.toLowerCase()
-        .includes(term);
+      const matchesCustomer = item["Ship to Name"]?.toLowerCase().includes(term);
       return matchesSKU || matchesWeek || matchesFCode || matchesCustomer;
     });
 
     setFilteredData(result);
   }, [searchTerm, data]);
 
-  // Handle upload file
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -90,7 +84,7 @@ const MasterFoam = () => {
     setUploadError(null);
 
     try {
-      await masterPlanningAPI.uploadFile(file);
+      await masterPlanningAPI.uploadFile(file); // ✅ Sekarang sudah benar
       alert("Upload file berhasil!");
       const response = await masterPlanningAPI.getAllFoam();
       const rawData = response.data || response;
@@ -101,11 +95,10 @@ const MasterFoam = () => {
       console.error(err);
     } finally {
       setUploadLoading(false);
-      e.target.value = "";
+      e.target.value = ""; // Reset input file
     }
   };
 
-  // Handle open modal (create/edit)
   const handleOpenModal = (item = null) => {
     if (item) {
       setEditingItem(item);
@@ -155,7 +148,6 @@ const MasterFoam = () => {
     setIsModalOpen(true);
   };
 
-  // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -164,7 +156,6 @@ const MasterFoam = () => {
     }));
   };
 
-  // Handle submit (create/update)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -175,11 +166,7 @@ const MasterFoam = () => {
         await masterPlanningAPI.create(formData);
       }
 
-      alert(
-        editingItem
-          ? "Data berhasil diperbarui!"
-          : "Data berhasil ditambahkan!",
-      );
+      alert(editingItem ? "Data berhasil diperbarui!" : "Data berhasil ditambahkan!");
       setIsModalOpen(false);
 
       const response = await masterPlanningAPI.getAllFoam();
@@ -192,7 +179,6 @@ const MasterFoam = () => {
     }
   };
 
-  // Handle delete
   const handleDelete = async (id) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
 
@@ -243,7 +229,6 @@ const MasterFoam = () => {
           />
         </div>
 
-        {/* ✅ Tampilkan aksi hanya jika berhak */}
         {canManage && (
           <div className="master-foam__actions">
             <div className="master-foam__upload">
@@ -292,7 +277,6 @@ const MasterFoam = () => {
               <th>Total Qty</th>
               <th>Week</th>
               <th>Category</th>
-              {/* ✅ Kolom Aksi hanya muncul jika berhak */}
               {canManage && <th>Aksi</th>}
             </tr>
           </thead>
@@ -315,7 +299,6 @@ const MasterFoam = () => {
                   <td>{item["Total Qty"]}</td>
                   <td>{item.Week}</td>
                   <td>{item.Category}</td>
-                  {/* ✅ Tombol aksi hanya muncul jika berhak */}
                   {canManage && (
                     <td>
                       <button
@@ -348,7 +331,6 @@ const MasterFoam = () => {
         </table>
       </div>
 
-      {/* Modal Create/Edit */}
       {isModalOpen && (
         <div
           className="master-foam__modal-overlay"
