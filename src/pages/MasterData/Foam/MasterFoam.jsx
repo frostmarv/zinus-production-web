@@ -22,10 +22,7 @@ const MasterFoam = () => {
     itemNumber: "",
     sku: "",
     category: "FOAM",
-    specLength: 0,
-    specWidth: 0,
-    specHeight: 0,
-    specUnit: "IN",
+    spec: "", // ✅ Satu field
     itemDescription: "",
     orderQty: 0,
     sample: 0,
@@ -70,7 +67,8 @@ const MasterFoam = () => {
       const matchesWeek = item.Week?.toString().includes(term);
       const matchesFCode = item["Item Number"]?.toLowerCase().includes(term);
       const matchesCustomer = item["Ship to Name"]?.toLowerCase().includes(term);
-      return matchesSKU || matchesWeek || matchesFCode || matchesCustomer;
+      const matchesSpec = item.Spec?.toLowerCase().includes(term);
+      return matchesSKU || matchesWeek || matchesFCode || matchesCustomer || matchesSpec;
     });
 
     setFilteredData(result);
@@ -84,7 +82,7 @@ const MasterFoam = () => {
     setUploadError(null);
 
     try {
-      await masterPlanningAPI.uploadFile(file); // ✅ Sekarang sudah benar
+      await masterPlanningAPI.uploadFile(file);
       alert("Upload file berhasil!");
       const response = await masterPlanningAPI.getAllFoam();
       const rawData = response.data || response;
@@ -109,12 +107,7 @@ const MasterFoam = () => {
         itemNumber: item["Item Number"] || "",
         sku: item.SKU || "",
         category: item.Category || "FOAM",
-        specLength: item.Spec ? parseFloat(item.Spec.split("*")[0]) || 0 : 0,
-        specWidth: item.Spec ? parseFloat(item.Spec.split("*")[1]) || 0 : 0,
-        specHeight: item.Spec
-          ? parseFloat(item.Spec.split("*")[2]?.replace("IN", "")) || 0
-          : 0,
-        specUnit: "IN",
+        spec: item.Spec || "", // ✅ Ambil dari item.Spec
         itemDescription: item["Item Description"] || "",
         orderQty: item["Order QTY"] || 0,
         sample: item.Sample || 0,
@@ -132,10 +125,7 @@ const MasterFoam = () => {
         itemNumber: "",
         sku: "",
         category: "FOAM",
-        specLength: 0,
-        specWidth: 0,
-        specHeight: 0,
-        specUnit: "IN",
+        spec: "",
         itemDescription: "",
         orderQty: 0,
         sample: 0,
@@ -158,6 +148,13 @@ const MasterFoam = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Validasi format spec
+    const specRegex = /^(\d+\.?\d*)\s*\*\s*(\d+\.?\d*)\s*\*\s*(\d+\.?\d*)\s*([a-zA-Z]*)$/;
+    if (!specRegex.test(formData.spec)) {
+      alert("Spec harus dalam format yang valid, contoh: 75*54*8IN");
+      return;
+    }
 
     try {
       if (editingItem) {
@@ -218,7 +215,7 @@ const MasterFoam = () => {
 
       <div className="master-foam__controls">
         <div className="master-foam__search">
-          <label htmlFor="foam-search">Cari (SKU, Week, Item Number):</label>
+          <label htmlFor="foam-search">Cari (SKU, Week, Item Number, Spec):</label>
           <input
             id="foam-search"
             type="text"
@@ -404,33 +401,15 @@ const MasterFoam = () => {
                   <option value="SPRING">SPRING</option>
                 </select>
               </div>
+              {/* ✅ Input hanya spec */}
               <div className="master-foam__form-row">
-                <label>Spec Length:</label>
+                <label>Spec (Format: 75*54*8IN):</label>
                 <input
-                  type="number"
-                  name="specLength"
-                  value={formData.specLength}
+                  type="text"
+                  name="spec"
+                  value={formData.spec}
                   onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="master-foam__form-row">
-                <label>Spec Width:</label>
-                <input
-                  type="number"
-                  name="specWidth"
-                  value={formData.specWidth}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="master-foam__form-row">
-                <label>Spec Height:</label>
-                <input
-                  type="number"
-                  name="specHeight"
-                  value={formData.specHeight}
-                  onChange={handleInputChange}
+                  placeholder="Contoh: 75*54*8IN"
                   required
                 />
               </div>

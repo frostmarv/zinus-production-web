@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { masterPlanningAPI } from "../../../api/masterPlanning";
 import { useNavigate } from "react-router-dom";
-import { getUser } from "../../../api/authService"; // ✅ Tambahkan ini
+import { getUser } from "../../../api/authService";
 import "../../../styles/MasterData/Spring/MasterSpring.css";
 
 const MasterSpring = () => {
@@ -22,10 +22,7 @@ const MasterSpring = () => {
     itemNumber: "",
     sku: "",
     category: "SPRING",
-    specLength: 0,
-    specWidth: 0,
-    specHeight: 0,
-    specUnit: "IN",
+    spec: "", // ✅ Satu field
     itemDescription: "",
     orderQty: 0,
     sample: 0,
@@ -72,10 +69,9 @@ const MasterSpring = () => {
       const matchesSKU = item.SKU?.toLowerCase().includes(term);
       const matchesWeek = item.Week?.toString().includes(term);
       const matchesFCode = item["Item Number"]?.toLowerCase().includes(term);
-      const matchesCustomer = item["Ship to Name"]
-        ?.toLowerCase()
-        .includes(term);
-      return matchesSKU || matchesWeek || matchesFCode || matchesCustomer;
+      const matchesCustomer = item["Ship to Name"]?.toLowerCase().includes(term);
+      const matchesSpec = item.Spec?.toLowerCase().includes(term); // ✅ Tambahkan pencarian berdasarkan spec
+      return matchesSKU || matchesWeek || matchesFCode || matchesCustomer || matchesSpec;
     });
 
     setFilteredData(result);
@@ -116,12 +112,7 @@ const MasterSpring = () => {
         itemNumber: item["Item Number"] || "",
         sku: item.SKU || "",
         category: item.Category || "SPRING",
-        specLength: item.Spec ? parseFloat(item.Spec.split("*")[0]) || 0 : 0,
-        specWidth: item.Spec ? parseFloat(item.Spec.split("*")[1]) || 0 : 0,
-        specHeight: item.Spec
-          ? parseFloat(item.Spec.split("*")[2]?.replace("IN", "")) || 0
-          : 0,
-        specUnit: "IN",
+        spec: item.Spec || "", // ✅ Ambil dari item.Spec
         itemDescription: item["Item Description"] || "",
         orderQty: item["Order QTY"] || 0,
         sample: item.Sample || 0,
@@ -139,10 +130,7 @@ const MasterSpring = () => {
         itemNumber: "",
         sku: "",
         category: "SPRING",
-        specLength: 0,
-        specWidth: 0,
-        specHeight: 0,
-        specUnit: "IN",
+        spec: "", // ✅ Kosongkan
         itemDescription: "",
         orderQty: 0,
         sample: 0,
@@ -167,6 +155,13 @@ const MasterSpring = () => {
   // Handle submit (create/update)
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Validasi format spec
+    const specRegex = /^(\d+\.?\d*)\s*\*\s*(\d+\.?\d*)\s*\*\s*(\d+\.?\d*)\s*([a-zA-Z]*)$/;
+    if (!specRegex.test(formData.spec)) {
+      alert("Spec harus dalam format yang valid, contoh: 75*54*8IN");
+      return;
+    }
 
     try {
       if (editingItem) {
@@ -232,7 +227,7 @@ const MasterSpring = () => {
 
       <div className="master-spring__controls">
         <div className="master-spring__search">
-          <label htmlFor="spring-search">Cari (SKU, Week, Item Number):</label>
+          <label htmlFor="spring-search">Cari (SKU, Week, Item Number, Spec):</label>
           <input
             id="spring-search"
             type="text"
@@ -425,33 +420,15 @@ const MasterSpring = () => {
                   <option value="SPRING">SPRING</option>
                 </select>
               </div>
+              {/* ✅ Input hanya spec */}
               <div className="master-spring__form-row">
-                <label>Spec Length:</label>
+                <label>Spec (Format: 75*54*8IN):</label>
                 <input
-                  type="number"
-                  name="specLength"
-                  value={formData.specLength}
+                  type="text"
+                  name="spec"
+                  value={formData.spec}
                   onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="master-spring__form-row">
-                <label>Spec Width:</label>
-                <input
-                  type="number"
-                  name="specWidth"
-                  value={formData.specWidth}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="master-spring__form-row">
-                <label>Spec Height:</label>
-                <input
-                  type="number"
-                  name="specHeight"
-                  value={formData.specHeight}
-                  onChange={handleInputChange}
+                  placeholder="Contoh: 75*54*8IN"
                   required
                 />
               </div>

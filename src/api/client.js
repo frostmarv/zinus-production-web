@@ -1,10 +1,14 @@
 // src/api/client.js
+
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 if (!API_BASE_URL) {
   console.warn("⚠️ VITE_API_BASE_URL tidak ditemukan di environment variables");
 }
 
+// ============================================================
+// 🧩 Token Helpers
+// ============================================================
 const getAccessToken = () => localStorage.getItem("access_token");
 const getRefreshToken = () => localStorage.getItem("refresh_token");
 
@@ -19,14 +23,24 @@ const clearTokens = () => {
   localStorage.removeItem("user");
 };
 
-const getHeaders = (token) => {
+// ============================================================
+// 🧠 Utility Functions
+// ============================================================
+
+const getHeaders = (token, isFormData = false) => {
   const headers = {
-    "Content-Type": "application/json",
     Accept: "application/json",
   };
+
+  // Jika bukan FormData, gunakan JSON
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
+
   return headers;
 };
 
@@ -42,15 +56,16 @@ function buildUrl(baseUrl, endpoint, params = {}) {
 
 async function parseJSON(response) {
   const text = await response.text();
-  console.log("📄 parseJSON raw text:", text); // 👈 TAMBAHKAN LOG
+  console.log("📄 parseJSON raw text:", text);
 
   if (text === "") return null;
+
   try {
     const json = JSON.parse(text);
-    console.log("📄 parseJSON parsed JSON:", json); // 👈 TAMBAHKAN LOG
+    console.log("📄 parseJSON parsed JSON:", json);
     return json;
   } catch (e) {
-    console.error("Gagal mengurai JSON:", text);
+    console.error("❌ Gagal mengurai JSON:", text);
     throw new Error(`Respons bukan JSON valid. Status: ${response.status}`);
   }
 }
@@ -59,11 +74,14 @@ async function authenticatedFetch(url, options, token = null) {
   const finalToken = token ?? getAccessToken();
   const response = await fetch(url, {
     ...options,
-    headers: getHeaders(finalToken),
+    headers: getHeaders(finalToken, options.isFormData),
   });
   return response;
 }
 
+// ============================================================
+// 🔄 Refresh Token
+// ============================================================
 async function refreshToken() {
   const refreshToken = getRefreshToken();
   if (!refreshToken) throw new Error("No refresh token");
@@ -89,38 +107,50 @@ async function refreshToken() {
   return data.access_token;
 }
 
+// ============================================================
+// 🚀 Main Request Function
+// ============================================================
 async function makeRequest(method, endpoint, data = null, params = {}) {
   const url =
     method === "GET"
       ? buildUrl(API_BASE_URL, endpoint, params)
       : new URL(endpoint, API_BASE_URL).toString();
 
-  // Coba request pertama kali
-  let response = await authenticatedFetch(url, {
+  const isFormData = data instanceof FormData;
+
+  const options = {
     method,
-    body: data ? JSON.stringify(data) : undefined,
+    isFormData,
+    body:
+      data && !isFormData
+        ? JSON.stringify(data)
+        : isFormData
+        ? data
+        : undefined,
+  };
+
+  console.log(`🚀 [${method}] ${url}`, {
+    isFormData,
+    data: isFormData ? "(FormData)" : data,
   });
 
-  // Jika 401, coba refresh token dan ulangi
+  // Request pertama
+  let response = await authenticatedFetch(url, options);
+
+  // Jika token expired → refresh
   if (response.status === 401) {
     try {
       const newAccessToken = await refreshToken();
-      response = await authenticatedFetch(
-        url,
-        {
-          method,
-          body: data ? JSON.stringify(data) : undefined,
-        },
-        newAccessToken,
-      );
-    } catch (refreshError) {
-      console.error("Auto-refresh gagal:", refreshError);
+      response = await authenticatedFetch(url, options, newAccessToken);
+    } catch (err) {
+      console.error("❌ Auto-refresh gagal:", err);
       clearTokens();
       window.location.href = "/login";
-      throw refreshError;
+      throw err;
     }
   }
 
+  // Tangani error
   if (!response.ok) {
     const errorData = await parseJSON(response).catch(() => ({}));
     const message =
@@ -130,11 +160,15 @@ async function makeRequest(method, endpoint, data = null, params = {}) {
     throw new Error(message);
   }
 
-  const result = await parseJSON(response); // ← INI YANG DIKEMBALIKAN
-  console.log("📤 makeRequest result:", result); // 👈 TAMBAHKAN LOG
+  // Parse hasil JSON
+  const result = await parseJSON(response);
+  console.log("📤 makeRequest result:", result);
   return result;
 }
 
+// ============================================================
+// 🌐 Public API Client
+// ============================================================
 export const apiClient = {
   get: (endpoint, params = {}) => makeRequest("GET", endpoint, null, params),
   post: (endpoint, data) => makeRequest("POST", endpoint, data),
