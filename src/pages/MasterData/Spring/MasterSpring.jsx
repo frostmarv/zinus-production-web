@@ -5,6 +5,33 @@ import { useNavigate } from "react-router-dom";
 import { getUser } from "../../../api/authService";
 import "../../../styles/MasterData/Spring/MasterSpring.css";
 
+// Helper: Konversi ISO string → YYYY-MM-DD (untuk input date)
+const isoToInputDate = (isoString) => {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  if (year < 1970 || year > 2100) return ""; // Hindari epoch time
+  return date.toISOString().split("T")[0];
+};
+
+// Helper: Konversi YYYY-MM-DD → ISO string (untuk kirim ke backend)
+const inputDateToIso = (dateString) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? null : date.toISOString();
+};
+
+// Helper: Tampilkan tanggal di tabel (YYYY-MM-DD atau "-")
+const displayDate = (isoString) => {
+  if (!isoString) return "-";
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "-";
+  const year = date.getFullYear();
+  if (year < 1970 || year > 2100) return "-";
+  return date.toISOString().split("T")[0];
+};
+
 const MasterSpring = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -22,7 +49,7 @@ const MasterSpring = () => {
     itemNumber: "",
     sku: "",
     category: "SPRING",
-    spec: "", // ✅ Satu field
+    spec: "",
     itemDescription: "",
     orderQty: 0,
     sample: 0,
@@ -33,11 +60,9 @@ const MasterSpring = () => {
   });
   const navigate = useNavigate();
 
-  // ✅ Cek hak akses
   const user = getUser();
   const canManage = user?.role === "Pemilik" || user?.department === "PPIC";
 
-  // Ambil data spring dari backend
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,7 +82,6 @@ const MasterSpring = () => {
     fetchData();
   }, []);
 
-  // Filter data berdasarkan pencarian
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredData(data);
@@ -70,14 +94,13 @@ const MasterSpring = () => {
       const matchesWeek = item.Week?.toString().includes(term);
       const matchesFCode = item["Item Number"]?.toLowerCase().includes(term);
       const matchesCustomer = item["Ship to Name"]?.toLowerCase().includes(term);
-      const matchesSpec = item.Spec?.toLowerCase().includes(term); // ✅ Tambahkan pencarian berdasarkan spec
+      const matchesSpec = item.Spec?.toLowerCase().includes(term);
       return matchesSKU || matchesWeek || matchesFCode || matchesCustomer || matchesSpec;
     });
 
     setFilteredData(result);
   }, [searchTerm, data]);
 
-  // Handle upload file
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -101,7 +124,6 @@ const MasterSpring = () => {
     }
   };
 
-  // Handle open modal (create/edit)
   const handleOpenModal = (item = null) => {
     if (item) {
       setEditingItem(item);
@@ -112,14 +134,14 @@ const MasterSpring = () => {
         itemNumber: item["Item Number"] || "",
         sku: item.SKU || "",
         category: item.Category || "SPRING",
-        spec: item.Spec || "", // ✅ Ambil dari item.Spec
+        spec: item.Spec || "",
         itemDescription: item["Item Description"] || "",
         orderQty: item["Order QTY"] || 0,
         sample: item.Sample || 0,
         week: item.Week?.toString() || "1",
-        iD: item["I/D"] || "",
-        lD: item["L/D"] || "",
-        sD: item["S/D"] || "",
+        iD: isoToInputDate(item["I/D"]),
+        lD: isoToInputDate(item["L/D"]),
+        sD: isoToInputDate(item["S/D"]),
       });
     } else {
       setEditingItem(null);
@@ -130,7 +152,7 @@ const MasterSpring = () => {
         itemNumber: "",
         sku: "",
         category: "SPRING",
-        spec: "", // ✅ Kosongkan
+        spec: "",
         itemDescription: "",
         orderQty: 0,
         sample: 0,
@@ -143,7 +165,6 @@ const MasterSpring = () => {
     setIsModalOpen(true);
   };
 
-  // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -152,29 +173,30 @@ const MasterSpring = () => {
     }));
   };
 
-  // Handle submit (create/update)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Validasi format spec
     const specRegex = /^(\d+\.?\d*)\s*\*\s*(\d+\.?\d*)\s*\*\s*(\d+\.?\d*)\s*([a-zA-Z]*)$/;
     if (!specRegex.test(formData.spec)) {
       alert("Spec harus dalam format yang valid, contoh: 75*54*8IN");
       return;
     }
 
+    const payload = {
+      ...formData,
+      iD: inputDateToIso(formData.iD),
+      lD: inputDateToIso(formData.lD),
+      sD: inputDateToIso(formData.sD),
+    };
+
     try {
       if (editingItem) {
-        await masterPlanningAPI.update(editingItem.id, formData);
+        await masterPlanningAPI.update(editingItem.id, payload);
       } else {
-        await masterPlanningAPI.create(formData);
+        await masterPlanningAPI.create(payload);
       }
 
-      alert(
-        editingItem
-          ? "Data berhasil diperbarui!"
-          : "Data berhasil ditambahkan!",
-      );
+      alert(editingItem ? "Data berhasil diperbarui!" : "Data berhasil ditambahkan!");
       setIsModalOpen(false);
 
       const response = await masterPlanningAPI.getAllSpring();
@@ -187,7 +209,6 @@ const MasterSpring = () => {
     }
   };
 
-  // Handle delete
   const handleDelete = async (id) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
 
@@ -238,14 +259,10 @@ const MasterSpring = () => {
           />
         </div>
 
-        {/* ✅ Tampilkan aksi hanya jika berhak */}
         {canManage && (
           <div className="master-spring__actions">
             <div className="master-spring__upload">
-              <label
-                htmlFor="file-upload"
-                className="master-spring__upload-btn"
-              >
+              <label htmlFor="file-upload" className="master-spring__upload-btn">
                 {uploadLoading ? "Mengupload..." : "Upload File"}
               </label>
               <input
@@ -290,7 +307,6 @@ const MasterSpring = () => {
               <th>Total Qty</th>
               <th>Week</th>
               <th>Category</th>
-              {/* ✅ Kolom Aksi hanya muncul jika berhak */}
               {canManage && <th>Aksi</th>}
             </tr>
           </thead>
@@ -305,15 +321,14 @@ const MasterSpring = () => {
                   <td>{item.SKU}</td>
                   <td>{item.Spec}</td>
                   <td>{item["Item Description"]}</td>
-                  <td>{item["I/D"]}</td>
-                  <td>{item["L/D"]}</td>
-                  <td>{item["S/D"]}</td>
+                  <td>{displayDate(item["I/D"])}</td>
+                  <td>{displayDate(item["L/D"])}</td>
+                  <td>{displayDate(item["S/D"])}</td>
                   <td>{item["Order QTY"]}</td>
                   <td>{item.Sample}</td>
                   <td>{item["Total Qty"]}</td>
                   <td>{item.Week}</td>
                   <td>{item.Category}</td>
-                  {/* ✅ Tombol aksi hanya muncul jika berhak */}
                   {canManage && (
                     <td>
                       <button
@@ -346,7 +361,6 @@ const MasterSpring = () => {
         </table>
       </div>
 
-      {/* Modal hanya bisa dibuka jika canManage, tapi tetap aman karena di-handle di tombol */}
       {isModalOpen && (
         <div
           className="master-spring__modal-overlay"
@@ -420,7 +434,6 @@ const MasterSpring = () => {
                   <option value="SPRING">SPRING</option>
                 </select>
               </div>
-              {/* ✅ Input hanya spec */}
               <div className="master-spring__form-row">
                 <label>Spec (Format: 75*54*8IN):</label>
                 <input

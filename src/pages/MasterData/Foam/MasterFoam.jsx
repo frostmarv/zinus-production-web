@@ -5,6 +5,34 @@ import { useNavigate } from "react-router-dom";
 import { getUser } from "../../../api/authService";
 import "../../../styles/MasterData/Foam/MasterFoam.css";
 
+// Helper: ISO string → YYYY-MM-DD (untuk input date)
+const isoToInputDate = (isoString) => {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "";
+  // Hindari tanggal epoch (1969/1970) akibat string kosong/null
+  const year = date.getFullYear();
+  if (year < 1970 || year > 2100) return "";
+  return date.toISOString().split("T")[0];
+};
+
+// Helper: YYYY-MM-DD → ISO string (untuk kirim ke backend)
+const inputDateToIso = (dateString) => {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? null : date.toISOString();
+};
+
+// Helper: Tampilkan tanggal di tabel (YYYY-MM-DD atau "-")
+const displayDate = (isoString) => {
+  if (!isoString) return "-";
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "-";
+  const year = date.getFullYear();
+  if (year < 1970 || year > 2100) return "-";
+  return date.toISOString().split("T")[0];
+};
+
 const MasterFoam = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -22,7 +50,7 @@ const MasterFoam = () => {
     itemNumber: "",
     sku: "",
     category: "FOAM",
-    spec: "", // ✅ Satu field
+    spec: "",
     itemDescription: "",
     orderQty: 0,
     sample: 0,
@@ -93,7 +121,7 @@ const MasterFoam = () => {
       console.error(err);
     } finally {
       setUploadLoading(false);
-      e.target.value = ""; // Reset input file
+      e.target.value = "";
     }
   };
 
@@ -107,14 +135,14 @@ const MasterFoam = () => {
         itemNumber: item["Item Number"] || "",
         sku: item.SKU || "",
         category: item.Category || "FOAM",
-        spec: item.Spec || "", // ✅ Ambil dari item.Spec
+        spec: item.Spec || "",
         itemDescription: item["Item Description"] || "",
         orderQty: item["Order QTY"] || 0,
         sample: item.Sample || 0,
         week: item.Week?.toString() || "1",
-        iD: item["I/D"] || "",
-        lD: item["L/D"] || "",
-        sD: item["S/D"] || "",
+        iD: isoToInputDate(item["I/D"]),
+        lD: isoToInputDate(item["L/D"]),
+        sD: isoToInputDate(item["S/D"]),
       });
     } else {
       setEditingItem(null);
@@ -149,18 +177,25 @@ const MasterFoam = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Validasi format spec
     const specRegex = /^(\d+\.?\d*)\s*\*\s*(\d+\.?\d*)\s*\*\s*(\d+\.?\d*)\s*([a-zA-Z]*)$/;
     if (!specRegex.test(formData.spec)) {
       alert("Spec harus dalam format yang valid, contoh: 75*54*8IN");
       return;
     }
 
+    // Siapkan payload dengan tanggal dalam format ISO untuk backend
+    const payload = {
+      ...formData,
+      iD: inputDateToIso(formData.iD),
+      lD: inputDateToIso(formData.lD),
+      sD: inputDateToIso(formData.sD),
+    };
+
     try {
       if (editingItem) {
-        await masterPlanningAPI.update(editingItem.id, formData);
+        await masterPlanningAPI.update(editingItem.id, payload);
       } else {
-        await masterPlanningAPI.create(formData);
+        await masterPlanningAPI.create(payload);
       }
 
       alert(editingItem ? "Data berhasil diperbarui!" : "Data berhasil ditambahkan!");
@@ -288,9 +323,9 @@ const MasterFoam = () => {
                   <td>{item.SKU}</td>
                   <td>{item.Spec}</td>
                   <td>{item["Item Description"]}</td>
-                  <td>{item["I/D"]}</td>
-                  <td>{item["L/D"]}</td>
-                  <td>{item["S/D"]}</td>
+                  <td>{displayDate(item["I/D"])}</td> {/* ✅ Format YYYY-MM-DD */}
+                  <td>{displayDate(item["L/D"])}</td>
+                  <td>{displayDate(item["S/D"])}</td>
                   <td>{item["Order QTY"]}</td>
                   <td>{item.Sample}</td>
                   <td>{item["Total Qty"]}</td>
@@ -401,7 +436,6 @@ const MasterFoam = () => {
                   <option value="SPRING">SPRING</option>
                 </select>
               </div>
-              {/* ✅ Input hanya spec */}
               <div className="master-foam__form-row">
                 <label>Spec (Format: 75*54*8IN):</label>
                 <input
