@@ -112,27 +112,36 @@
   transform: scale(1.5);
 }
 
-/* 🔴 Running Ad Banner */
+/* Running Ad */
 .running-ad {
-  background-color: #e74c3c; /* Merah mencolok untuk peringatan K3 */
+  background-color: #e74c3c;
   color: white;
   font-size: 22px;
   font-weight: bold;
   padding: 10px 0;
-  overflow: hidden;
-  white-space: nowrap;
-  box-sizing: border-box;
+  overflow: hidden; /* Penting! Agar konten yang keluar tidak terlihat */
   width: 100%;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+  white-space: nowrap;
 }
 
-.running-ad span {
-  display: inline-block;
-  padding-left: 100%;
-  animation: scrollAd 35s linear infinite; /* Sesuaikan durasi karena teks lebih panjang */
+.running-ad-track {
+  display: flex;
+  width: max-content;
+  animation: scrollAd 30s linear infinite;
+}
+
+.running-ad-content {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  padding-right: 80px; /* Jarak antar pengulangan */
+}
+
+.k3-logo-inline {
+  height: 24px;
+  vertical-align: middle;
+  margin: 0 6px;
 }
 
 @keyframes scrollAd {
@@ -140,16 +149,10 @@
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-50%);
   }
 }
 
-/* Gambar Logo K3 dalam iklan */
-.k3-logo-inline {
-  height: 24px; /* Sesuaikan ukuran logo */
-  vertical-align: middle;
-  margin: 0 6px;
-}
 
 /* Footer */
 .footer {
