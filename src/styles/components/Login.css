@@ -97,10 +97,33 @@
   color: var(--text-dark);
 }
 
-.login-root .logo-top img {
+/* ✅ Gaya untuk kontainer logo */
+.login-root .logo-container {
+  width: 80px; /* Sesuaikan dengan ukuran logo Anda */
+  height: 80px;
+  margin: 0 auto 1rem auto; /* Pusatkan dan beri jarak bawah */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Atau nilai lain sesuai keinginan */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), /* Bayangan utama */
+              0 2px 4px rgba(0, 0, 0, 0.1); /* Bayangan kedua untuk kedalaman */
+  padding: 4px; /* Memberi sedikit ruang antara border dan gambar jika diperlukan */
+  background-color: white; /* Latar belakang putih opsional untuk kontras */
+}
+
+.login-root .logo-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Menjaga rasio aspek logo */
+  border-radius: 50%; /* Jika ingin logo bulat juga */
+}
+
+/* Jika Anda ingin menghapus .logo-top yang lama, hapus baris ini dan sesuaikan margin */
+/* .login-root .logo-top img {
   width: 80px;
   margin-bottom: 1rem;
-}
+} */
 
 .login-root h1 {
   font-size: 1.5rem;

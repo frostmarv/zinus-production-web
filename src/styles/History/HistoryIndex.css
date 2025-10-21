@@ -1,3 +1,4 @@
+/* src/styles/History/HistoryIndex.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 *,
@@ -10,12 +11,10 @@
 .dashboard-header {
   margin: 2rem 3rem 2rem;
   padding: 2rem;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #329F96; /* ✅ Header utama pakai warna aksen */
+  color: white;
   border-radius: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
   animation: slideInDown 0.8s ease-out;
 }
 
@@ -40,26 +39,27 @@
 .header-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
   border-radius: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .header-text h1 {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #262626;
+  color: white; /* ✅ Putih karena latar hijau */
   margin: 0 0 0.25rem 0;
   letter-spacing: -0.025em;
 }
 
 .header-text p {
   font-size: 1.125rem;
-  color: #525252;
+  color: rgba(255, 255, 255, 0.92);
   margin: 0;
   font-weight: 500;
 }
@@ -75,12 +75,12 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.75rem;
-  font-weight: 500;
-  color: #737373;
+  font-weight: 600;
+  color: white;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.5rem 0.75rem;
-  background: #f5f5f5;
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 0.5rem;
 }
 
@@ -109,77 +109,34 @@
   align-items: center;
   gap: 1.25rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: white; /* ✅ Card putih di atas latar #E9FBF0 */
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(50, 159, 150, 0.1);
+  border: 1px solid rgba(50, 159, 150, 0.15);
   cursor: pointer;
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
   min-width: 0;
 }
 
-/* ========== Disabled State ========== */
-.department-item.disabled {
+/* Disabled State */
+.department-item--disabled {
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.65;
   cursor: not-allowed !important;
-  filter: grayscale(40%);
+  filter: grayscale(50%);
 }
 
-.department-item.disabled:hover,
-.department-item.disabled:focus {
-  transform: none !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.department-item.disabled .department-icon {
-  transform: none !important;
-}
-
-.department-item.disabled .department-arrow {
-  color: #a3a3a3 !important;
-  transform: none !important;
-}
-
-/* ========== Coming Soon Overlay ========== */
-.coming-soon-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  color: #525252;
-  font-size: 0.875rem;
-  border-radius: 1rem;
-  z-index: 1;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  pointer-events: none;
-}
-
-/* ========== Status Badge ========== */
+/* Status Badge */
 .status-badge {
   font-size: 0.625rem;
   font-weight: 700;
   padding: 0.25rem 0.5rem;
-  background: #86efac;
-  color: #14532d;
+  background: #329F96; /* ✅ Badge hijau solid */
+  color: white;
   border-radius: 0.375rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  opacity: 0.9;
-  border: 1px solid rgba(134, 239, 172, 0.3);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -187,7 +144,7 @@
   text-align: center;
 }
 
-/* ========== Hover & Focus Effects ========== */
+/* Hover & Focus Effects */
 .department-item::before {
   content: '';
   position: absolute;
@@ -195,7 +152,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+  background: linear-gradient(90deg, transparent, #329F96, transparent);
   transform: translateX(-100%);
   transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -207,9 +164,9 @@
 
 .department-item:hover,
 .department-item:focus {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border-color: rgba(59, 130, 246, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(50, 159, 150, 0.2);
+  border-color: rgba(50, 159, 150, 0.35);
   outline: none;
 }
 
@@ -221,12 +178,11 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 150ms ease;
 }
 
-.department-item:hover .department-icon,
-.department-item:focus .department-icon {
-  transform: scale(1.1);
+.department-item:hover .department-icon {
+  transform: scale(1.12);
 }
 
 .department-info {
@@ -244,7 +200,7 @@
 .department-header h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #262626;
+  color: #003628;
   margin: 0;
   letter-spacing: -0.025em;
 }
@@ -260,23 +216,22 @@
   display: flex;
   align-items: center;
   font-size: 0.8125rem;
-  color: #737373;
+  color: #329F96; /* ✅ Aksen hijau */
   font-weight: 500;
 }
 
 .department-arrow {
-  color: #a3a3a3;
-  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: #cbd5e1;
+  transition: transform 150ms ease, color 150ms ease;
   flex-shrink: 0;
 }
 
-.department-item:hover .department-arrow,
-.department-item:focus .department-arrow {
-  color: #3b82f6;
+.department-item:hover .department-arrow {
+  color: #329F96;
   transform: translateX(4px);
 }
 
-/* ========== Responsive ========== */
+/* Responsive */
 @media (max-width: 768px) {
   .dashboard-header {
     margin: 1.5rem;
@@ -338,45 +293,6 @@
   }
 }
 
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-  .dashboard-header,
-  .department-item {
-    background: rgba(30, 41, 59, 0.95);
-    border-color: rgba(148, 163, 184, 0.2);
-  }
-
-  .header-content h1,
-  .department-header h3 {
-    color: #f1f5f9;
-  }
-
-  .header-content p,
-  .department-description {
-    color: #cbd5e1;
-  }
-
-  .department-stats {
-    color: #94a3b8;
-  }
-
-  .last-update {
-    background: rgba(0, 0, 0, 0.2);
-    color: #cbd5e1;
-  }
-
-  .status-badge {
-    background: #166534;
-    color: #bbf7d0;
-    border-color: rgba(52, 211, 153, 0.3);
-  }
-
-  .coming-soon-overlay {
-    background: rgba(30, 41, 59, 0.85);
-    color: #94a3b8;
-  }
-}
-
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   .dashboard-header,
@@ -392,7 +308,7 @@
 }
 
 .department-item:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid #329F96;
   outline-offset: 2px;
   border-radius: 1rem;
 }

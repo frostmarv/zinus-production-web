@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Clock,
   AlertTriangle,
+  Layers,
 } from "lucide-react";
 import "../../styles/History/HistoryIndex.css";
 
@@ -39,7 +40,20 @@ const HistoryDashboard = () => {
       color: "#ef4444",
       bgColor: "#fef2f2",
       path: "/history/cutting",
-      description: "Data cutting balok foam",
+      description: "Data cutting produksi",
+      status: "ACTIVE",
+      isActive: true,
+    },
+    // ✅ Bonding dipindahkan ke sini — tepat setelah Cutting
+    {
+      id: "bonding",
+      name: "Bonding",
+      icon: Layers,
+      count: 10,
+      color: "#329F96",
+      bgColor: "#E9FBF0",
+      path: "/history/bonding",
+      description: "Data bonding produksi",
       status: "ACTIVE",
       isActive: true,
     },
@@ -131,11 +145,9 @@ const HistoryDashboard = () => {
 
   const handleDepartmentClick = (path, deptName, isActive) => {
     if (!isActive) {
-      // Tampilkan notifikasi "Coming Soon"
       alert("🛠️ Fitur ini sedang dalam pengembangan.\nAkan segera tersedia!");
       return;
     }
-    console.log(`Navigating to ${deptName}: ${path}`);
     navigate(path);
   };
 

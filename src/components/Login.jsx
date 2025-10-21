@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/authService";
 import "../styles/components/Login.css";
-import bedImage1 from "@assets/login.png"; // 🛏️ Gambar kasur 1
-import bedImage2 from "@assets/login2.png"; // 🛏️ Gambar kasur 2
+import bedImage1 from "@assets/login.webp"; // 🛏️ Gambar kasur 1
+import bedImage2 from "@assets/login2.webp"; // 🛏️ Gambar kasur 2
 import logoZinus from "@assets/logo_hijau.jpeg"; // 🌿 Logo Zinus
 
 const Login = () => {
@@ -41,9 +41,11 @@ const Login = () => {
         {/* Kanan: Form Login */}
         <div className="login-right">
           <div className="login-card">
-            <div className="logo-top">
+            {/* ✅ Logo dibungkus dalam div untuk shadow */}
+            <div className="logo-container">
               <img src={logoZinus} alt="Zinus Logo" />
             </div>
+            {/* Akhir perubahan logo */}
 
             <h1>Welcome to Zinus Production</h1>
             <h2>Login</h2>
@@ -85,7 +87,7 @@ const Login = () => {
               </button>
             </form>
 
-            <footer>© 2025 Nurmalik Wijaya. All Rights Reserved.</footer>
+            <footer>© 2025. All Rights Reserved.</footer>
           </div>
         </div>
       </div>

@@ -20,6 +20,8 @@ import EditCutting from "./pages/Cutting/EditCutting";
 import IndexCutting from "./pages/Cutting/IndexCutting";
 import CuttingInput from "./pages/Cutting/InputCutting";
 import CuttingHistorySummary from "./pages/History/Cutting/CuttingHistorySummary";
+import HistoryBondingIndex from "./pages/History/Bonding/HistoryBondingIndex";
+import HistorySummaryBonding from "./pages/History/Bonding/HistorySummaryBonding";
 import WorkableBonding from "./pages/Workable/WorkableBonding";
 import DetailWorkableBonding from "./pages/Workable/Detail/DetailWorkableBonding";
 import WorkableBondingReject from "./pages/Workable/Reject/WorkableBondingReject";
@@ -170,6 +172,26 @@ function App() {
             <ProtectedRoute publicPaths={PUBLIC_PATHS}>
               <Layout>
                 <CuttingHistoryBalok />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history/bonding"
+          element={
+            <ProtectedRoute publicPaths={PUBLIC_PATHS}>
+              <Layout>
+                <HistoryBondingIndex />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/history/bonding/summary"
+          element={
+            <ProtectedRoute publicPaths={PUBLIC_PATHS}>
+              <Layout>
+                <HistorySummaryBonding />
               </Layout>
             </ProtectedRoute>
           }

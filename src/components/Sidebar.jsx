@@ -79,7 +79,7 @@ const Sidebar = () => {
 
       {/* Footer copyright */}
       <div className="sidebar-footer">
-        <small>© 2025 Nurmalik Wijaya. All rights reserved.</small>
+        <small>© 2025. All rights reserved.</small>
       </div>
     </div>
   );

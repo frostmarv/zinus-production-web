@@ -662,3 +662,69 @@
     border: 1px solid black;
   }
 }
+
+/* ===== Custom Notification Styles ===== */
+.input-cutting-root .cutting-notification {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  max-width: 360px;
+  padding: var(--cutting-spacing-md) var(--cutting-spacing-lg);
+  border-radius: var(--cutting-radius-md);
+  box-shadow: var(--cutting-shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--cutting-spacing-sm);
+  z-index: 10000;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28),
+    opacity 0.4s ease;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.input-cutting-root .cutting-notification.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.input-cutting-root .cutting-notification-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-cutting-root .cutting-notification-message {
+  flex: 1;
+  word-break: break-word;
+}
+
+.input-cutting-root .cutting-notification-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.input-cutting-root .cutting-notification-close:hover {
+  opacity: 1;
+}
+
+/* Trigger animasi via JavaScript */
+.input-cutting-root .cutting-notification.visible {
+  opacity: 1;
+  transform: translateX(0);
+}

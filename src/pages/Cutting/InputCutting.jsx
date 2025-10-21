@@ -8,13 +8,59 @@ import {
   BarChart3,
   Plus,
   Trash2,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { masterDataAPI } from "../../api/masterData";
 import { cuttingProductionAPI } from "../../api/cutting";
 import "../../styles/Cutting/InputCutting.css";
 import { formatAsJakarta } from "../../utils/timezone";
 
+// Komponen Notifikasi Custom
+const CuttingNotification = ({ message, type, isVisible, onClose }) => {
+  if (!isVisible) return null;
+
+  const isSuccess = type === "success";
+  const bgColor = isSuccess
+    ? "var(--cutting-success-light)"
+    : "var(--cutting-error-light)";
+  const borderColor = isSuccess
+    ? "var(--cutting-success-color)"
+    : "var(--cutting-error-color)";
+  const textColor = isSuccess
+    ? "var(--cutting-success-color)"
+    : "var(--cutting-error-color)";
+
+  return (
+    <div
+      className="cutting-notification"
+      style={{
+        background: bgColor,
+        borderLeft: `4px solid ${borderColor}`,
+        color: textColor,
+      }}
+    >
+      <div className="cutting-notification-icon">
+        {isSuccess ? (
+          <CheckCircle className="w-5 h-5" />
+        ) : (
+          <AlertCircle className="w-5 h-5" />
+        )}
+      </div>
+      <div className="cutting-notification-message">{message}</div>
+      <button
+        className="cutting-notification-close"
+        onClick={onClose}
+        aria-label="Close notification"
+      >
+        &times;
+      </button>
+    </div>
+  );
+};
+
 const InputCutting = () => {
+  // ... (semua state awal tetap sama)
   const [headerData, setHeaderData] = useState({
     shift: "1",
     group: "A",
@@ -24,7 +70,6 @@ const InputCutting = () => {
   });
 
   const [currentTimestamp, setCurrentTimestamp] = useState(new Date());
-
   const [formEntries, setFormEntries] = useState([
     {
       id: 1,
@@ -53,7 +98,22 @@ const InputCutting = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  // Auto-update waktu setiap detik
+  // ✨ State untuk notifikasi custom
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: "",
+    type: "success", // 'success' | 'error'
+  });
+
+  // Fungsi helper untuk tampilkan notifikasi
+  const showNotification = (message, type = "success") => {
+    setNotification({ isVisible: true, message, type });
+    setTimeout(() => {
+      setNotification((prev) => ({ ...prev, isVisible: false }));
+    }, 3000);
+  };
+
+  // Auto-update waktu
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTimestamp(new Date());
@@ -69,15 +129,12 @@ const InputCutting = () => {
         const data = Array.isArray(response) ? response : [];
         setCustomers(data);
         setFormEntries((prev) =>
-          prev.map((entry) => ({
-            ...entry,
-            customers: data,
-          })),
+          prev.map((entry) => ({ ...entry, customers: data })),
         );
       } catch (err) {
         console.error("Gagal memuat data customers:", err);
         setError("Gagal memuat data customers");
-        alert("❌ Gagal memuat data customers");
+        showNotification("❌ Gagal memuat data customers", "error");
       } finally {
         setLoadingCustomers(false);
       }
@@ -85,31 +142,7 @@ const InputCutting = () => {
     loadCustomers();
   }, []);
 
-  const getTimeOptions = (shift) => {
-    const times = [];
-    if (shift === "1") {
-      for (let hour = 8; hour <= 20; hour++) {
-        times.push(`${hour.toString().padStart(2, "0")}:00`);
-      }
-    } else {
-      for (let hour = 20; hour <= 23; hour++) {
-        times.push(`${hour.toString().padStart(2, "0")}:00`);
-      }
-      for (let hour = 0; hour <= 8; hour++) {
-        times.push(`${hour.toString().padStart(2, "0")}:00`);
-      }
-    }
-    return times;
-  };
-
-  const handleHeaderChange = (e) => {
-    const { name, value } = e.target;
-    setHeaderData((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(name === "shift" && { time: getTimeOptions(value)[0] || "08:00" }),
-    }));
-  };
+  // ... (semua fungsi loadPoNumbers, loadSkus, dll tetap sama — hanya ganti alert jadi showNotification)
 
   const loadPoNumbers = useCallback(async (entryId, customerId) => {
     try {
@@ -122,7 +155,7 @@ const InputCutting = () => {
       );
     } catch (err) {
       console.error("Gagal memuat PO Numbers:", err);
-      alert("❌ Gagal memuat PO Numbers");
+      showNotification("❌ Gagal memuat PO Numbers", "error");
     }
   }, []);
 
@@ -154,7 +187,7 @@ const InputCutting = () => {
           entry.id === entryId ? { ...entry, skus: [] } : entry,
         ),
       );
-      alert("❌ Gagal memuat SKUs");
+      showNotification("❌ Gagal memuat SKUs", "error");
     }
   }, []);
 
@@ -183,7 +216,6 @@ const InputCutting = () => {
         setFormEntries((prevEntries) => {
           return prevEntries.map((entry) => {
             if (entry.id !== entryId) return entry;
-
             return {
               ...entry,
               quantityOrder: qtyValue.toString(),
@@ -196,7 +228,7 @@ const InputCutting = () => {
       }
     } catch (err) {
       console.error("Gagal memuat Qty Plans:", err);
-      alert("❌ Gagal memuat Qty Plans");
+      showNotification("❌ Gagal memuat Qty Plans", "error");
     }
   }, []);
 
@@ -224,7 +256,7 @@ const InputCutting = () => {
       }
     } catch (err) {
       console.error("Gagal memuat Weeks:", err);
-      alert("❌ Gagal memuat Weeks");
+      showNotification("❌ Gagal memuat Weeks", "error");
     }
   }, []);
 
@@ -269,10 +301,13 @@ const InputCutting = () => {
               : entry,
           ),
         );
+        // Tidak perlu notifikasi error di sini karena ini opsional
       }
     },
     [],
   );
+
+  // ... (handleFormEntryChange, addFormEntry, removeFormEntry tetap sama)
 
   const handleFormEntryChange = async (id, field, value) => {
     setFormEntries((prev) =>
@@ -403,6 +438,7 @@ const InputCutting = () => {
     }
   };
 
+  // ✨ handleSubmit: ganti alert jadi notifikasi custom
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -451,8 +487,11 @@ const InputCutting = () => {
       console.log("Submitting ", submitData);
       const response = await cuttingProductionAPI.save(submitData);
       console.log("Response dari server:", response);
-      alert("✅ Data berhasil disimpan ke database!");
 
+      // ✅ Notifikasi sukses
+      showNotification("✅ Data berhasil disimpan ke database!");
+
+      // Reset form
       setHeaderData({
         shift: "1",
         group: "A",
@@ -501,10 +540,37 @@ const InputCutting = () => {
         msg = err.message;
       }
       setError(msg);
-      alert(`❌ Gagal menyimpan: ${msg}`);
+      // ❌ Notifikasi error
+      showNotification(`❌ Gagal menyimpan: ${msg}`, "error");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const getTimeOptions = (shift) => {
+    const times = [];
+    if (shift === "1") {
+      for (let hour = 8; hour <= 20; hour++) {
+        times.push(`${hour.toString().padStart(2, "0")}:00`);
+      }
+    } else {
+      for (let hour = 20; hour <= 23; hour++) {
+        times.push(`${hour.toString().padStart(2, "0")}:00`);
+      }
+      for (let hour = 0; hour <= 8; hour++) {
+        times.push(`${hour.toString().padStart(2, "0")}:00`);
+      }
+    }
+    return times;
+  };
+
+  const handleHeaderChange = (e) => {
+    const { name, value } = e.target;
+    setHeaderData((prev) => ({
+      ...prev,
+      [name]: value,
+      ...(name === "shift" && { time: getTimeOptions(value)[0] || "08:00" }),
+    }));
   };
 
   const timeOptions = getTimeOptions(headerData.shift);
@@ -512,6 +578,16 @@ const InputCutting = () => {
 
   return (
     <div className="input-cutting-root">
+      {/* ✨ Notifikasi Custom */}
+      <CuttingNotification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={() =>
+          setNotification((prev) => ({ ...prev, isVisible: false }))
+        }
+      />
+
       <div className="cutting-container">
         <div className="cutting-card">
           <div className="cutting-form-wrapper">
@@ -530,6 +606,7 @@ const InputCutting = () => {
             {error && <div className="cutting-error-banner">❌ {error}</div>}
 
             <form onSubmit={handleSubmit} className="cutting-form">
+              {/* ... (semua JSX form tetap sama) */}
               {/* Header Section */}
               <div className="cutting-section">
                 <div className="cutting-section-header">
@@ -681,7 +758,7 @@ const InputCutting = () => {
                       )}
                     </div>
                     <div className="cutting-grid">
-                      {/* Customer */}
+                      {/* ... (semua field form tetap sama) */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -714,7 +791,6 @@ const InputCutting = () => {
                         </select>
                       </div>
 
-                      {/* PO Number */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -747,7 +823,6 @@ const InputCutting = () => {
                         </select>
                       </div>
 
-                      {/* SKU */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -780,7 +855,6 @@ const InputCutting = () => {
                         </select>
                       </div>
 
-                      {/* S.CODE */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -821,7 +895,6 @@ const InputCutting = () => {
                         </select>
                       </div>
 
-                      {/* Description */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -839,7 +912,6 @@ const InputCutting = () => {
                         />
                       </div>
 
-                      {/* Quantity Order */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -857,7 +929,6 @@ const InputCutting = () => {
                         />
                       </div>
 
-                      {/* Quantity Produksi */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -883,7 +954,6 @@ const InputCutting = () => {
                         />
                       </div>
 
-                      {/* Remain Quantity */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -900,7 +970,6 @@ const InputCutting = () => {
                         />
                       </div>
 
-                      {/* Week */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -918,7 +987,6 @@ const InputCutting = () => {
                         />
                       </div>
 
-                      {/* Hole */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
@@ -944,7 +1012,6 @@ const InputCutting = () => {
                         </label>
                       </div>
 
-                      {/* Foaming Date — SEKARANG DI SAMPING HOLE */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
