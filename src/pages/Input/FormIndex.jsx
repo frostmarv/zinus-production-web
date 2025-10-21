@@ -13,6 +13,7 @@ import {
   FileText,
   ChevronRight,
   AlertTriangle,
+  Layers, // Tambahkan untuk Bonding
 } from "lucide-react";
 import "../../styles/Input/FormIndex.css";
 
@@ -27,6 +28,17 @@ const FormIndex = () => {
       icon: Scissors,
       path: "/cutting/index-cutting",
       color: "#ef4444",
+      bgColor: "#fef2f2",
+      active: true,
+    },
+    {
+      id: "bonding",
+      title: "Input Bonding",
+      description: "Input data bonding summary produksi",
+      icon: Layers,
+      path: "/workable/bonding",
+      color: "#329F96",
+      bgColor: "#E9FBF0",
       active: true,
     },
     {
@@ -36,6 +48,7 @@ const FormIndex = () => {
       icon: Shirt,
       path: "/input/sewing",
       color: "#3b82f6",
+      bgColor: "#eff6ff",
       active: false,
     },
     {
@@ -45,6 +58,7 @@ const FormIndex = () => {
       icon: Bed,
       path: "/input/quilting",
       color: "#8b5cf6",
+      bgColor: "#faf5ff",
       active: false,
     },
     {
@@ -54,6 +68,7 @@ const FormIndex = () => {
       icon: Loader,
       path: "/input/spring-core",
       color: "#f59e0b",
+      bgColor: "#fffbeb",
       active: false,
     },
     {
@@ -63,6 +78,7 @@ const FormIndex = () => {
       icon: Package,
       path: "/input/packing-foam",
       color: "#10b981",
+      bgColor: "#f0fdf4",
       active: false,
     },
     {
@@ -72,6 +88,7 @@ const FormIndex = () => {
       icon: Box,
       path: "/input/packing-spring",
       color: "#06b6d4",
+      bgColor: "#f0fdfa",
       active: false,
     },
     {
@@ -81,6 +98,7 @@ const FormIndex = () => {
       icon: CheckCircle,
       path: "/input/finish-good",
       color: "#059669",
+      bgColor: "#ecfdf5",
       active: false,
     },
     {
@@ -90,6 +108,7 @@ const FormIndex = () => {
       icon: Archive,
       path: "/input/cd-box",
       color: "#f97316",
+      bgColor: "#fff7ed",
       active: false,
     },
   ];
@@ -106,10 +125,12 @@ const FormIndex = () => {
     <>
       <div className="form-index-header">
         <div className="header-icon">
-          <FileText size={48} />
+          <FileText size={32} />
         </div>
-        <h1>Input Data Production</h1>
-        <p>Pilih departemen untuk memasukkan data produksi harian</p>
+        <div className="header-text">
+          <h1>Input Data Production</h1>
+          <p>Pilih departemen untuk memasukkan data produksi harian</p>
+        </div>
       </div>
 
       <div className="menu-grid">
@@ -120,27 +141,14 @@ const FormIndex = () => {
               key={item.id}
               className={`menu-card ${!item.active ? "menu-card--disabled" : ""}`}
               onClick={() => handleMenuClick(item)}
+              tabIndex={item.active ? 0 : -1}
+              role="button"
             >
               <div
                 className="icon-container"
-                style={{
-                  borderColor: item.active
-                    ? `${item.color}40`
-                    : "rgba(231, 229, 228, 0.6)",
-                  backgroundColor: item.active
-                    ? `${item.color}10`
-                    : "rgba(255, 255, 255, 0.7)",
-                }}
+                style={{ backgroundColor: item.bgColor }}
               >
-                <Icon
-                  size={28}
-                  style={{
-                    color: item.color,
-                    filter: item.active
-                      ? `drop-shadow(0 2px 4px ${item.color}40)`
-                      : "none",
-                  }}
-                />
+                <Icon size={24} style={{ color: item.color }} />
                 {!item.active && (
                   <div className="coming-soon-badge">
                     <AlertTriangle size={12} />
