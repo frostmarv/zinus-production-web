@@ -10,14 +10,12 @@ import { workableLiveClient } from "../../api/workableLive";
 // Import logo
 import zinusLogo from "@assets/logo.png";
 import hyundaiLogo from "@assets/hyundai_putih.png";
+import k3Logo from "@assets/k3_logo.webp"; // ✅ Tambahkan import logo K3
 
 // Import CSS
 import "../../styles/Workable/WorkableLive.css";
 
 const WorkableLive = () => {
-  // =========================
-  // 🧱 State Management
-  // =========================
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,12 +23,9 @@ const WorkableLive = () => {
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Ref untuk deteksi apakah sedang polling (bukan load pertama)
   const isInitialLoad = useRef(true);
 
-  // =========================
-  // 📊 Table Column Definitions
-  // =========================
+  // Kolom tetap sama (tidak diubah)
   const bondingColumns = [
     { key: "week", label: "WEEK" },
     { key: "shipToName", label: "SHIP TO NAME" },
@@ -76,84 +71,78 @@ const WorkableLive = () => {
       setData(result);
       setError(null);
     } catch (err) {
-      console.error("Gagal mengambil data:", err);
-      setError(err.message);
+      console.error("Gagal mengambil ", err);
+      setError("Gagal memuat data dari server");
+      setData(null); // pastikan data null saat error
     } finally {
       setLoading(false);
       isInitialLoad.current = false;
     }
   }, []);
 
-  // =========================
-  // 🔌 WebSocket Setup
-  // =========================
+  // WebSocket, polling, waktu, dll — tetap sama
   useEffect(() => {
     const handleWebSocketData = (newData) => {
       setData(newData);
       setIsWebSocketConnected(true);
+      setError(null);
     };
-
     workableLiveClient.connectWebSocket(handleWebSocketData);
-
-    return () => {
-      workableLiveClient.disconnectWebSocket();
-    };
+    return () => workableLiveClient.disconnectWebSocket();
   }, []);
 
-  // =========================
-  // 📦 Fetch Data on Mount
-  // =========================
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  // =========================
-  // 🔁 Fallback Polling (5s)
-  // =========================
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!isWebSocketConnected) {
-        fetchData();
-      }
+      if (!isWebSocketConnected) fetchData();
     }, 5000);
     return () => clearInterval(interval);
   }, [fetchData, isWebSocketConnected]);
 
-  // =========================
-  // ⏱️ Update Waktu Real-time
-  // =========================
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
   // =========================
-  // 🧭 All Slides Definition
+  // 🧭 Slides — fallback ke array kosong jika data null/error
   // =========================
   const allSlides = useMemo(() => {
-    if (!data) return [];
+    if (!data) {
+      return [
+        {
+          title: "Workable Bonding",
+          rows: [],
+          columns: bondingColumns,
+          type: "bonding",
+        },
+        {
+          title: "Workable Bonding Detail",
+          rows: [],
+          columns: detailColumns,
+          type: "detail",
+        },
+      ];
+    }
+
     const { bonding } = data;
     return [
       {
         title: "Workable Bonding",
-        rows: bonding.bonding,
+        rows: bonding?.bonding || [],
         columns: bondingColumns,
         type: "bonding",
       },
       {
         title: "Workable Bonding Detail",
-        rows: bonding.detail,
+        rows: bonding?.detail || [],
         columns: detailColumns,
         type: "detail",
       },
     ];
   }, [data]);
 
-  // =========================
-  // ⏱️ Auto Slide Every 15s
-  // =========================
   useEffect(() => {
     const slideInterval = setInterval(() => {
       if (allSlides.length > 0) {
@@ -164,22 +153,7 @@ const WorkableLive = () => {
   }, [allSlides.length]);
 
   // =========================
-  // 🧩 Loading / Error States
-  // =========================
-  if (loading) {
-    return <div className="loading">Memuat Data Live...</div>;
-  }
-  if (error) {
-    return <div className="error">Error: {error}</div>;
-  }
-  if (!data || allSlides.length === 0) {
-    return <div className="loading">Tidak Ada Data</div>;
-  }
-
-  const currentSlide = allSlides[currentSlideIndex];
-
-  // =========================
-  // 🏷️ Status Badge Component
+  // 🏷️ Status Badge
   // =========================
   function StatusBadge({ status }) {
     let className = "status-badge";
@@ -192,12 +166,16 @@ const WorkableLive = () => {
   // =========================
   // 📋 Table Component
   // =========================
-  function DataTable({
-    title,
-    rows,
-    columns,
-    emptyMessage = "Tidak ada data",
-  }) {
+  function DataTable({ title, rows, columns }) {
+    let message = "";
+    if (loading) {
+      message = "Memuat data...";
+    } else if (error) {
+      message = error;
+    } else if (rows.length === 0) {
+      message = "Tidak ada data";
+    }
+
     return (
       <div className="table-container">
         <div className="slide-header">{title}</div>
@@ -217,15 +195,15 @@ const WorkableLive = () => {
                     <td key={col.key}>
                       {col.render
                         ? col.render(row[col.key], row)
-                        : row[col.key]}
+                        : row[col.key] ?? "-"}
                     </td>
                   ))}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} style={{ textAlign: "center" }}>
-                  {emptyMessage}
+                <td colSpan={columns.length} style={{ textAlign: "center", padding: "16px" }}>
+                  {message}
                 </td>
               </tr>
             )}
@@ -236,8 +214,10 @@ const WorkableLive = () => {
   }
 
   // =========================
-  // 🖥️ Render Layout — TANPA TOPBAR, JAM DI FOOTER
+  // 🖥️ Render — SELALU tampilkan layout penuh
   // =========================
+  const currentSlide = allSlides[currentSlideIndex];
+
   return (
     <div className="workable-live-container">
       {/* Main Content */}
@@ -260,9 +240,18 @@ const WorkableLive = () => {
         </div>
       </div>
 
-      {/* Footer Bar — DIPERBARUI: Tanggal & Jam di Kiri */}
+      {/* 🔴 Iklan Berjalan — DENGAN LOGO K3 DI AWAL & AKHIR */}
+      <div className="running-ad">
+        <span>
+          <img src={k3Logo} alt="K3 Logo" className="k3-logo-inline" />
+          &nbsp;"Utamakan K3, Demi Keluarga Menanti Di Rumah *** 
+          Keselamatan dan Kesehatan Kerja adalah Tanggung Jawab Kita Bersama!"&nbsp;
+          <img src={k3Logo} alt="K3 Logo" className="k3-logo-inline" />
+        </span>
+      </div>
+
+      {/* Footer */}
       <div className="footer">
-        {/* Kiri: Tanggal & Jam */}
         <div className="footer-timestamp">
           <div className="date">
             {currentTime.toLocaleDateString("id-ID", {
@@ -282,7 +271,6 @@ const WorkableLive = () => {
           </div>
         </div>
 
-        {/* Tengah: Zinus */}
         <div className="footer-group">
           <div className="zinus-footer-center">
             <img src={zinusLogo} alt="Zinus Logo" />
