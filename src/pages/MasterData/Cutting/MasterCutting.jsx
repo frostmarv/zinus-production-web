@@ -249,14 +249,12 @@ const MasterCutting = () => {
         <table className="master-cutting__table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Product SKU</th>
+              <th>SKU</th>
               <th>Second Item Number</th>
               <th>Description</th>
               <th>Description Line 2</th>
               <th>Layer Index</th>
               <th>Category</th>
-              <th>Created At</th>
               {/* ✅ Kolom Aksi hanya muncul jika berhak */}
               {canManage && <th>Aksi</th>}
             </tr>
@@ -265,18 +263,12 @@ const MasterCutting = () => {
             {filteredData.length > 0 ? (
               filteredData.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.id}</td>
                   <td>{item.product?.sku || '-'}</td>
                   <td>{item.secondItemNumber || '-'}</td>
                   <td>{item.description || '-'}</td>
                   <td>{item.descriptionLine2 || '-'}</td>
                   <td>{item.layerIndex || '-'}</td>
                   <td>{item.categoryLayers || '-'}</td>
-                  <td>
-                    {item.createdAt 
-                      ? new Date(item.createdAt).toLocaleString("id-ID") 
-                      : '-'}
-                  </td>
                   {/* ✅ Tombol aksi hanya muncul jika berhak */}
                   {canManage && (
                     <td>
@@ -299,7 +291,7 @@ const MasterCutting = () => {
             ) : (
               <tr>
                 <td
-                  colSpan={canManage ? 9 : 8}
+                  colSpan={canManage ? 7 : 6}
                   className="master-cutting__no-data"
                 >
                   Tidak ada data ditemukan.
@@ -323,7 +315,7 @@ const MasterCutting = () => {
             <h2>{editingItem ? "Edit Data" : "Tambah Data Baru"}</h2>
             <form onSubmit={handleSubmit}>
               <div className="master-cutting__form-row">
-                <label>Product SKU:</label>
+                <label>SKU:</label>
                 <input
                   type="text"
                   name="product_sku"

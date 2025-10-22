@@ -91,6 +91,7 @@ const CreateUser = ({ onClose, onSuccess }) => {
             <option value="Development">Development</option>
             <option value="Bonding">Bonding</option>
             <option value="Cutting">Cutting</option>
+            <option value="Cutting">PPIC</option>
           </select>
           <input
             type="text"
