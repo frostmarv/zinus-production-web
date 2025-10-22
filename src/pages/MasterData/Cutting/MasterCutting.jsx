@@ -51,7 +51,7 @@ const MasterCutting = () => {
     fetchData();
   }, []);
 
-  // Filter berdasarkan: sku, second_item_number, description
+  // Filter berdasarkan: product.sku, secondItemNumber, description
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredData(data);
@@ -61,8 +61,8 @@ const MasterCutting = () => {
     const term = searchTerm.toLowerCase();
     const result = data.filter((item) => {
       return (
-        item.sku?.toLowerCase().includes(term) ||
-        item.second_item_number?.toLowerCase().includes(term) ||
+        item.product?.sku?.toLowerCase().includes(term) ||
+        item.secondItemNumber?.toLowerCase().includes(term) ||
         item.description?.toLowerCase().includes(term)
       );
     });
@@ -99,12 +99,12 @@ const MasterCutting = () => {
     if (item) {
       setEditingItem(item);
       setFormData({
-        product_sku: item.sku || item.product_id || "",
-        second_item_number: item.second_item_number || "",
+        product_sku: item.product?.sku || "",
+        second_item_number: item.secondItemNumber || "",
         description: item.description || "",
-        description_line_2: item.description_line_2 || "",
-        layer_index: item.layer_index || null,
-        category_layers: item.category_layers || "",
+        description_line_2: item.descriptionLine2 || "",
+        layer_index: item.layerIndex || null,
+        category_layers: item.categoryLayers || "",
       });
     } else {
       setEditingItem(null);
@@ -266,13 +266,17 @@ const MasterCutting = () => {
               filteredData.map((item) => (
                 <tr key={item.id}>
                   <td>{item.id}</td>
-                  <td>{item.sku}</td>
-                  <td>{item.second_item_number}</td>
-                  <td>{item.description}</td>
-                  <td>{item.description_line_2}</td>
-                  <td>{item.layer_index}</td>
-                  <td>{item.category_layers}</td>
-                  <td>{new Date(item.created_at).toLocaleString("id-ID")}</td>
+                  <td>{item.product?.sku || '-'}</td>
+                  <td>{item.secondItemNumber || '-'}</td>
+                  <td>{item.description || '-'}</td>
+                  <td>{item.descriptionLine2 || '-'}</td>
+                  <td>{item.layerIndex || '-'}</td>
+                  <td>{item.categoryLayers || '-'}</td>
+                  <td>
+                    {item.createdAt 
+                      ? new Date(item.createdAt).toLocaleString("id-ID") 
+                      : '-'}
+                  </td>
                   {/* ✅ Tombol aksi hanya muncul jika berhak */}
                   {canManage && (
                     <td>
