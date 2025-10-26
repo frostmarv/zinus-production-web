@@ -217,8 +217,7 @@ const WorkableLive = () => {
 
   return (
     <div className="workable-live-container">
-      {/* 🔼 Bagian Utama: Header + Tabel + Indikator */}
-      <div className="main-content-with-footer">
+      <div className="main-content">
         <div className="content-main">
           <DataTable
             title={currentSlide.title}
@@ -239,41 +238,41 @@ const WorkableLive = () => {
             ))}
           </div>
         </div>
+      </div>
 
-        {/* 🔴 Running Text K3 */}
-        <RunningAd
-          text="Utamakan K3, Demi Keluarga Menanti di Rumah — Keselamatan dan Kesehatan Kerja adalah Tanggung Jawab Kita Bersama!"
-          logo={k3Logo}
-        />
+      {/* 🔴 Running Text K3 */}
+      <RunningAd
+        text="Utamakan K3, Demi Keluarga Menanti di Rumah — Keselamatan dan Kesehatan Kerja adalah Tanggung Jawab Kita Bersama!"
+        logo={k3Logo}
+      />
 
-        {/* Footer */}
-        <div className="footer">
-          <div className="footer-timestamp">
-            <div className="date">
-              {currentTime.toLocaleDateString("id-ID", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })}
-            </div>
-            <div className="time">
-              {currentTime.toLocaleTimeString("id-ID", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                timeZone: "Asia/Jakarta",
-              })}{" "}
-              WIB
-            </div>
+      {/* Footer */}
+      <div className="footer">
+        <div className="footer-timestamp">
+          <div className="date">
+            {currentTime.toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            })}
           </div>
-
-          <div className="footer-group">
-            <div className="zinus-footer-center">
-              <img src={zinusLogo} alt="Zinus Logo" />
-              <span>Zinus Dream Indonesia</span>
-            </div>
-            <img src={hyundaiLogo} alt="Hyundai Logo" className="hyundai-footer" />
+          <div className="time">
+            {currentTime.toLocaleTimeString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              timeZone: "Asia/Jakarta",
+            })}{" "}
+            WIB
           </div>
+        </div>
+
+        <div className="footer-group">
+          <div className="zinus-footer-center">
+            <img src={zinusLogo} alt="Zinus Logo" />
+            <span>Zinus Dream Indonesia</span>
+          </div>
+          <img src={hyundaiLogo} alt="Hyundai Logo" className="hyundai-footer" />
         </div>
       </div>
     </div>
