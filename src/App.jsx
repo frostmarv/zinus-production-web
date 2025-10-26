@@ -30,6 +30,7 @@ import MasterDataIndex from "./pages/MasterData/MasterDataIndex";
 import MasterFoam from "./pages/MasterData/Foam/MasterFoam";
 import MasterSpring from "./pages/MasterData/Spring/MasterSpring";
 import MasterCutting from "./pages/MasterData/Cutting/MasterCutting";
+import MasterProducts from "./pages/MasterData/Products/MasterProducts";
 import JdeIndex from "./pages/JDE/JdeIndex";
 import FormIndex from "./pages/Input/FormIndex";
 import DashboardReplacement from "./pages/Cutting/Replacements/Dashboard";
@@ -350,6 +351,17 @@ function App() {
             <ProtectedRoute publicPaths={PUBLIC_PATHS}>
               <Layout>
                 <MasterCutting />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/master/products"
+          element={
+            <ProtectedRoute publicPaths={PUBLIC_PATHS}>
+              <Layout>
+                <MasterProducts />
               </Layout>
             </ProtectedRoute>
           }

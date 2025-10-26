@@ -1,6 +1,5 @@
-// src/pages/MasterData/MasterDataIndex.jsx
 import React from "react";
-import { Cuboid, Leaf, Scissors, Database, ChevronRight } from "lucide-react";
+import { Cuboid, Leaf, Scissors, Database, Package, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/MasterData/MasterDataIndex.css";
 
@@ -33,6 +32,15 @@ const MasterDataIndex = () => {
       icon: Scissors,
       path: "/master/cutting",
       color: "#8b5cf6",
+    },
+    {
+      id: "products",
+      title: "Master Data Products",
+      description:
+        "Kelola produk, SKU, spesifikasi, dan deskripsi produk.",
+      icon: Package,
+      path: "/master/products",
+      color: "#f59e0b",
     },
   ];
 
