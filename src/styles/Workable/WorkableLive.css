@@ -9,12 +9,11 @@
 }
 
 /* Main Content */
-.main-content {
+.main-content-with-footer {
   flex: 1;
-  padding: 16px;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  padding: 16px;
 }
 
 .content-main {
@@ -23,6 +22,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex: 1; /* Ambil ruang yang tersedia */
+  overflow: hidden; /* Cegah overflow */
 }
 
 /* Slide Header */
@@ -45,12 +46,34 @@
   border-bottom-right-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  flex: 1; /* Ambil ruang yang tersedia */
+  display: flex;
+  flex-direction: column;
 }
 
 .table-container table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  flex: 1; /* Ambil ruang tabel */
+  min-height: 0; /* Penting untuk overflow */
+}
+
+.table-container thead {
+  flex-shrink: 0; /* Jangan mengkerut */
+}
+
+.table-container tbody {
+  flex: 1;
+  display: block;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px); /* Sesuaikan dengan kebutuhan */
+}
+
+.table-container tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .table-container th {
@@ -123,6 +146,7 @@
   width: 100%;
   position: relative;
   white-space: nowrap;
+  flex-shrink: 0; /* Jangan mengkerut */
 }
 
 .running-ad-track {
@@ -153,7 +177,6 @@
   }
 }
 
-
 /* Footer */
 .footer {
   background-color: #329f96;
@@ -163,6 +186,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
+  flex-shrink: 0; /* Jangan mengkerut */
 }
 
 .footer-timestamp {
