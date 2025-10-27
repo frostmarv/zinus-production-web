@@ -33,7 +33,6 @@ const WorkableBonding = () => {
       setLoading(true);
       try {
         const result = await getWorkableBonding();
-        // ✅ JANGAN URUTKAN LAGI — backend sudah urutkan sesuai prioritas status!
         setData(result);
         setError(null);
         setAutoRefreshActive(false);
@@ -57,7 +56,6 @@ const WorkableBonding = () => {
     };
   }, [autoRefreshActive]);
 
-  // 🔢 Hitung total dari kolom "workable"
   const calculateWorkableTotal = () => {
     return data.reduce((sum, row) => {
       const workable = Number(row.workable) || 0;
@@ -65,11 +63,12 @@ const WorkableBonding = () => {
     }, 0);
   };
 
+  // 🔴 Perbarui class berdasarkan status baru
   const getStatusClass = (status) => {
     const lower = (status || "").toLowerCase();
     if (lower === "completed") return "status-completed";
     if (lower === "running") return "status-running";
-    if (lower === "halted") return "status-halted"; // ✅ Tambahkan class untuk Halted
+    if (lower === "halted") return "status-halted";
     if (lower === "not started") return "status-not-started";
     return "status-unknown";
   };
@@ -113,7 +112,7 @@ const WorkableBonding = () => {
         </div>
       </div>
 
-      {/* Stats Cards - Horizontal, dengan ikon */}
+      {/* Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card">
           <BarChart3 size={20} className="stat-icon" />
@@ -142,20 +141,22 @@ const WorkableBonding = () => {
         <div className="stat-card">
           <AlertCircle size={20} className="stat-icon" />
           <div className="stat-content">
-            <h3>{countByStatus("Halted")}</h3> {/* ✅ Tampilkan Halted */}
+            <h3>{countByStatus("Halted")}</h3>
             <p>HALTED</p>
           </div>
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons — DETAIL WORKABLE CENTERED */}
       <div className="action-buttons">
         <button onClick={handleBack} className="btn-back">
           <ArrowLeft size={16} /> KEMBALI
         </button>
-        <Link to="/workable/bonding/detail" className="btn-detail-workable">
-          <Eye size={16} /> DETAIL WORKABLE
-        </Link>
+        <div className="center-button-wrapper">
+          <Link to="/workable/bonding/detail" className="btn-detail-workable">
+            <Eye size={16} /> DETAIL WORKABLE
+          </Link>
+        </div>
       </div>
 
       {/* Table */}

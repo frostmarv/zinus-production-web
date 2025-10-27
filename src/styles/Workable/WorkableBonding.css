@@ -1,7 +1,7 @@
 /* src/styles/Workable/WorkableBonding.css */
 
 .workable-container {
-  background-color: #e9fbf0; /* Background sesuai Workable Live */
+  background-color: #e9fbf0;
   font-family: Arial, sans-serif;
   padding: 24px;
   max-width: 100%;
@@ -9,7 +9,7 @@
   min-height: 100vh;
 }
 
-/* Top Header with Real-time Clock */
+/* Top Header */
 .top-header {
   display: flex;
   justify-content: space-between;
@@ -17,8 +17,7 @@
   background-color: #329f96;
   color: white;
   padding: 12px 24px;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-radius: 8px;
   margin-bottom: 20px;
 }
 
@@ -26,7 +25,7 @@
   font-size: 24px;
   font-weight: bold;
   margin: 0;
-  color: white; /* Tidak lagi gradasi, pakai warna solid putih */
+  color: white;
 }
 
 .header-time {
@@ -41,7 +40,7 @@
   white-space: nowrap;
 }
 
-/* Stats Grid - Horizontal Card Style */
+/* Stats Grid */
 .stats-grid {
   display: flex;
   gap: 16px;
@@ -51,8 +50,8 @@
 }
 
 .stat-card {
-  background-color: white; /* Latar putih seperti gambar */
-  color: #329f96; /* Warna teks teal */
+  background-color: white;
+  color: #329f96;
   padding: 16px;
   border-radius: 8px;
   display: flex;
@@ -62,13 +61,12 @@
   gap: 8px;
   min-width: 120px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Efek melayang halus */
-  border: 1px solid #e2e8f0; /* Border tipis untuk definisi */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
 }
 
 .stat-icon {
-  color: #329f96; /* Ikon warna teal */
-  flex-shrink: 0;
+  color: #329f96;
   margin-bottom: 4px;
 }
 
@@ -76,7 +74,7 @@
   font-size: 20px;
   font-weight: bold;
   margin: 0;
-  color: #1e293b; /* Warna hitam pekat untuk angka */
+  color: #1e293b;
 }
 
 .stat-content p {
@@ -84,20 +82,20 @@
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #64748b; /* Warna abu-abu untuk label */
+  color: #64748b;
 }
 
 /* Action Buttons */
 .action-buttons {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
   gap: 16px;
   flex-wrap: wrap;
 }
 
-.btn-back,
-.btn-detail-workable {
+.btn-back {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -113,29 +111,41 @@
   transition: background-color 0.2s ease;
 }
 
-.btn-back:hover,
-.btn-detail-workable:hover {
+.btn-back:hover {
   background-color: #2a8c82;
 }
 
-/* Badge Detail Workable — Sesuai Gambar */
+/* 🔽 Wrapper untuk centering tombol detail */
+.center-button-wrapper {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  max-width: 300px;
+}
+
 .btn-detail-workable {
-  background-color: #2563eb; /* Biru solid seperti gambar */
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: bold;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  text-decoration: none;
+  padding: 8px 16px;
+  background-color: #2563eb; /* Biru solid */
   color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  max-width: 250px;
 }
 
 .btn-detail-workable:hover {
   background-color: #1d4ed8;
 }
 
-/* Table Wrapper */
+/* Table */
 .table-wrapper {
   background-color: white;
   border: 2px solid #329f96;
@@ -156,20 +166,17 @@
   padding: 12px 16px;
   text-align: left;
   font-weight: bold;
-  /* TIDAK ADA BORDER */
 }
 
 .workable-table td {
   padding: 12px 16px;
-  /* TIDAK ADA BORDER */
 }
 
-/* Ganti garis dengan warna latar belakang untuk baris genap */
 .workable-table tbody tr:nth-child(even) {
   background-color: #f8fafc;
 }
 
-/* Status Badge */
+/* 🔴 Status Badge — Warna Baru */
 .status-badge {
   padding: 4px 8px;
   border-radius: 4px;
@@ -180,29 +187,33 @@
 }
 
 .status-completed {
-  background-color: #28a745;
+  background-color: #2563eb; /* 🔵 Biru */
+  color: white;
 }
 
 .status-running {
-  background-color: #ffc107;
+  background-color: #ffc107; /* 🟡 Kuning */
   color: black;
 }
 
-.status-not-started {
-  background-color: #6c757d;
+.status-halted {
+  background-color: #dc3545; /* 🔴 Merah */
+  color: white;
 }
 
+.status-not-started,
 .status-unknown {
-  background-color: #6c757d;
+  background-color: #6c757d; /* Abu-abu */
+  color: white;
 }
 
-/* Remain Cell Negative */
+/* Remain Cell */
 .remain-cell.negative {
   color: #ef4444;
   font-weight: bold;
 }
 
-/* No Data / Loading */
+/* No Data */
 .no-data {
   text-align: center;
   padding: 24px;
@@ -232,12 +243,22 @@
   }
 
   .stat-card {
-    min-width: auto;
     width: 100%;
+    min-width: auto;
   }
 
   .action-buttons {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .center-button-wrapper {
+    order: -1; /* Letakkan tombol detail di atas saat mobile */
+    max-width: 100%;
+  }
+
+  .btn-detail-workable {
+    max-width: 100%;
   }
 
   .workable-table th,
