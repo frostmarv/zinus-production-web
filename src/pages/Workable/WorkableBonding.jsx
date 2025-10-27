@@ -33,20 +33,8 @@ const WorkableBonding = () => {
       setLoading(true);
       try {
         const result = await getWorkableBonding();
-        const sortedData = [...result].sort((a, b) => {
-          const nameCompare = String(a.shipToName ?? "").localeCompare(
-            String(b.shipToName ?? ""),
-            undefined,
-            { sensitivity: "base" },
-          );
-          if (nameCompare !== 0) return nameCompare;
-          return String(a.sku ?? "").localeCompare(
-            String(b.sku ?? ""),
-            undefined,
-            { sensitivity: "base" },
-          );
-        });
-        setData(sortedData);
+        // ✅ JANGAN URUTKAN LAGI — backend sudah urutkan sesuai prioritas status!
+        setData(result);
         setError(null);
         setAutoRefreshActive(false);
       } catch (err) {
@@ -81,6 +69,7 @@ const WorkableBonding = () => {
     const lower = (status || "").toLowerCase();
     if (lower === "completed") return "status-completed";
     if (lower === "running") return "status-running";
+    if (lower === "halted") return "status-halted"; // ✅ Tambahkan class untuk Halted
     if (lower === "not started") return "status-not-started";
     return "status-unknown";
   };
@@ -153,8 +142,8 @@ const WorkableBonding = () => {
         <div className="stat-card">
           <AlertCircle size={20} className="stat-icon" />
           <div className="stat-content">
-            <h3>{countByStatus("Not Started") + countByStatus("N/A")}</h3>
-            <p>NOT STARTED</p>
+            <h3>{countByStatus("Halted")}</h3> {/* ✅ Tampilkan Halted */}
+            <p>HALTED</p>
           </div>
         </div>
       </div>
@@ -205,8 +194,8 @@ const WorkableBonding = () => {
                 </td>
               </tr>
             ) : (
-              data.map((row) => (
-                <tr key={`${row.sku}-${row.week}-${row.shipToName}`}>
+              data.map((row, index) => (
+                <tr key={`${row.sku}-${row.week}-${row.shipToName}-${index}`}>
                   <td>{row.week || "-"}</td>
                   <td>{row.shipToName || "-"}</td>
                   <td>{row.sku || "-"}</td>

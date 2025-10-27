@@ -1,28 +1,34 @@
 // src/api/bonding.js
-import { apiClient } from "./client";
+
+import { apiClient } from './client';
 
 /**
- * Mengirim data bonding summary baru ke backend
+ * Bonding API Client
+ * Mengelola operasi terkait Bonding Summary
+ */
+
+/**
+ * Mengirim data Bonding Summary baru ke backend
  * @param {Object} data - Data bonding summary sesuai DTO CreateBondingSummaryDto
- * @returns {Promise<Object>} Respons dari server
+ * @returns {Promise<Object>} - Respons dari server
  */
-export const createBondingSummary = async (data) => {
-  return await apiClient.post("/api/bonding/summary/form-input", data);
+export const createBondingSummary = (data) => {
+  return apiClient.post('/bonding/summary/form-input', data);
 };
 
 /**
- * Mendapatkan semua data bonding summary
- * @returns {Promise<Array>} Daftar semua bonding summary
+ * Mendapatkan semua data Bonding Summary
+ * @returns {Promise<Array>} - Daftar semua bonding summary
  */
-export const getAllBondingSummaries = async () => {
-  return await apiClient.get("/api/bonding/summary");
+export const getAllBondingSummaries = () => {
+  return apiClient.get('/bonding/summary');
 };
 
 /**
- * Mendapatkan detail bonding summary berdasarkan ID
- * @param {number|string} id - ID dari bonding summary
- * @returns {Promise<Object>} Detail bonding summary
+ * Mendapatkan satu data Bonding Summary berdasarkan ID
+ * @param {number|string} id - ID bonding summary
+ * @returns {Promise<Object>} - Data bonding summary berdasarkan ID
  */
-export const getBondingSummaryById = async (id) => {
-  return await apiClient.get(`/api/bonding/summary/${id}`);
+export const getBondingSummaryById = (id) => {
+  return apiClient.get(`/bonding/summary/${id}`);
 };

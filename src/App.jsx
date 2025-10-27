@@ -33,6 +33,7 @@ import MasterCutting from "./pages/MasterData/Cutting/MasterCutting";
 import MasterProducts from "./pages/MasterData/Products/MasterProducts";
 import JdeIndex from "./pages/JDE/JdeIndex";
 import FormIndex from "./pages/Input/FormIndex";
+import FormSummaryBonding from "./pages/Input/Bonding/FormSummaryBonding";
 import DashboardReplacement from "./pages/Cutting/Replacements/Dashboard";
 import ReplacementDetailPage from "./pages/Cutting/Replacements/DetailPage";
 import TosPage from "./pages/Public/TermOfService";
@@ -384,6 +385,17 @@ function App() {
             <ProtectedRoute publicPaths={PUBLIC_PATHS}>
               <Layout>
                 <FormIndex />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/form-summary-bonding"
+          element={
+            <ProtectedRoute publicPaths={PUBLIC_PATHS}>
+              <Layout>
+                <FormSummaryBonding />
               </Layout>
             </ProtectedRoute>
           }
