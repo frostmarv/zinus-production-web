@@ -391,7 +391,7 @@ function App() {
         />
 
         <Route
-          path="/form-summary-bonding"
+          path="/bonding/form-summary-bonding"
           element={
             <ProtectedRoute publicPaths={PUBLIC_PATHS}>
               <Layout>

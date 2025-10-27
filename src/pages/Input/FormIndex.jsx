@@ -36,7 +36,7 @@ const FormIndex = () => {
       title: "Input Bonding",
       description: "Input data bonding summary produksi",
       icon: Layers,
-      path: "/workable/bonding",
+      path: "/bonding/form-summary-bonding",
       color: "#329F96",
       bgColor: "#E9FBF0",
       active: true,
