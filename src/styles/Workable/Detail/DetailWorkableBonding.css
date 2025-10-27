@@ -1,7 +1,7 @@
 /* src/styles/Workable/Detail/DetailWorkableBonding.css */
 
 .detail-container {
-  background-color: #e9fbf0; /* Background sesuai WorkableBonding */
+  background-color: #e9fbf0;
   font-family: Arial, sans-serif;
   padding: 24px;
   max-width: 100%;
@@ -9,7 +9,7 @@
   min-height: 100vh;
 }
 
-/* Top Header with Real-time Clock */
+/* Top Header */
 .top-header {
   display: flex;
   justify-content: space-between;
@@ -17,8 +17,7 @@
   background-color: #329f96;
   color: white;
   padding: 12px 24px;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-radius: 8px;
   margin-bottom: 20px;
 }
 
@@ -75,14 +74,14 @@
 }
 
 .btn-view-ng {
-  background-color: #dc2626; /* Merah untuk Data NG */
+  background-color: #dc2626;
 }
 
 .btn-view-ng:hover {
   background-color: #b91c1c;
 }
 
-/* === Loading & Error States === */
+/* Loading & Error */
 .detail-loading,
 .detail-error {
   text-align: center;
@@ -95,7 +94,7 @@
   color: #dc2626;
 }
 
-/* === Table Wrapper === */
+/* Table */
 .detail-table-wrapper {
   background-color: white;
   border: 2px solid #329f96;
@@ -116,29 +115,18 @@
   padding: 12px 16px;
   text-align: left;
   font-weight: bold;
-  /* TIDAK ADA BORDER */
 }
 
 .detail-table td {
   padding: 12px 16px;
-  /* TIDAK ADA BORDER */
 }
 
-/* Ganti garis dengan warna latar belakang untuk baris genap */
 .detail-table tbody tr:nth-child(even) {
   background-color: #f8fafc;
 }
 
-/* Cell Styling */
-.sku-cell {
-  font-family: 'Consolas', monospace;
-  font-size: 13px;
-  background: #f1f5f9;
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: #334155;
-  display: inline-block;
-}
+/* Cell Styling — SKU TIDAK DIBUNGKUS LAGI */
+/* Hapus .sku-cell seluruhnya */
 
 .qty-cell,
 .workable-cell,
@@ -175,7 +163,7 @@
   border-radius: 4px;
 }
 
-/* Status Badges */
+/* 🔴 Status Badges — Warna Baru */
 .status-badge {
   padding: 4px 8px;
   border-radius: 4px;
@@ -186,20 +174,25 @@
 }
 
 .status-completed {
-  background-color: #28a745;
+  background-color: #2563eb; /* Biru */
+  color: white;
 }
 
 .status-running {
-  background-color: #ffc107;
+  background-color: #ffc107; /* Kuning */
   color: black;
 }
 
-.status-not-started {
-  background-color: #6c757d;
+.status-halted {
+  background-color: #dc3545; /* Merah */
+  color: white;
 }
 
-.status-n-a {
-  background-color: #6c757d;
+.status-not-started,
+.status-n-a,
+.status-unknown {
+  background-color: #6c757d; /* Abu-abu */
+  color: white;
 }
 
 /* No Data */
@@ -234,5 +227,9 @@
   .detail-table td {
     padding: 8px 12px;
     font-size: 12px;
+  }
+
+  .remarks-cell {
+    max-width: 100px;
   }
 }

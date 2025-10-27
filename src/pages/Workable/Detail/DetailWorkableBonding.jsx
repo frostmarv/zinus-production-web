@@ -1,7 +1,7 @@
 // src/pages/Workable/Detail/DetailWorkableBonding.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, AlertTriangle, Eye } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { getWorkableBondingDetail } from "../../../api/workable-bonding";
 import "../../../styles/Workable/Detail/DetailWorkableBonding.css";
 
@@ -25,7 +25,6 @@ const DetailWorkableBonding = () => {
       setLoading(true);
       try {
         const result = await getWorkableBondingDetail();
-        // ✅ JANGAN URUTKAN LAGI — backend sudah urutkan sesuai prioritas status!
         setData(result);
       } catch (err) {
         setError(err.message);
@@ -51,15 +50,20 @@ const DetailWorkableBonding = () => {
     );
   };
 
+  // 🔴 Perbarui untuk mendukung "Halted" dan skema warna baru
   const getStatusClass = (status) => {
     if (!status) return "status-n-a";
-    return `status-${status.toLowerCase().replace(/\s+/g, "-")}`;
+    const lower = status.toLowerCase();
+    if (lower === "completed") return "status-completed";
+    if (lower === "running") return "status-running";
+    if (lower === "halted") return "status-halted";
+    if (lower === "not started") return "status-not-started";
+    return "status-unknown";
   };
 
   if (loading) {
     return (
       <div className="detail-container">
-        {/* Top Header with Real-time Clock */}
         <div className="top-header">
           <div className="header-content">
             <h1 className="header-title">Detail Workable Bonding</h1>
@@ -90,12 +94,10 @@ const DetailWorkableBonding = () => {
             className="btn-back"
             onClick={() => navigate("/workable/bonding")}
           >
-            <ArrowLeft size={16} />
-            KEMBALI
+            <ArrowLeft size={16} /> KEMBALI
           </button>
           <Link to="/workable/bonding/reject" className="btn-view-ng">
-            <AlertTriangle size={16} />
-            LIHAT DATA NG
+            <AlertTriangle size={16} /> LIHAT DATA NG
           </Link>
         </div>
 
@@ -107,7 +109,6 @@ const DetailWorkableBonding = () => {
   if (error) {
     return (
       <div className="detail-container">
-        {/* Top Header with Real-time Clock */}
         <div className="top-header">
           <div className="header-content">
             <h1 className="header-title">Detail Workable Bonding</h1>
@@ -138,12 +139,10 @@ const DetailWorkableBonding = () => {
             className="btn-back"
             onClick={() => navigate("/workable/bonding")}
           >
-            <ArrowLeft size={16} />
-            KEMBALI
+            <ArrowLeft size={16} /> KEMBALI
           </button>
           <Link to="/workable/bonding/reject" className="btn-view-ng">
-            <AlertTriangle size={16} />
-            LIHAT DATA NG
+            <AlertTriangle size={16} /> LIHAT DATA NG
           </Link>
         </div>
 
@@ -154,7 +153,6 @@ const DetailWorkableBonding = () => {
 
   return (
     <div className="detail-container">
-      {/* Top Header with Real-time Clock */}
       <div className="top-header">
         <div className="header-content">
           <h1 className="header-title">Detail Workable Bonding</h1>
@@ -185,12 +183,10 @@ const DetailWorkableBonding = () => {
           className="btn-back"
           onClick={() => navigate("/workable/bonding")}
         >
-          <ArrowLeft size={16} />
-          KEMBALI
+          <ArrowLeft size={16} /> KEMBALI
         </button>
         <Link to="/workable/bonding/reject" className="btn-view-ng">
-          <AlertTriangle size={16} />
-          LIHAT DATA NG
+          <AlertTriangle size={16} /> LIHAT DATA NG
         </Link>
       </div>
 
@@ -226,7 +222,7 @@ const DetailWorkableBonding = () => {
                 <tr key={`${row.sku}-${row.week}-${index}`}>
                   <td>{row.week || "-"}</td>
                   <td>{row.shipToName || "-"}</td>
-                  <td className="sku-cell">{row.sku || "-"}</td>
+                  <td>{row.sku || "-"}</td> {/* 🔽 Hapus className="sku-cell" */}
                   <td className="qty-cell">
                     {row.quantityOrder != null
                       ? row.quantityOrder.toLocaleString()
@@ -244,7 +240,9 @@ const DetailWorkableBonding = () => {
                   <td>{renderLayerCell(row["Layer 4"], row.quantityOrder)}</td>
                   <td>{renderLayerCell(row["Hole"], row.quantityOrder)}</td>
                   <td className="remain-cell">
-                    {row["Remain Produksi"] != null ? row["Remain Produksi"].toLocaleString() : 0}
+                    {row["Remain Produksi"] != null
+                      ? row["Remain Produksi"].toLocaleString()
+                      : 0}
                   </td>
                   <td className="remarks-cell">{row.remarks || "-"}</td>
                   <td>
