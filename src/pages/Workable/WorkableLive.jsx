@@ -21,6 +21,7 @@ const StatusBadge = React.memo(({ status }) => {
   if (status === "Completed") className += " completed";
   else if (status === "Running") className += " running";
   else if (status === "Not Started") className += " not-started";
+  else if (status === "Halted") className += " halted"; // ✅ Tambahkan Halted
   return <span className={className}>{status}</span>;
 });
 
@@ -32,46 +33,48 @@ const DataTable = React.memo(({ title, rows, columns, loading, error }) => {
   else if (rows.length === 0) message = "Tidak ada data";
 
   return (
-    <div className="table-container">
+    <div className="table-wrapper">
       <div className="slide-header">{title}</div>
-      <table>
-        <thead>
-          <tr>
-            {columns.map((col) => (
-              <th key={col.key}>{col.label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length > 0 ? (
-            rows.map((row, idx) => (
-              <tr key={idx}>
-                {columns.map((col) => (
-                  <td key={col.key}>
-                    {col.render
-                      ? col.render(row[col.key], row)
-                      : row[col.key] ?? "-"}
-                  </td>
-                ))}
-              </tr>
-            ))
-          ) : (
+      <div className="table-scroll-container">
+        <table>
+          <thead>
             <tr>
-              <td
-                colSpan={columns.length}
-                style={{ textAlign: "center", padding: "16px" }}
-              >
-                {message}
-              </td>
+              {columns.map((col) => (
+                <th key={col.key}>{col.label}</th>
+              ))}
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.length > 0 ? (
+              rows.map((row, idx) => (
+                <tr key={idx}>
+                  {columns.map((col) => (
+                    <td key={col.key}>
+                      {col.render
+                        ? col.render(row[col.key], row)
+                        : row[col.key] ?? "-"}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  style={{ textAlign: "center", padding: "16px" }}
+                >
+                  {message}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 });
 
-// 🔴 Running Ad — sudah benar, tetap pakai React.memo
+// 🔴 Running Ad
 const RunningAd = React.memo(({ text, logo }) => {
   return (
     <div className="running-ad">
@@ -91,7 +94,6 @@ const RunningAd = React.memo(({ text, logo }) => {
   );
 });
 
-// 🔧 Kolom tetap di dalam karena menggunakan <StatusBadge />, tapi aman karena StatusBadge stabil
 const getBondingColumns = () => [
   { key: "week", label: "WEEK" },
   { key: "shipToName", label: "SHIP TO NAME" },
@@ -128,7 +130,6 @@ const getDetailColumns = () => [
   },
 ];
 
-// 📺 Komponen Utama
 const WorkableLive = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -137,7 +138,6 @@ const WorkableLive = () => {
   const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // 🧩 Fetch data
   const fetchData = useCallback(async () => {
     try {
       const result = await workableLiveClient.getLiveData();
@@ -152,7 +152,6 @@ const WorkableLive = () => {
     }
   }, []);
 
-  // 🔌 WebSocket listener
   useEffect(() => {
     const handleWebSocketData = (newData) => {
       setData(newData);
@@ -163,7 +162,6 @@ const WorkableLive = () => {
     return () => workableLiveClient.disconnectWebSocket();
   }, []);
 
-  // 🔁 Auto-refresh data jika websocket mati
   useEffect(() => {
     fetchData();
     const interval = setInterval(() => {
@@ -172,13 +170,11 @@ const WorkableLive = () => {
     return () => clearInterval(interval);
   }, [fetchData, isWebSocketConnected]);
 
-  // ⏰ Waktu berjalan
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // 🧮 Slide management
   const allSlides = useMemo(() => {
     const bondingColumns = getBondingColumns();
     const detailColumns = getDetailColumns();
@@ -205,7 +201,6 @@ const WorkableLive = () => {
     ];
   }, [data]);
 
-  // ⏳ Ganti slide otomatis
   useEffect(() => {
     const slideInterval = setInterval(() => {
       setCurrentSlideIndex((prev) => (prev + 1) % allSlides.length);
@@ -240,13 +235,11 @@ const WorkableLive = () => {
         </div>
       </div>
 
-      {/* 🔴 Running Text K3 */}
       <RunningAd
         text="Utamakan K3, Demi Keluarga Menanti di Rumah — Keselamatan dan Kesehatan Kerja adalah Tanggung Jawab Kita Bersama!"
         logo={k3Logo}
       />
 
-      {/* Footer */}
       <div className="footer">
         <div className="footer-timestamp">
           <div className="date">

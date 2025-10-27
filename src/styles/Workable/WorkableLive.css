@@ -3,7 +3,7 @@
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -15,6 +15,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  overflow: hidden;
 }
 
 .content-main {
@@ -23,9 +24,17 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: 100%;
 }
 
-/* Slide Header */
+/* Wrapper tabel */
+.table-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Header slide */
 .slide-header {
   background-color: #329f96;
   color: white;
@@ -35,42 +44,47 @@
   font-weight: bold;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  flex-shrink: 0;
 }
 
-/* Table Container */
-.table-container {
-  background-color: white;
+/* Container scrollable untuk tbody */
+.table-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 220px); /* Sesuaikan agar footer & ad tetap terlihat */
   border: 2px solid #329f96;
+  border-top: none;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.table-container table {
+.table-scroll-container table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
 
-.table-container th {
+.table-scroll-container th {
+  position: sticky;
+  top: 0;
   background-color: #329f96;
   color: white;
   padding: 12px 16px;
   text-align: left;
   font-weight: bold;
+  z-index: 2;
 }
 
-.table-container td {
+.table-scroll-container td {
   padding: 12px 16px;
 }
 
-.table-container tbody tr:nth-child(even) {
+.table-scroll-container tbody tr:nth-child(even) {
   background-color: #f8fafc;
 }
 
 /* Status Badge */
-.table-container .status-badge {
+.status-badge {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -91,12 +105,17 @@
   background-color: #6c757d;
 }
 
+.status-badge.halted {
+  background-color: #dc3545; /* ✅ Merah untuk Halted */
+}
+
 /* Slide Indicators */
 .slide-indicators {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 12px;
+  flex-shrink: 0;
 }
 
 .slide-indicator {
@@ -119,10 +138,11 @@
   font-size: 22px;
   font-weight: bold;
   padding: 10px 0;
-  overflow: hidden; /* Penting! Agar konten yang keluar tidak terlihat */
+  overflow: hidden;
   width: 100%;
   position: relative;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .running-ad-track {
@@ -135,7 +155,7 @@
   display: flex;
   align-items: center;
   white-space: nowrap;
-  padding-right: 80px; /* Jarak antar pengulangan */
+  padding-right: 80px;
 }
 
 .k3-logo-inline {
@@ -153,7 +173,6 @@
   }
 }
 
-
 /* Footer */
 .footer {
   background-color: #329f96;
@@ -163,10 +182,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
-}
-
-.footer-timestamp {
-  text-align: left;
+  flex-shrink: 0;
 }
 
 .footer-timestamp .date,
@@ -197,20 +213,4 @@
 
 .footer .hyundai-footer {
   height: 40px;
-}
-
-/* Loading / Error */
-.loading,
-.error {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #e9fbf0;
-  color: #329f96;
-  font-size: 24px;
-}
-
-.error {
-  color: red;
 }
