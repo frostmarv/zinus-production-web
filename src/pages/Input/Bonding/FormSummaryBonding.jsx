@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createBondingSummary } from '../../../api/bonding'; // ✅ Gunakan bonding.js
+import { masterDataAPI } from '../../../api/masterData'; // ✅ Gunakan masterData.js
 import { localToUtc } from '../../../utils/timezone'; // ✅ Gunakan timezone helper
-import '../../../styles/Input/Bonding/FormSummaryBonding.css';
+import './FormSummaryBonding.css';
 
 const FormSummaryBonding = () => {
   const navigate = useNavigate();
@@ -89,10 +90,7 @@ const FormSummaryBonding = () => {
     const loadCustomers = async () => {
       setLoadingCustomers(true);
       try {
-        // ❗ Ganti dengan endpoint sesuai backend Anda
-        const response = await fetch('/api/master-data/customers');
-        if (!response.ok) throw new Error('Gagal memuat customer');
-        const data = await response.json();
+        const data = await masterDataAPI.getCustomers();
         setCustomers(data);
       } catch (err) {
         alert('Gagal memuat customer: ' + err.message);
@@ -109,9 +107,7 @@ const FormSummaryBonding = () => {
     const loadPoNumbers = async () => {
       setLoadingPoNumbers(true);
       try {
-        const response = await fetch(`/api/master-data/po-numbers/${customer}`);
-        if (!response.ok) throw new Error('Gagal memuat PO Numbers');
-        const data = await response.json();
+        const data = await masterDataAPI.getPoNumbers(customer);
         setPoNumbersList(data);
         setCustomerPosList([]);
         setSkusList([]);
@@ -136,9 +132,7 @@ const FormSummaryBonding = () => {
     const loadCustomerPos = async () => {
       setLoadingCustomerPos(true);
       try {
-        const response = await fetch(`/api/master-data/customer-pos/${poNumber}`);
-        if (!response.ok) throw new Error('Gagal memuat Customer POs');
-        const data = await response.json();
+        const data = await masterDataAPI.getCustomerPOs(poNumber);
         setCustomerPosList(data);
         setSkusList([]);
         setCustomerPo('');
@@ -161,9 +155,7 @@ const FormSummaryBonding = () => {
     const loadSkus = async () => {
       setLoadingSkus(true);
       try {
-        const response = await fetch(`/api/master-data/skus/${customerPo}`);
-        if (!response.ok) throw new Error('Gagal memuat SKUs');
-        const data = await response.json();
+        const data = await masterDataAPI.getSkus(customerPo);
         setSkusList(data);
         setSku('');
         setQuantityOrder(null);
@@ -185,26 +177,21 @@ const FormSummaryBonding = () => {
       setLoadingData(true);
       try {
         const [qtyPlansRes, weeksRes] = await Promise.all([
-          fetch(`/api/master-data/qty-plans/${customerPo}/${sku}`),
-          fetch(`/api/master-data/weeks/${customerPo}/${sku}`),
+          masterDataAPI.getQtyPlans(customerPo, sku),
+          masterDataAPI.getWeeks(customerPo, sku),
         ]);
-
-        if (!qtyPlansRes.ok || !weeksRes.ok) throw new Error('Gagal memuat data master');
-
-        const qtyPlansData = await qtyPlansRes.json();
-        const weeksData = await weeksRes.json();
 
         let qtyOrder = null;
         let sCodes = [];
-        if (qtyPlansData.length > 0) {
-          const firstPlan = qtyPlansData[0];
+        if (qtyPlansRes.length > 0) {
+          const firstPlan = qtyPlansRes[0];
           qtyOrder = typeof firstPlan.value === 'number' ? firstPlan.value : parseInt(firstPlan.value, 10);
           sCodes = firstPlan.s_codes || [];
         }
 
         let weekValue = null;
-        if (weeksData.length > 0) {
-          weekValue = weeksData[0].value?.toString() || null;
+        if (weeksRes.length > 0) {
+          weekValue = weeksRes[0].value?.toString() || null;
         }
 
         let remainQty = null;
@@ -212,12 +199,9 @@ const FormSummaryBonding = () => {
           const firstSCode = sCodes[0];
           const sCode = firstSCode.s_code;
           if (sCode) {
-            const remainRes = await fetch(`/api/master-data/remain-quantity/${customerPo}/${sku}/${sCode}`);
-            if (remainRes.ok) {
-              const remainData = await remainRes.json();
-              remainQty = remainData.remainQuantity || null;
-              qtyOrder = remainData.quantityOrder || qtyOrder;
-            }
+            const remainRes = await masterDataAPI.getRemainQuantity(customerPo, sku, sCode);
+            remainQty = remainRes.remainQuantity || null;
+            qtyOrder = remainRes.quantityOrder || qtyOrder;
           }
         }
 
