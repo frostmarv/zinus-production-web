@@ -13,7 +13,7 @@ import { apiClient } from './client';
  * @returns {Promise<Object>} - Respons dari server
  */
 export const createBondingSummary = (data) => {
-  return apiClient.post('/bonding/summary/form-input', data);
+  return apiClient.post('/api/bonding/summary/form-input', data);
 };
 
 /**
@@ -21,7 +21,7 @@ export const createBondingSummary = (data) => {
  * @returns {Promise<Array>} - Daftar semua bonding summary
  */
 export const getAllBondingSummaries = () => {
-  return apiClient.get('/bonding/summary');
+  return apiClient.get('/api/bonding/summary');
 };
 
 /**
@@ -30,5 +30,5 @@ export const getAllBondingSummaries = () => {
  * @returns {Promise<Object>} - Data bonding summary berdasarkan ID
  */
 export const getBondingSummaryById = (id) => {
-  return apiClient.get(`/bonding/summary/${id}`);
+  return apiClient.get(`/api/bonding/summary/${id}`);
 };
