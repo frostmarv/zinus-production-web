@@ -71,11 +71,11 @@ const InputRejectBonding = () => {
   // === UPDATE KASHIFT & ADMIN BASED ON GROUP ===
   useEffect(() => {
     if (group === 'A') {
-      setKashift('Noval');
-      setAdmin('Aline');
-    } else if (group === 'B') {
       setKashift('Abizar');
       setAdmin('Puji');
+    } else if (group === 'B') {
+      setKashift('Noval');
+      setAdmin('Aline');
     } else {
       setKashift('');
       setAdmin('');

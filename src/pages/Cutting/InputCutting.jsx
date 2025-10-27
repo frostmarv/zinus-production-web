@@ -63,7 +63,7 @@ const InputCutting = () => {
   const [headerData, setHeaderData] = useState({
     shift: "1",
     group: "A",
-    time: "08:00", // Default tetap valid karena 08:00 ada di shift 1
+    time: "08.00 - 09.00", // Default tetap valid karena 08.00 ada di shift 1
     machine: "",
     operator: "",
   });
@@ -490,7 +490,7 @@ const InputCutting = () => {
       setHeaderData({
         shift: "1",
         group: "A",
-        time: "08:00",
+        time: "08.00 - 09.00",
         machine: "",
         operator: "",
       });
@@ -543,20 +543,24 @@ const InputCutting = () => {
   };
 
   // ✅ REVISED: Fungsi untuk menghasilkan opsi waktu sesuai shift
-  // Shift 1: 08:00 - 11:00 (selesai pukul 12:00)
-  // Shift 2: 13:00 - 19:00 (selesai pukul 20:00)
+  // Shift 1: 08.00 - 09.00, 09.00 - 10.00, 10.00 - 11.00, 11.00 - 12.00
+  // Shift 2: 13.00 - 14.00, 14.00 - 15.00, ..., 19.00 - 20.00
   const getTimeOptions = (shift) => {
-    const times = [];
+    const slots = [];
     if (shift === "1") {
       for (let hour = 8; hour < 12; hour++) {
-        times.push(`${hour.toString().padStart(2, "0")}:00`);
+        const start = hour.toString().padStart(2, "0");
+        const end = (hour + 1).toString().padStart(2, "0");
+        slots.push(`${start}.00 - ${end}.00`);
       }
     } else {
       for (let hour = 13; hour < 20; hour++) {
-        times.push(`${hour.toString().padStart(2, "0")}:00`);
+        const start = hour.toString().padStart(2, "0");
+        const end = (hour + 1).toString().padStart(2, "0");
+        slots.push(`${start}.00 - ${end}.00`);
       }
     }
-    return times;
+    return slots;
   };
 
   const handleHeaderChange = (e) => {
@@ -564,7 +568,7 @@ const InputCutting = () => {
     setHeaderData((prev) => ({
       ...prev,
       [name]: value,
-      ...(name === "shift" && { time: getTimeOptions(value)[0] || "08:00" }),
+      ...(name === "shift" && { time: getTimeOptions(value)[0] || "08.00 - 09.00" }),
     }));
   };
 
@@ -671,9 +675,9 @@ const InputCutting = () => {
                       className="cutting-select"
                       disabled={isSubmitting}
                     >
-                      {timeOptions.map((time) => (
+                      {timeOptions.map((time, index) => (
                         <option
-                          key={`time-${headerData.shift}-${time}`}
+                          key={`time-${headerData.shift}-${index}`}
                           value={time}
                         >
                           {time}
