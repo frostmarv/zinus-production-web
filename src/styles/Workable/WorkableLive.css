@@ -6,6 +6,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden; /* 🔽 Cegah overflow horizontal di level root */
 }
 
 /* Main Content */
@@ -16,6 +17,8 @@
   justify-content: center;
   align-items: flex-start;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .content-main {
@@ -47,19 +50,30 @@
   flex-shrink: 0;
 }
 
-/* Container scrollable untuk tbody */
+/* Container scrollable untuk tabel (vertikal + horizontal jika perlu) */
 .table-scroll-container {
   flex: 1;
+  overflow-x: auto; /* Izinkan scroll horizontal jika tabel lebar */
   overflow-y: auto;
-  max-height: calc(100vh - 220px); /* Sesuaikan agar footer & ad tetap terlihat */
+  max-height: calc(100vh - 220px); /* Sesuaikan tinggi agar footer & ad tetap terlihat */
   border: 2px solid #329f96;
   border-top: none;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
+
+  /* 🔽 Sembunyikan scrollbar secara visual di semua browser */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+/* Sembunyikan scrollbar di WebKit (Chrome, Safari, Edge) */
+.table-scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 .table-scroll-container table {
-  width: 100%;
+  min-width: 100%; /* Pastikan tabel tidak menyusut */
+  width: auto;     /* Biarkan lebar mengikuti konten */
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -73,10 +87,12 @@
   text-align: left;
   font-weight: bold;
   z-index: 2;
+  white-space: nowrap; /* Hindari wrap di header */
 }
 
 .table-scroll-container td {
   padding: 12px 16px;
+  white-space: nowrap; /* Pertahankan teks dalam satu baris */
 }
 
 .table-scroll-container tbody tr:nth-child(even) {
@@ -106,7 +122,7 @@
 }
 
 .status-badge.halted {
-  background-color: #dc3545; /* ✅ Merah untuk Halted */
+  background-color: #dc3545; /* Merah untuk Halted */
 }
 
 /* Slide Indicators */
