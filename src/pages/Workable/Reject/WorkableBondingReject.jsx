@@ -25,20 +25,8 @@ const WorkableBondingReject = () => {
       setLoading(true);
       try {
         const result = await getWorkableBondingReject();
-        const sortedData = [...result].sort((a, b) => {
-          const nameCompare = String(a.shipToName ?? "").localeCompare(
-            String(b.shipToName ?? ""),
-            undefined,
-            { sensitivity: "base" },
-          );
-          if (nameCompare !== 0) return nameCompare;
-          return String(a.sku ?? "").localeCompare(
-            String(b.sku ?? ""),
-            undefined,
-            { sensitivity: "base" },
-          );
-        });
-        setData(sortedData);
+        // ✅ JANGAN URUTKAN LAGI — backend sudah urutkan sesuai prioritas status!
+        setData(result);
         setError(null);
       } catch (err) {
         setError(err.message);
@@ -149,8 +137,8 @@ const WorkableBondingReject = () => {
                 </td>
               </tr>
             ) : (
-              data.map((row) => (
-                <tr key={`${row.sku}-${row.week}-${row.shipToName}`}>
+              data.map((row, index) => (
+                <tr key={`${row.sku}-${row.week}-${row.shipToName}-${index}`}>
                   <td>{row.week || "-"}</td>
                   <td>{row.shipToName || "-"}</td>
                   <td className="sku-cell">{row.sku || "-"}</td>

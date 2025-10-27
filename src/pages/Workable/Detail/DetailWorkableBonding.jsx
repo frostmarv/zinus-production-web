@@ -25,22 +25,8 @@ const DetailWorkableBonding = () => {
       setLoading(true);
       try {
         const result = await getWorkableBondingDetail();
-
-        const sortedData = [...result].sort((a, b) => {
-          const nameCompare = String(a.shipToName ?? "").localeCompare(
-            String(b.shipToName ?? ""),
-            undefined,
-            { sensitivity: "base" },
-          );
-          if (nameCompare !== 0) return nameCompare;
-          return String(a.sku ?? "").localeCompare(
-            String(b.sku ?? ""),
-            undefined,
-            { sensitivity: "base" },
-          );
-        });
-
-        setData(sortedData);
+        // ✅ JANGAN URUTKAN LAGI — backend sudah urutkan sesuai prioritas status!
+        setData(result);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -258,7 +244,7 @@ const DetailWorkableBonding = () => {
                   <td>{renderLayerCell(row["Layer 4"], row.quantityOrder)}</td>
                   <td>{renderLayerCell(row["Hole"], row.quantityOrder)}</td>
                   <td className="remain-cell">
-                    {row.remain != null ? row.remain.toLocaleString() : 0}
+                    {row["Remain Produksi"] != null ? row["Remain Produksi"].toLocaleString() : 0}
                   </td>
                   <td className="remarks-cell">{row.remarks || "-"}</td>
                   <td>

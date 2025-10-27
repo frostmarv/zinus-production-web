@@ -1,19 +1,22 @@
-// src/pages/Input/Bonding/FormSummaryBonding.jsx
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createBondingSummary } from '../../../api/bonding'; // ✅ Gunakan bonding.js
-import { masterDataAPI } from '../../../api/masterData'; // ✅ Gunakan masterData.js
-import { localToUtc } from '../../../utils/timezone'; // ✅ Gunakan timezone helper
-import '../../../styles/Input/Bonding/FormSummaryBonding.css';
+// src/pages/Input/Bonding/FormRejectBonding.jsx
 
-const FormSummaryBonding = () => {
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  createBondingReject,
+  uploadBondingRejectImages,
+} from '../../../api/bondingReject';
+import { masterDataAPI } from '../../../api/masterData';
+import { localToUtc } from '../../../utils/timezone';
+import '../../../styles/Input/Bonding/FormRejectBonding.css';
+
+const InputRejectBonding = () => {
   const navigate = useNavigate();
 
   // === HEADER ===
   const [shift, setShift] = useState('1');
   const [group, setGroup] = useState('A');
   const [timeSlot, setTimeSlot] = useState('');
-  const [machine, setMachine] = useState('');
 
   // === KASHIFT & ADMIN ===
   const [kashift, setKashift] = useState('');
@@ -21,58 +24,58 @@ const FormSummaryBonding = () => {
 
   // === MASTER DATA ===
   const [customer, setCustomer] = useState(''); // VALUE (ID)
-  const [customerLabel, setCustomerLabel] = useState(''); // LABEL for backend
+  const [customerLabel, setCustomerLabel] = useState(''); // LABEL
   const [poNumber, setPoNumber] = useState('');
-  const [customerPo, setCustomerPo] = useState('');
   const [sku, setSku] = useState('');
+  const [sCode, setSCode] = useState('');
+  const [sCodeDescription, setSCodeDescription] = useState('');
 
-  // === AUTO-FILLED ===
-  const [quantityOrder, setQuantityOrder] = useState(null);
-  const [remainQuantity, setRemainQuantity] = useState(null);
-  const [week, setWeek] = useState(null);
-  const [quantityProduksi, setQuantityProduksi] = useState('');
+  // === NG DATA ===
+  const [ngQuantity, setNgQuantity] = useState('');
+  const [reason, setReason] = useState('');
+
+  // === IMAGES ===
+  const [selectedImages, setSelectedImages] = useState([]);
+  const maxImages = 5;
 
   // === LOADING STATES ===
   const [loadingCustomers, setLoadingCustomers] = useState(false);
   const [loadingPoNumbers, setLoadingPoNumbers] = useState(false);
-  const [loadingCustomerPos, setLoadingCustomerPos] = useState(false);
   const [loadingSkus, setLoadingSkus] = useState(false);
-  const [loadingData, setLoadingData] = useState(false);
+  const [loadingSCodes, setLoadingSCodes] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // === DATA LISTS ===
   const [customers, setCustomers] = useState([]);
   const [poNumbers, setPoNumbersList] = useState([]);
-  const [customerPos, setCustomerPosList] = useState([]);
   const [skus, setSkusList] = useState([]);
+  const [sCodes, setSCodesList] = useState([]);
 
   // === TIME SLOTS ===
-  const getTimeSlots = (shiftVal) => {
+  const getTimeSlots = useCallback((shiftVal) => {
     if (shiftVal === '1') {
-      // Shift 1: 08.00 - 12.00 (4 jam, 4 slot)
       return Array.from({ length: 4 }, (_, i) => {
         const start = 8 + i;
         const end = start + 1;
         return `${String(start).padStart(2, '0')}.00 - ${String(end).padStart(2, '0')}.00`;
       });
     } else {
-      // Shift 2: 13.00 - 20.00 (7 jam, 7 slot)
       return Array.from({ length: 7 }, (_, i) => {
         const start = 13 + i;
         const end = start + 1;
         return `${String(start).padStart(2, '0')}.00 - ${String(end).padStart(2, '0')}.00`;
       });
     }
-  };
+  }, []);
 
   // === UPDATE KASHIFT & ADMIN BASED ON GROUP ===
   useEffect(() => {
     if (group === 'A') {
-      setKashift('Abidzar');
-      setAdmin('Puji');
-    } else if (group === 'B') {
       setKashift('Noval');
       setAdmin('Aline');
+    } else if (group === 'B') {
+      setKashift('Abizar');
+      setAdmin('Puji');
     } else {
       setKashift('');
       setAdmin('');
@@ -82,7 +85,7 @@ const FormSummaryBonding = () => {
   // === INITIALIZE TIME SLOT ===
   useEffect(() => {
     setTimeSlot(getTimeSlots(shift)[0]);
-  }, [shift]);
+  }, [shift, getTimeSlots]);
 
   // === LOAD CUSTOMERS ===
   useEffect(() => {
@@ -92,7 +95,7 @@ const FormSummaryBonding = () => {
         const data = await masterDataAPI.getCustomers();
         setCustomers(data);
       } catch (err) {
-        alert('Gagal memuat customer: ' + err.message);
+        alert('Gagal memuat customer: ' + (err.message || err));
       } finally {
         setLoadingCustomers(false);
       }
@@ -108,16 +111,14 @@ const FormSummaryBonding = () => {
       try {
         const data = await masterDataAPI.getPoNumbers(customer);
         setPoNumbersList(data);
-        setCustomerPosList([]);
         setSkusList([]);
+        setSCodesList([]);
         setPoNumber('');
-        setCustomerPo('');
         setSku('');
-        setQuantityOrder(null);
-        setRemainQuantity(null);
-        setWeek(null);
+        setSCode('');
+        setSCodeDescription('');
       } catch (err) {
-        alert('Gagal memuat PO Numbers: ' + err.message);
+        alert('Gagal memuat PO Numbers: ' + (err.message || err));
       } finally {
         setLoadingPoNumbers(false);
       }
@@ -125,98 +126,57 @@ const FormSummaryBonding = () => {
     loadPoNumbers();
   }, [customer]);
 
-  // === LOAD CUSTOMER POs ===
-  useEffect(() => {
-    if (!poNumber) return;
-    const loadCustomerPos = async () => {
-      setLoadingCustomerPos(true);
-      try {
-        const data = await masterDataAPI.getCustomerPOs(poNumber);
-        setCustomerPosList(data);
-        setSkusList([]);
-        setCustomerPo('');
-        setSku('');
-        setQuantityOrder(null);
-        setRemainQuantity(null);
-        setWeek(null);
-      } catch (err) {
-        alert('Gagal memuat Customer POs: ' + err.message);
-      } finally {
-        setLoadingCustomerPos(false);
-      }
-    };
-    loadCustomerPos();
-  }, [poNumber]);
-
   // === LOAD SKUs ===
   useEffect(() => {
-    if (!customerPo) return;
+    if (!poNumber) return;
     const loadSkus = async () => {
       setLoadingSkus(true);
       try {
-        const data = await masterDataAPI.getSkus(customerPo);
+        const data = await masterDataAPI.getSkus(poNumber);
         setSkusList(data);
+        setSCodesList([]);
         setSku('');
-        setQuantityOrder(null);
-        setRemainQuantity(null);
-        setWeek(null);
+        setSCode('');
+        setSCodeDescription('');
       } catch (err) {
-        alert('Gagal memuat SKUs: ' + err.message);
+        alert('Gagal memuat SKUs: ' + (err.message || err));
       } finally {
         setLoadingSkus(false);
       }
     };
     loadSkus();
-  }, [customerPo]);
+  }, [poNumber]);
 
-  // === LOAD ALL MASTER DATA ===
+  // === LOAD S.CODEs ===
   useEffect(() => {
-    if (!customerPo || !sku) return;
-    const loadAllData = async () => {
-      setLoadingData(true);
+    if (!poNumber || !sku) return;
+    const loadSCodes = async () => {
+      setLoadingSCodes(true);
       try {
-        const [qtyPlansRes, weeksRes] = await Promise.all([
-          masterDataAPI.getQtyPlans(customerPo, sku),
-          masterDataAPI.getWeeks(customerPo, sku),
-        ]);
-
-        let qtyOrder = null;
-        let sCodes = [];
+        const qtyPlansRes = await masterDataAPI.getQtyPlans(poNumber, sku);
+        let sCodeList = [];
         if (qtyPlansRes.length > 0) {
           const firstPlan = qtyPlansRes[0];
-          qtyOrder = typeof firstPlan.value === 'number' ? firstPlan.value : parseInt(firstPlan.value, 10);
-          sCodes = firstPlan.s_codes || [];
+          const sCodesRaw = firstPlan.s_codes || [];
+          sCodeList = sCodesRaw.map((sc) => ({
+            value: sc.s_code.toString(),
+            label: sc.s_code.toString(),
+            description: sc.description?.toString() || '',
+          }));
         }
-
-        let weekValue = null;
-        if (weeksRes.length > 0) {
-          weekValue = weeksRes[0].value?.toString() || null;
-        }
-
-        let remainQty = null;
-        if (sCodes.length > 0) {
-          const firstSCode = sCodes[0];
-          const sCode = firstSCode.s_code;
-          if (sCode) {
-            const remainRes = await masterDataAPI.getRemainQuantity(customerPo, sku, sCode);
-            remainQty = remainRes.remainQuantity || null;
-            qtyOrder = remainRes.quantityOrder || qtyOrder;
-          }
-        }
-
-        setQuantityOrder(qtyOrder);
-        setRemainQuantity(remainQty);
-        setWeek(weekValue);
+        setSCodesList(sCodeList);
+        setSCode('');
+        setSCodeDescription('');
       } catch (err) {
-        alert('Gagal memuat data master: ' + err.message);
+        alert('Gagal memuat S.CODE: ' + (err.message || err));
       } finally {
-        setLoadingData(false);
+        setLoadingSCodes(false);
       }
     };
-    loadAllData();
-  }, [customerPo, sku]);
+    loadSCodes();
+  }, [poNumber, sku]);
 
-  // === HANDLE CUSTOMER LABEL ===
+  // === HANDLE CUSTOMER CHANGE ===
   const handleCustomerChange = (e) => {
     const value = e.target.value;
     setCustomer(value);
@@ -224,28 +184,65 @@ const FormSummaryBonding = () => {
     setCustomerLabel(selected?.label || '');
   };
 
+  // === HANDLE S.CODE CHANGE ===
+  const handleSCodeChange = (e) => {
+    const value = e.target.value;
+    setSCode(value);
+    const selected = sCodes.find(sc => sc.value === value);
+    setSCodeDescription(selected?.description || '');
+  };
+
+  // === IMAGE HANDLERS ===
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files).filter(file =>
+      file.type.startsWith('image/')
+    );
+    if (files.length === 0) return;
+
+    if (selectedImages.length + files.length > maxImages) {
+      alert(`Maksimal ${maxImages} gambar`);
+      return;
+    }
+    setSelectedImages(prev => [...prev, ...files]);
+  };
+
+  const removeImage = (index) => {
+    setSelectedImages(prev => {
+      const newImages = [...prev];
+      // Revoke object URL to prevent memory leak
+      URL.revokeObjectURL(URL.createObjectURL(newImages[index]));
+      newImages.splice(index, 1);
+      return newImages;
+    });
+  };
+
   // === VALIDATION ===
   const validateForm = () => {
     if (
       !customerLabel ||
       !poNumber ||
-      !customerPo ||
       !sku ||
+      !sCode ||
       !shift ||
       !group ||
       !timeSlot ||
-      !machine ||
       !kashift ||
       !admin ||
-      !week
+      !ngQuantity ||
+      !reason
     ) {
       alert('Lengkapi semua field yang diperlukan');
       return false;
     }
 
-    const qty = parseInt(quantityProduksi, 10);
+    const qty = parseInt(ngQuantity, 10);
     if (isNaN(qty) || qty <= 0) {
-      alert('Quantity Produksi tidak valid');
+      alert('Quantity NG harus > 0');
+      return false;
+    }
+
+    if (reason.trim() === '') {
+      alert('Alasan NG wajib diisi');
       return false;
     }
 
@@ -260,40 +257,50 @@ const FormSummaryBonding = () => {
     setIsSubmitting(true);
     try {
       // 🔥 Generate timestamp lokal WIB sekarang
-      const nowWib = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }); // format: "2025-10-27 14:30:45"
-      const timestampUtc = localToUtc(nowWib); // Konversi ke UTC ISO string
+      const nowWib = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' });
+      const timestampUtc = localToUtc(nowWib);
 
       const formData = {
-        timestamp: timestampUtc, // ✅ Kirim dalam UTC ISO
+        timestamp: timestampUtc,
         shift,
         group,
         time_slot: timeSlot,
-        machine,
         kashift,
         admin,
         customer: customerLabel,
         po_number: poNumber,
-        customer_po: customerPo,
         sku,
-        week,
-        quantity_produksi: parseInt(quantityProduksi, 10),
+        s_code: sCode,
+        description: sCodeDescription || '',
+        ng_quantity: parseInt(ngQuantity, 10),
+        reason: reason.trim(),
       };
 
-      await createBondingSummary(formData); // ✅ Gunakan bonding.js
-      alert('Data berhasil disimpan!');
+      const response = await createBondingReject(formData);
+      const bondingRejectId = response.data.id;
+
+      // Upload images if any
+      if (selectedImages.length > 0) {
+        const imageFormData = new FormData();
+        selectedImages.forEach(file => {
+          imageFormData.append('images', file);
+        });
+        await uploadBondingRejectImages(bondingRejectId, imageFormData);
+      }
+
+      alert('Data NG dan gambar berhasil disimpan!');
       navigate(-1);
     } catch (err) {
       console.error('Submit error:', err);
-      alert(`Gagal menyimpan data: ${err.message || err}`);
+      alert(`Gagal menyimpan data: ${err.message || 'Terjadi kesalahan'}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // === DISPLAY TIMESTAMP IN WIB ===
-  const displayTimestamp = () => {
-    const now = new Date();
-    return now.toLocaleDateString('id-ID', {
+  // === DISPLAY CURRENT WIB TIMESTAMP ===
+  const displayCurrentTimestamp = () => {
+    return new Date().toLocaleDateString('id-ID', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
@@ -306,8 +313,8 @@ const FormSummaryBonding = () => {
   };
 
   return (
-    <div className="form-summary-bonding">
-      <h1 className="form-title">Input Summary Bonding</h1>
+    <div className="input-reject-bonding">
+      <h1 className="page-title">Input Reject Bonding</h1>
 
       <form onSubmit={handleSubmit} className="bonding-form">
         {/* === HEADER SECTION === */}
@@ -319,7 +326,7 @@ const FormSummaryBonding = () => {
               <label>Timestamp</label>
               <div className="display-field timestamp-field">
                 <span className="icon">🕒</span>
-                <span>{displayTimestamp()}</span>
+                <span>{displayCurrentTimestamp()}</span>
               </div>
             </div>
           </div>
@@ -351,15 +358,6 @@ const FormSummaryBonding = () => {
                 ))}
               </select>
             </div>
-
-            <div className="form-group">
-              <label>Machine</label>
-              <select value={machine} onChange={(e) => setMachine(e.target.value)} disabled={isSubmitting}>
-                {Array.from({ length: 8 }, (_, i) => `PUR ${i + 1}`).map((m, i) => (
-                  <option key={i} value={m}>{m}</option>
-                ))}
-              </select>
-            </div>
           </div>
 
           {kashift && admin && (
@@ -378,7 +376,7 @@ const FormSummaryBonding = () => {
 
         <div className="divider"></div>
 
-        {/* === MASTER DATA SECTION === */}
+        {/* === FORM INFORMATION === */}
         <div className="form-section">
           <h2 className="section-header">Form Information</h2>
 
@@ -420,26 +418,6 @@ const FormSummaryBonding = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Customer PO</label>
-              {loadingCustomerPos ? (
-                <div className="loading-spinner"></div>
-              ) : (
-                <select
-                  value={customerPo}
-                  onChange={(e) => setCustomerPo(e.target.value)}
-                  disabled={!poNumber || isSubmitting}
-                >
-                  <option value="">Pilih...</option>
-                  {customerPos.map((cp, i) => (
-                    <option key={i} value={cp.value}>{cp.label}</option>
-                  ))}
-                </select>
-              )}
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
               <label>SKU</label>
               {loadingSkus ? (
                 <div className="loading-spinner"></div>
@@ -447,7 +425,7 @@ const FormSummaryBonding = () => {
                 <select
                   value={sku}
                   onChange={(e) => setSku(e.target.value)}
-                  disabled={!customerPo || isSubmitting}
+                  disabled={!poNumber || isSubmitting}
                 >
                   <option value="">Pilih...</option>
                   {skus.map((s, i) => (
@@ -460,44 +438,95 @@ const FormSummaryBonding = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Quantity Order</label>
-              {loadingData ? (
+              <label>S.CODE</label>
+              {loadingSCodes ? (
                 <div className="loading-spinner"></div>
               ) : (
-                <div className="display-field order-field">{quantityOrder ?? '-'}</div>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label>Remain Quantity</label>
-              {loadingData ? (
-                <div className="loading-spinner"></div>
-              ) : (
-                <div className="display-field remain-field">{remainQuantity ?? '-'}</div>
+                <select
+                  value={sCode}
+                  onChange={handleSCodeChange}
+                  disabled={!sku || isSubmitting}
+                >
+                  <option value="">Pilih...</option>
+                  {sCodes.map((sc, i) => (
+                    <option key={i} value={sc.value}>{sc.label}</option>
+                  ))}
+                </select>
               )}
             </div>
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Week</label>
-              {loadingData ? (
-                <div className="loading-spinner"></div>
-              ) : (
-                <div className="display-field week-field">{week ?? '-'}</div>
-              )}
+              <label>Description</label>
+              <div className="display-field description-field">
+                {sCodeDescription || '-'}
+              </div>
             </div>
+          </div>
 
+          <div className="form-row">
             <div className="form-group">
-              <label>Quantity Produksi</label>
+              <label>Quantity NG</label>
               <input
                 type="number"
-                value={quantityProduksi}
-                onChange={(e) => setQuantityProduksi(e.target.value)}
+                value={ngQuantity}
+                onChange={(e) => setNgQuantity(e.target.value)}
                 min="1"
                 disabled={isSubmitting}
                 required
               />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label>Alasan NG</label>
+              <textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                rows="3"
+                disabled={isSubmitting}
+                required
+              />
+            </div>
+          </div>
+
+          {/* === IMAGE UPLOAD === */}
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label>Foto NG (Opsional, maks. {maxImages})</label>
+              <div className="image-upload-container">
+                {selectedImages.map((file, index) => (
+                  <div key={index} className="uploaded-image">
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={`preview-${index}`}
+                      className="image-preview"
+                    />
+                    <button
+                      type="button"
+                      className="remove-image-btn"
+                      onClick={() => removeImage(index)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                {selectedImages.length < maxImages && (
+                  <label className="upload-placeholder">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageChange}
+                      disabled={isSubmitting}
+                    />
+                    <div className="upload-icon">+</div>
+                    <span>Tambah Foto</span>
+                  </label>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -513,7 +542,7 @@ const FormSummaryBonding = () => {
               Menyimpan...
             </>
           ) : (
-            'Simpan Data'
+            'Simpan Data NG'
           )}
         </button>
       </form>
@@ -521,4 +550,4 @@ const FormSummaryBonding = () => {
   );
 };
 
-export default FormSummaryBonding;
+export default InputRejectBonding;

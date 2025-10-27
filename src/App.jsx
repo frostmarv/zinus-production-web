@@ -33,6 +33,7 @@ import MasterCutting from "./pages/MasterData/Cutting/MasterCutting";
 import MasterProducts from "./pages/MasterData/Products/MasterProducts";
 import JdeIndex from "./pages/JDE/JdeIndex";
 import FormIndex from "./pages/Input/FormIndex";
+import FormBondingIndex from "./pages/Input/Bonding/FormBondingIndex";
 import FormSummaryBonding from "./pages/Input/Bonding/FormSummaryBonding";
 import DashboardReplacement from "./pages/Cutting/Replacements/Dashboard";
 import ReplacementDetailPage from "./pages/Cutting/Replacements/DetailPage";
@@ -389,9 +390,20 @@ function App() {
             </ProtectedRoute>
           }
         />
+        
+        <Route
+          path="/input/bonding"
+          element={
+            <ProtectedRoute publicPaths={PUBLIC_PATHS}>
+              <Layout>
+                <FormBondingIndex />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
 
         <Route
-          path="/bonding/form-summary-bonding"
+          path="/input/bonding/summary"
           element={
             <ProtectedRoute publicPaths={PUBLIC_PATHS}>
               <Layout>
