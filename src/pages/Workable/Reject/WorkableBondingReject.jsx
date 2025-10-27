@@ -25,7 +25,6 @@ const WorkableBondingReject = () => {
       setLoading(true);
       try {
         const result = await getWorkableBondingReject();
-        // ✅ JANGAN URUTKAN LAGI — backend sudah urutkan sesuai prioritas status!
         setData(result);
         setError(null);
       } catch (err) {
@@ -141,7 +140,7 @@ const WorkableBondingReject = () => {
                 <tr key={`${row.sku}-${row.week}-${row.shipToName}-${index}`}>
                   <td>{row.week || "-"}</td>
                   <td>{row.shipToName || "-"}</td>
-                  <td className="sku-cell">{row.sku || "-"}</td>
+                  <td>{row.sku || "-"}</td> {/* 🔽 HAPUS className="sku-cell" */}
                   <td className="qty-cell">
                     {row.quantityOrder?.toLocaleString() || 0}
                   </td>

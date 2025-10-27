@@ -1,7 +1,7 @@
 /* src/styles/Workable/Reject/WorkableBondingReject.css */
 
 .workable-reject-container {
-  background-color: #e9fbf0; /* Background sesuai WorkableBonding */
+  background-color: #e9fbf0;
   font-family: Arial, sans-serif;
   padding: 24px;
   max-width: 100%;
@@ -17,8 +17,7 @@
   background-color: #329f96;
   color: white;
   padding: 12px 24px;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-radius: 8px;
   margin-bottom: 20px;
 }
 
@@ -44,7 +43,7 @@
 /* Action Buttons */
 .action-buttons {
   display: flex;
-  justify-content: flex-start; /* Tombol hanya di kiri */
+  justify-content: flex-start;
   margin-bottom: 20px;
   gap: 16px;
   flex-wrap: wrap;
@@ -70,7 +69,7 @@
   background-color: #2a8c82;
 }
 
-/* === Table Wrapper === */
+/* Table Wrapper */
 .table-wrapper {
   background-color: white;
   border: 2px solid #329f96;
@@ -91,30 +90,19 @@
   padding: 12px 16px;
   text-align: left;
   font-weight: bold;
-  /* TIDAK ADA BORDER */
 }
 
 .workable-reject-table td {
   padding: 12px 16px;
-  /* TIDAK ADA BORDER */
 }
 
-/* Ganti garis dengan warna latar belakang untuk baris genap */
 .workable-reject-table tbody tr:nth-child(even) {
   background-color: #f8fafc;
 }
 
-/* Cell Styling */
-.sku-cell {
-  font-family: 'Consolas', monospace;
-  font-size: 13px;
-  background: #f1f5f9;
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: #334155;
-  display: inline-block;
-}
+/* 🔽 HAPUS .sku-cell — SKU tampil seperti teks biasa */
 
+/* Cell Styling */
 .qty-cell,
 .ng-cell,
 .rep-cell {
@@ -123,17 +111,17 @@
 }
 
 .ng-cell {
-  color: #dc2626; /* Merah untuk NG */
+  color: #dc2626;
 }
 
 .rep-cell {
-  color: #16a34a; /* Hijau untuk Replacement */
+  color: #16a34a;
 }
 
 .ng-cell.hole,
 .rep-cell.hole {
   font-weight: 700;
-  background: #fffbeb; /* Warna kuning muda untuk Hole */
+  background: #fffbeb;
   border-radius: 4px;
 }
 
