@@ -28,7 +28,7 @@ const FormSummaryBonding = () => {
 
   // === AUTO-FILLED ===
   const [quantityOrder, setQuantityOrder] = useState(null);
-  const [remainQuantity, setRemainQuantity] = useState(null);
+  const [remainQuantity, setRemainQuantity] = useState(null); // Tetap ada untuk backend
   const [week, setWeek] = useState(null);
   const [quantityProduksi, setQuantityProduksi] = useState('');
 
@@ -205,7 +205,7 @@ const FormSummaryBonding = () => {
         }
 
         setQuantityOrder(qtyOrder);
-        setRemainQuantity(remainQty);
+        setRemainQuantity(remainQty); // Tetap diisi untuk backend
         setWeek(weekValue);
       } catch (err) {
         alert('Gagal memuat data master: ' + err.message);
@@ -468,14 +468,15 @@ const FormSummaryBonding = () => {
               )}
             </div>
 
-            <div className="form-group">
+            {/* === REMAIN QUANTITY DIHAPUS DARI TAMPILAN === */}
+            {/* <div className="form-group">
               <label>Remain Quantity</label>
               {loadingData ? (
                 <div className="loading-spinner"></div>
               ) : (
                 <div className="display-field remain-field">{remainQuantity ?? '-'}</div>
               )}
-            </div>
+            </div> */}
           </div>
 
           <div className="form-row">

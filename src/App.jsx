@@ -35,6 +35,7 @@ import JdeIndex from "./pages/JDE/JdeIndex";
 import FormIndex from "./pages/Input/FormIndex";
 import FormBondingIndex from "./pages/Input/Bonding/FormBondingIndex";
 import FormSummaryBonding from "./pages/Input/Bonding/FormSummaryBonding";
+import FormRejectBonding from "./pages/Input/Bonding/FormRejectBonding";
 import DashboardReplacement from "./pages/Cutting/Replacements/Dashboard";
 import ReplacementDetailPage from "./pages/Cutting/Replacements/DetailPage";
 import TosPage from "./pages/Public/TermOfService";
@@ -390,7 +391,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
+
         <Route
           path="/input/bonding"
           element={
@@ -408,6 +409,17 @@ function App() {
             <ProtectedRoute publicPaths={PUBLIC_PATHS}>
               <Layout>
                 <FormSummaryBonding />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/input/bonding/reject"
+          element={
+            <ProtectedRoute publicPaths={PUBLIC_PATHS}>
+              <Layout>
+                <FormRejectBonding />
               </Layout>
             </ProtectedRoute>
           }

@@ -60,11 +60,10 @@ const CuttingNotification = ({ message, type, isVisible, onClose }) => {
 };
 
 const InputCutting = () => {
-  // ... (semua state awal tetap sama)
   const [headerData, setHeaderData] = useState({
     shift: "1",
     group: "A",
-    time: "08:00",
+    time: "08:00", // Default tetap valid karena 08:00 ada di shift 1
     machine: "",
     operator: "",
   });
@@ -141,8 +140,6 @@ const InputCutting = () => {
     };
     loadCustomers();
   }, []);
-
-  // ... (semua fungsi loadPoNumbers, loadSkus, dll tetap sama — hanya ganti alert jadi showNotification)
 
   const loadPoNumbers = useCallback(async (entryId, customerId) => {
     try {
@@ -306,8 +303,6 @@ const InputCutting = () => {
     },
     [],
   );
-
-  // ... (handleFormEntryChange, addFormEntry, removeFormEntry tetap sama)
 
   const handleFormEntryChange = async (id, field, value) => {
     setFormEntries((prev) =>
@@ -547,17 +542,17 @@ const InputCutting = () => {
     }
   };
 
+  // ✅ REVISED: Fungsi untuk menghasilkan opsi waktu sesuai shift
+  // Shift 1: 08:00 - 11:00 (selesai pukul 12:00)
+  // Shift 2: 13:00 - 19:00 (selesai pukul 20:00)
   const getTimeOptions = (shift) => {
     const times = [];
     if (shift === "1") {
-      for (let hour = 8; hour <= 20; hour++) {
+      for (let hour = 8; hour < 12; hour++) {
         times.push(`${hour.toString().padStart(2, "0")}:00`);
       }
     } else {
-      for (let hour = 20; hour <= 23; hour++) {
-        times.push(`${hour.toString().padStart(2, "0")}:00`);
-      }
-      for (let hour = 0; hour <= 8; hour++) {
+      for (let hour = 13; hour < 20; hour++) {
         times.push(`${hour.toString().padStart(2, "0")}:00`);
       }
     }
@@ -606,7 +601,6 @@ const InputCutting = () => {
             {error && <div className="cutting-error-banner">❌ {error}</div>}
 
             <form onSubmit={handleSubmit} className="cutting-form">
-              {/* ... (semua JSX form tetap sama) */}
               {/* Header Section */}
               <div className="cutting-section">
                 <div className="cutting-section-header">
@@ -758,7 +752,6 @@ const InputCutting = () => {
                       )}
                     </div>
                     <div className="cutting-grid">
-                      {/* ... (semua field form tetap sama) */}
                       <div className="cutting-field-group">
                         <label className="cutting-label">
                           <div className="cutting-label-icon">
