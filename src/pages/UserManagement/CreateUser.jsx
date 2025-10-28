@@ -3,6 +3,32 @@ import React, { useState } from "react";
 import { createUser } from "../../api/userService";
 import "../../styles/UserManagement/UserManagement.css";
 
+// 🔽 Sinkronkan dengan enum backend
+const ROLE_OPTIONS = [
+  { value: "Pemilik", label: "Pemilik" },
+  { value: "Manager", label: "Manager" },
+  { value: "Supervisor", label: "Supervisor" },
+  { value: "Kashift", label: "Kashift" },
+  { value: "Kanit", label: "Kanit" },
+  { value: "Admin", label: "Admin" },
+  { value: "Admin JDE", label: "Admin JDE" },
+  { value: "Admin Produksi", label: "Admin Produksi" },
+  { value: "Admin Material", label: "Admin Material" },
+];
+
+const DEPARTMENT_OPTIONS = [
+  { value: "Development", label: "Development" },
+  { value: "Bonding", label: "Bonding" },
+  { value: "Cutting", label: "Cutting" },
+  { value: "Quilting", label: "Quilting" },
+  { value: "Sewing", label: "Sewing" },
+  { value: "Spring Core", label: "Spring Core" },
+  { value: "Packing Foam", label: "Packing Foam" },
+  { value: "Packing Spring", label: "Packing Spring" },
+  { value: "CDBox", label: "CDBox" },
+  { value: "PPIC", label: "PPIC" },
+];
+
 const CreateUser = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     nama: "",
@@ -65,33 +91,28 @@ const CreateUser = ({ onClose, onSuccess }) => {
           <select
             value={formData.role}
             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-            required // ✅ Wajibkan user memilih
+            required
           >
-            <option value="">Pilih Role</option>{" "}
-            {/* ✅ Tambahkan placeholder */}
-            <option value="Admin">Admin</option>
-            <option value="Pemilik">Pemilik</option>
-            <option value="Manager">Manager</option>
-            <option value="Supervisor">Supervisor</option>
-            <option value="Kashift">Kashift</option>
-            <option value="Kanit">Kanit</option>
-            <option value="Admin Produksi">Admin Produksi</option>
-            <option value="Admin Material">Admin Material</option>
-            <option value="Admin Jde">Admin Lapangan</option>
+            <option value="">Pilih Role</option>
+            {ROLE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
           <select
             value={formData.department}
             onChange={(e) =>
               setFormData({ ...formData, department: e.target.value })
             }
-            required // ✅ Wajibkan user memilih
+            required
           >
-            <option value="">Pilih Department</option>{" "}
-            {/* ✅ Tambahkan placeholder */}
-            <option value="Development">Development</option>
-            <option value="Bonding">Bonding</option>
-            <option value="Cutting">Cutting</option>
-            <option value="Cutting">PPIC</option>
+            <option value="">Pilih Department</option>
+            {DEPARTMENT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
           <input
             type="text"

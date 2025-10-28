@@ -3,6 +3,32 @@ import React, { useState } from "react";
 import { updateUser, resetUserPassword } from "../../api/userService";
 import "../../styles/UserManagement/UserManagement.css";
 
+// 🔽 Sama seperti di CreateUser
+const ROLE_OPTIONS = [
+  { value: "Pemilik", label: "Pemilik" },
+  { value: "Manager", label: "Manager" },
+  { value: "Supervisor", label: "Supervisor" },
+  { value: "Kashift", label: "Kashift" },
+  { value: "Kanit", label: "Kanit" },
+  { value: "Admin", label: "Admin" },
+  { value: "Admin JDE", label: "Admin JDE" },
+  { value: "Admin Produksi", label: "Admin Produksi" },
+  { value: "Admin Material", label: "Admin Material" },
+];
+
+const DEPARTMENT_OPTIONS = [
+  { value: "Development", label: "Development" },
+  { value: "Bonding", label: "Bonding" },
+  { value: "Cutting", label: "Cutting" },
+  { value: "Quilting", label: "Quilting" },
+  { value: "Sewing", label: "Sewing" },
+  { value: "Spring Core", label: "Spring Core" },
+  { value: "Packing Foam", label: "Packing Foam" },
+  { value: "Packing Spring", label: "Packing Spring" },
+  { value: "CDBox", label: "CDBox" },
+  { value: "PPIC", label: "PPIC" },
+];
+
 const EditUser = ({ user, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     nama: user.nama,
@@ -10,7 +36,7 @@ const EditUser = ({ user, onClose, onSuccess }) => {
     role: user.role,
     department: user.department,
     nomorHp: user.nomorHp || "",
-    newPassword: "", // ✅ Tambahkan field untuk password baru
+    newPassword: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,7 +47,6 @@ const EditUser = ({ user, onClose, onSuccess }) => {
     setError("");
 
     try {
-      // Update basic info
       await updateUser(user.id, {
         nama: formData.nama,
         email: formData.email,
@@ -30,7 +55,6 @@ const EditUser = ({ user, onClose, onSuccess }) => {
         nomorHp: formData.nomorHp,
       });
 
-      // Jika ada password baru, reset password
       if (formData.newPassword) {
         if (formData.newPassword.length < 6) {
           throw new Error("Password minimal 6 karakter");
@@ -72,27 +96,26 @@ const EditUser = ({ user, onClose, onSuccess }) => {
           <select
             value={formData.role}
             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+            required
           >
-            {/* ✅ Perbaiki value agar sesuai enum */}
-            <option value="Admin">Admin</option>
-            <option value="Pemilik">Pemilik</option>
-            <option value="Manager">Manager</option>
-            <option value="Supervisor">Supervisor</option>
-            <option value="Kashift">Kashift</option>
-            <option value="Kanit">Kanit</option>
-            <option value="Admin Lapangan">Admin Lapangan</option>
-            <option value="Admin Material">Admin Material</option>
+            {ROLE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
           <select
             value={formData.department}
             onChange={(e) =>
               setFormData({ ...formData, department: e.target.value })
             }
+            required
           >
-            <option value="Development">Development</option>
-            <option value="Bonding">Bonding</option>
-            <option value="Cutting">Cutting</option>
-            <option value="Cutting">PPIC</option>
+            {DEPARTMENT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
           <input
             type="text"
@@ -102,7 +125,6 @@ const EditUser = ({ user, onClose, onSuccess }) => {
               setFormData({ ...formData, nomorHp: e.target.value })
             }
           />
-          {/* ✅ Tambahkan field reset password */}
           <input
             type="password"
             placeholder="Password Baru (kosongkan jika tidak ingin diubah)"
