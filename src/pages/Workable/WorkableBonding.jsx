@@ -33,11 +33,12 @@ const WorkableBonding = () => {
       setLoading(true);
       try {
         const result = await getWorkableBonding();
-        setData(result);
+        setData(Array.isArray(result) ? result : []);
         setError(null);
         setAutoRefreshActive(false);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || "Terjadi kesalahan saat mengambil data.");
+        setData([]);
         setAutoRefreshActive(true);
       } finally {
         setLoading(false);
@@ -56,9 +57,28 @@ const WorkableBonding = () => {
     };
   }, [autoRefreshActive]);
 
+  // Fungsi untuk menampilkan nilai sesuai backend: angka, '-', dll.
+  const renderValue = (value) => {
+    if (value == null) return "-";
+
+    if (typeof value === "string") {
+      // Tampilkan apa adanya jika string (misalnya: "-", "x")
+      return value;
+    }
+
+    // Jika number, format dengan toLocaleString
+    if (typeof value === "number") {
+      return value.toLocaleString();
+    }
+
+    // Fallback
+    return value;
+  };
+
   const calculateWorkableTotal = () => {
     return data.reduce((sum, row) => {
-      const workable = Number(row.workable) || 0;
+      // Hanya jumlahkan jika workable adalah number
+      const workable = typeof row.workable === "number" ? row.workable : 0;
       return sum + workable;
     }, 0);
   };
@@ -82,8 +102,6 @@ const WorkableBonding = () => {
       (d) => (d.status || "N/A").toLowerCase() === targetStatus.toLowerCase(),
     ).length;
   };
-
-  const getRemain = (row) => row["Remain Produksi"] ?? 0;
 
   return (
     <div className="workable-container">
@@ -197,25 +215,27 @@ const WorkableBonding = () => {
             ) : (
               data.map((row, index) => (
                 <tr key={`${row.sku}-${row.week}-${row.shipToName}-${index}`}>
-                  <td>{row.week || "-"}</td>
-                  <td>{row.shipToName || "-"}</td>
-                  <td>{row.sku || "-"}</td>
-                  <td>{row.quantityOrder?.toLocaleString() || 0}</td>
-                  <td>{row.workable?.toLocaleString() || 0}</td>
-                  <td>{row.bonding?.toLocaleString() || 0}</td>
+                  <td>{row.week ?? "-"}</td>
+                  <td>{row.shipToName ?? "-"}</td>
+                  <td>{row.sku ?? "-"}</td>
+                  <td>{renderValue(row.quantityOrder)}</td>
+                  <td>{renderValue(row.workable)}</td>
+                  <td>{renderValue(row.bonding)}</td>
                   <td
                     className={`remain-cell ${
-                      getRemain(row) < 0 ? "negative" : ""
+                      typeof row["Remain Produksi"] === "number" && row["Remain Produksi"] < 0
+                        ? "negative"
+                        : ""
                     }`}
                   >
-                    {getRemain(row).toLocaleString()}
+                    {renderValue(row["Remain Produksi"])}
                   </td>
-                  <td>{row.remarks || "-"}</td>
+                  <td>{row.remarks ?? "-"}</td>
                   <td>
                     <span
                       className={`status-badge ${getStatusClass(row.status)}`}
                     >
-                      {row.status || "N/A"}
+                      {row.status ?? "N/A"}
                     </span>
                   </td>
                 </tr>

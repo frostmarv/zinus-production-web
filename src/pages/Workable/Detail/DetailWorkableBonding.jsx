@@ -23,11 +23,13 @@ const DetailWorkableBonding = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
       try {
         const result = await getWorkableBondingDetail();
-        setData(result);
+        setData(Array.isArray(result) ? result : []);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || "Terjadi kesalahan saat mengambil data.");
+        setData([]);
       } finally {
         setLoading(false);
       }
@@ -36,21 +38,33 @@ const DetailWorkableBonding = () => {
     fetchData();
   }, []);
 
-  const renderLayerCell = (value, orderQty) => {
-    if (value == null || value === "" || isNaN(value)) return "-";
+  // Render cell for Layer/Hole: support 'x', '-', or number
+  const renderLayerOrHoleCell = (value) => {
+    if (value == null || value === "") return "-";
 
+    // Tampilkan apa adanya jika string 'x' atau '-'
+    if (typeof value === "string") {
+      if (value === "x") {
+        return <span className="layer-na">x</span>;
+      } else if (value === "-") {
+        return <span className="layer-pending">-</span>;
+      }
+    }
+
+    // Jika angka, format dan tampilkan sebagai complete
     const numValue = Number(value);
-    const orderNum = Number(orderQty) || 0;
-    const isComplete = numValue >= orderNum && orderNum > 0;
+    if (!isNaN(numValue)) {
+      return (
+        <span className="layer-complete">
+          {numValue.toLocaleString()}
+        </span>
+      );
+    }
 
-    return (
-      <span className={isComplete ? "layer-complete" : "layer-incomplete"}>
-        {numValue.toLocaleString()}
-      </span>
-    );
+    // Fallback
+    return "-";
   };
 
-  // 🔴 Perbarui untuk mendukung "Halted" dan skema warna baru
   const getStatusClass = (status) => {
     if (!status) return "status-n-a";
     const lower = status.toLowerCase();
@@ -61,95 +75,85 @@ const DetailWorkableBonding = () => {
     return "status-unknown";
   };
 
-  if (loading) {
-    return (
-      <div className="detail-container">
-        <div className="top-header">
-          <div className="header-content">
-            <h1 className="header-title">Detail Workable Bonding</h1>
-          </div>
-          <div className="header-time">
-            <span className="date">
-              {currentTime.toLocaleDateString("id-ID", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })}
-            </span>
-            <span className="time">
-              {currentTime.toLocaleTimeString("id-ID", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                timeZone: "Asia/Jakarta",
-              })}{" "}
-              WIB
-            </span>
-          </div>
-        </div>
-
-        <div className="action-buttons">
-          <button
-            type="button"
-            className="btn-back"
-            onClick={() => navigate("/workable/bonding")}
-          >
-            <ArrowLeft size={16} /> KEMBALI
-          </button>
-          <Link to="/workable/bonding/reject" className="btn-view-ng">
-            <AlertTriangle size={16} /> LIHAT DATA NG
-          </Link>
-        </div>
-
-        <div className="detail-loading">Memuat data...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="detail-container">
-        <div className="top-header">
-          <div className="header-content">
-            <h1 className="header-title">Detail Workable Bonding</h1>
-          </div>
-          <div className="header-time">
-            <span className="date">
-              {currentTime.toLocaleDateString("id-ID", {
-                day: "2-digit",
-                month: "long",
-                year: "numeric",
-              })}
-            </span>
-            <span className="time">
-              {currentTime.toLocaleTimeString("id-ID", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                timeZone: "Asia/Jakarta",
-              })}{" "}
-              WIB
-            </span>
-          </div>
-        </div>
-
-        <div className="action-buttons">
-          <button
-            type="button"
-            className="btn-back"
-            onClick={() => navigate("/workable/bonding")}
-          >
-            <ArrowLeft size={16} /> KEMBALI
-          </button>
-          <Link to="/workable/bonding/reject" className="btn-view-ng">
-            <AlertTriangle size={16} /> LIHAT DATA NG
-          </Link>
-        </div>
-
-        <div className="detail-error">Gagal memuat data: {error}</div>
-      </div>
-    );
-  }
+  // Kolom header tetap statis
+  const renderTable = () => (
+    <div className="detail-table-wrapper">
+      <table className="detail-table">
+        <thead>
+          <tr>
+            <th>WEEK</th>
+            <th>SHIP TO NAME</th>
+            <th>SKU</th>
+            <th>QTY ORDER</th>
+            <th>WORKABLE</th>
+            <th>BONDING</th>
+            <th>LAYER 1</th>
+            <th>LAYER 2</th>
+            <th>LAYER 3</th>
+            <th>LAYER 4</th>
+            <th>HOLE</th>
+            <th>REMAIN</th>
+            <th>REMARKS</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.length === 0 ? (
+            <tr>
+              <td colSpan="14" className="no-data">
+                {loading
+                  ? "Memuat data..."
+                  : error
+                  ? `Gagal memuat data: ${error}`
+                  : "Tidak ada data detail."}
+              </td>
+            </tr>
+          ) : (
+            data.map((row, index) => (
+              <tr key={`${row.sku}-${row.week}-${index}`}>
+                <td>{row.week ?? "-"}</td>
+                <td>{row.shipToName ?? "-"}</td>
+                <td>{row.sku ?? "-"}</td>
+                <td className="qty-cell">
+                  {typeof row.quantityOrder === "number"
+                    ? row.quantityOrder.toLocaleString()
+                    : row.quantityOrder ?? 0}
+                </td>
+                <td className="workable-cell">
+                  {typeof row.workable === "number"
+                    ? row.workable.toLocaleString()
+                    : row.workable ?? "-"}
+                </td>
+                <td className="bonding-cell">
+                  {typeof row.bonding === "number"
+                    ? row.bonding.toLocaleString()
+                    : row.bonding ?? "-"}
+                </td>
+                <td>{renderLayerOrHoleCell(row["Layer 1"])}</td>
+                <td>{renderLayerOrHoleCell(row["Layer 2"])}</td>
+                <td>{renderLayerOrHoleCell(row["Layer 3"])}</td>
+                <td>{renderLayerOrHoleCell(row["Layer 4"])}</td>
+                <td>{renderLayerOrHoleCell(row["Hole"])}</td>
+                <td className="remain-cell">
+                  {typeof row["Remain Produksi"] === "number"
+                    ? row["Remain Produksi"].toLocaleString()
+                    : row["Remain Produksi"] ?? "-"}
+                </td>
+                <td className="remarks-cell">{row.remarks ?? "-"}</td>
+                <td>
+                  <span
+                    className={`status-badge ${getStatusClass(row.status)}`}
+                  >
+                    {row.status ?? "N/A"}
+                  </span>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 
   return (
     <div className="detail-container">
@@ -190,74 +194,7 @@ const DetailWorkableBonding = () => {
         </Link>
       </div>
 
-      <div className="detail-table-wrapper">
-        <table className="detail-table">
-          <thead>
-            <tr>
-              <th>WEEK</th>
-              <th>SHIP TO NAME</th>
-              <th>SKU</th>
-              <th>QTY ORDER</th>
-              <th>WORKABLE</th>
-              <th>BONDING</th>
-              <th>LAYER 1</th>
-              <th>LAYER 2</th>
-              <th>LAYER 3</th>
-              <th>LAYER 4</th>
-              <th>HOLE</th>
-              <th>REMAIN</th>
-              <th>REMARKS</th>
-              <th>STATUS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.length === 0 ? (
-              <tr>
-                <td colSpan="14" className="no-data">
-                  Tidak ada data detail.
-                </td>
-              </tr>
-            ) : (
-              data.map((row, index) => (
-                <tr key={`${row.sku}-${row.week}-${index}`}>
-                  <td>{row.week || "-"}</td>
-                  <td>{row.shipToName || "-"}</td>
-                  <td>{row.sku || "-"}</td> {/* 🔽 Hapus className="sku-cell" */}
-                  <td className="qty-cell">
-                    {row.quantityOrder != null
-                      ? row.quantityOrder.toLocaleString()
-                      : 0}
-                  </td>
-                  <td className="workable-cell">
-                    {row.workable != null ? row.workable.toLocaleString() : 0}
-                  </td>
-                  <td className="bonding-cell">
-                    {row.bonding != null ? row.bonding.toLocaleString() : 0}
-                  </td>
-                  <td>{renderLayerCell(row["Layer 1"], row.quantityOrder)}</td>
-                  <td>{renderLayerCell(row["Layer 2"], row.quantityOrder)}</td>
-                  <td>{renderLayerCell(row["Layer 3"], row.quantityOrder)}</td>
-                  <td>{renderLayerCell(row["Layer 4"], row.quantityOrder)}</td>
-                  <td>{renderLayerCell(row["Hole"], row.quantityOrder)}</td>
-                  <td className="remain-cell">
-                    {row["Remain Produksi"] != null
-                      ? row["Remain Produksi"].toLocaleString()
-                      : 0}
-                  </td>
-                  <td className="remarks-cell">{row.remarks || "-"}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${getStatusClass(row.status)}`}
-                    >
-                      {row.status || "N/A"}
-                    </span>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {renderTable()}
     </div>
   );
 };

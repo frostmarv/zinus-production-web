@@ -25,10 +25,11 @@ const WorkableBondingReject = () => {
       setLoading(true);
       try {
         const result = await getWorkableBondingReject();
-        setData(result);
+        setData(Array.isArray(result) ? result : []);
         setError(null);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || "Terjadi kesalahan saat mengambil data.");
+        setData([]);
       } finally {
         setLoading(false);
       }
@@ -41,24 +42,52 @@ const WorkableBondingReject = () => {
     navigate("/workable/bonding/detail");
   };
 
-  const totalNG = (row) => {
-    return (
-      (row["NG Layer 1"] || 0) +
-      (row["NG Layer 2"] || 0) +
-      (row["NG Layer 3"] || 0) +
-      (row["NG Layer 4"] || 0) +
-      (row["NG Hole"] || 0)
-    );
+  // Fungsi untuk menampilkan nilai sesuai backend: angka, '-', 'x', dll.
+  const renderValue = (value) => {
+    if (value == null) return "-";
+
+    if (typeof value === "string") {
+      // Tampilkan apa adanya jika string (misalnya: "-", "x")
+      return value;
+    }
+
+    // Jika number, format dengan toLocaleString
+    if (typeof value === "number") {
+      return value.toLocaleString();
+    }
+
+    // Fallback
+    return value;
   };
 
+  // Fungsi untuk menghitung total NG (hanya angka, abaikan "x" atau "-")
+  const totalNG = (row) => {
+    const fields = [
+      row["NG Layer 1"],
+      row["NG Layer 2"],
+      row["NG Layer 3"],
+      row["NG Layer 4"],
+      row["NG Hole"],
+    ];
+    return fields.reduce((sum, val) => {
+      const num = typeof val === "number" ? val : 0;
+      return sum + num;
+    }, 0);
+  };
+
+  // Fungsi untuk menghitung total Replacement (hanya angka, abaikan "x" atau "-")
   const totalReplacement = (row) => {
-    return (
-      (row["Replacement Layer 1"] || 0) +
-      (row["Replacement Layer 2"] || 0) +
-      (row["Replacement Layer 3"] || 0) +
-      (row["Replacement Layer 4"] || 0) +
-      (row["Replacement Hole"] || 0)
-    );
+    const fields = [
+      row["Replacement Layer 1"],
+      row["Replacement Layer 2"],
+      row["Replacement Layer 3"],
+      row["Replacement Layer 4"],
+      row["Replacement Hole"],
+    ];
+    return fields.reduce((sum, val) => {
+      const num = typeof val === "number" ? val : 0;
+      return sum + num;
+    }, 0);
   };
 
   return (
@@ -138,32 +167,22 @@ const WorkableBondingReject = () => {
             ) : (
               data.map((row, index) => (
                 <tr key={`${row.sku}-${row.week}-${row.shipToName}-${index}`}>
-                  <td>{row.week || "-"}</td>
-                  <td>{row.shipToName || "-"}</td>
-                  <td>{row.sku || "-"}</td> {/* 🔽 HAPUS className="sku-cell" */}
+                  <td>{row.week ?? "-"}</td>
+                  <td>{row.shipToName ?? "-"}</td>
+                  <td>{row.sku ?? "-"}</td>
                   <td className="qty-cell">
-                    {row.quantityOrder?.toLocaleString() || 0}
+                    {renderValue(row.quantityOrder)}
                   </td>
-                  <td className="ng-cell">{row["NG Layer 1"] || 0}</td>
-                  <td className="ng-cell">{row["NG Layer 2"] || 0}</td>
-                  <td className="ng-cell">{row["NG Layer 3"] || 0}</td>
-                  <td className="ng-cell">{row["NG Layer 4"] || 0}</td>
-                  <td className="ng-cell hole">{row["NG Hole"] || 0}</td>
-                  <td className="rep-cell">
-                    {row["Replacement Layer 1"] || 0}
-                  </td>
-                  <td className="rep-cell">
-                    {row["Replacement Layer 2"] || 0}
-                  </td>
-                  <td className="rep-cell">
-                    {row["Replacement Layer 3"] || 0}
-                  </td>
-                  <td className="rep-cell">
-                    {row["Replacement Layer 4"] || 0}
-                  </td>
-                  <td className="rep-cell hole">
-                    {row["Replacement Hole"] || 0}
-                  </td>
+                  <td className="ng-cell">{renderValue(row["NG Layer 1"])}</td>
+                  <td className="ng-cell">{renderValue(row["NG Layer 2"])}</td>
+                  <td className="ng-cell">{renderValue(row["NG Layer 3"])}</td>
+                  <td className="ng-cell">{renderValue(row["NG Layer 4"])}</td>
+                  <td className="ng-cell hole">{renderValue(row["NG Hole"])}</td>
+                  <td className="rep-cell">{renderValue(row["Replacement Layer 1"])}</td>
+                  <td className="rep-cell">{renderValue(row["Replacement Layer 2"])}</td>
+                  <td className="rep-cell">{renderValue(row["Replacement Layer 3"])}</td>
+                  <td className="rep-cell">{renderValue(row["Replacement Layer 4"])}</td>
+                  <td className="rep-cell hole">{renderValue(row["Replacement Hole"])}</td>
                 </tr>
               ))
             )}
