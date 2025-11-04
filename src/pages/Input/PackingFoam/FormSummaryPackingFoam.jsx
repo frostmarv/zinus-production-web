@@ -68,11 +68,11 @@ const FormSummaryPackingFoam = () => {
   // === UPDATE KASHIFT & ADMIN BASED ON GROUP ===
   useEffect(() => {
     if (group === 'A') {
-      setKashift('Abidzar');
-      setAdmin('Puji');
+      setKashift('Lutfi);
+      setAdmin('X');
     } else if (group === 'B') {
-      setKashift('Noval');
-      setAdmin('Aline');
+      setKashift('Akbar');
+      setAdmin('Jannah');
     } else {
       setKashift('');
       setAdmin('');

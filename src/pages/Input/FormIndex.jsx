@@ -42,6 +42,16 @@ const FormIndex = () => {
       active: true,
     },
     {
+      id: "packing-foam",
+      title: "Input Packing Foam",
+      description: "Input data packing foam products",
+      icon: Package,
+      path: "/input/packing-foam/summary", // ✅ Diarahkan ke summary
+      color: "#10b981",
+      bgColor: "#f0fdf4",
+      active: true, // ✅ Aktif
+    },
+    {
       id: "sewing",
       title: "Input Sewing",
       description: "Input data sewing outcover",
@@ -69,16 +79,6 @@ const FormIndex = () => {
       path: "/input/spring-core",
       color: "#f59e0b",
       bgColor: "#fffbeb",
-      active: false,
-    },
-    {
-      id: "packing-foam",
-      title: "Input Packing Foam",
-      description: "Input data packing foam products",
-      icon: Package,
-      path: "/input/packing-foam",
-      color: "#10b981",
-      bgColor: "#f0fdf4",
       active: false,
     },
     {
