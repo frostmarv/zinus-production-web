@@ -36,6 +36,7 @@ import FormIndex from "./pages/Input/FormIndex";
 import FormBondingIndex from "./pages/Input/Bonding/FormBondingIndex";
 import FormSummaryBonding from "./pages/Input/Bonding/FormSummaryBonding";
 import FormRejectBonding from "./pages/Input/Bonding/FormRejectBonding";
+import FormSummaryPackingFoam from "./pages/Input/PackingFoam/FormSummaryPackingFoam";
 import DashboardReplacement from "./pages/Cutting/Replacements/Dashboard";
 import ReplacementDetailPage from "./pages/Cutting/Replacements/DetailPage";
 import TosPage from "./pages/Public/TermOfService";
@@ -420,6 +421,17 @@ function App() {
             <ProtectedRoute publicPaths={PUBLIC_PATHS}>
               <Layout>
                 <FormRejectBonding />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/input/packing-foam/summary"
+          element={
+            <ProtectedRoute publicPaths={PUBLIC_PATHS}>
+              <Layout>
+                <FormSummaryPackingFoam />
               </Layout>
             </ProtectedRoute>
           }
