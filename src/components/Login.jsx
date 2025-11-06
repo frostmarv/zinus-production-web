@@ -87,7 +87,7 @@ const Login = () => {
               </button>
             </form>
 
-            <footer>© 2025. All Rights Reserved.</footer>
+            <footer>© Nurmalik Wijaya 2025. All Rights Reserved.</footer>
           </div>
         </div>
       </div>
